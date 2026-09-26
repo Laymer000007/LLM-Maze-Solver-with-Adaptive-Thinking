@@ -10,6 +10,8 @@ The mouse is not given the solution or the cheese coordinates. Instead, it perce
 
 This is an embodied decision-making experiment, not a conventional maze solver.
 
+**Project status:** v3.0.0 release candidate, prepared for public GitHub release.
+
 ## Why this project exists
 
 Most maze solvers calculate the correct route directly.
@@ -94,8 +96,8 @@ Health decreases by `-5%` every 20 physical movements. EiL thresholds at `100`, 
 Requires Node.js 24+.
 
 ```sh
-git clone https://github.com/toydev/llm-maze-solver.git
-cd llm-maze-solver
+git clone https://github.com/Laymer000007/LLM-Maze-Solver-with-Adaptive-Thinking.git
+cd LLM-Maze-Solver-with-Adaptive-Thinking
 npm install
 ```
 
@@ -181,3 +183,7 @@ npm run lint
 ## License
 
 MIT
+
+## Credits / Origin
+
+This project grew from the original [toydev/llm-maze-solver](https://github.com/toydev/llm-maze-solver) project. Upstream attribution and the original MIT license are retained.
