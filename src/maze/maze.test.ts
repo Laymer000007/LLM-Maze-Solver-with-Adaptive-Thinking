@@ -50,6 +50,59 @@ describe('Maze.getDirectionsToGoal', () => {
   });
 });
 
+describe('Maze visual perception', () => {
+  it('sees every unobstructed open cell in an open room, including diagonal cheese', () => {
+    const maze = new Maze(['#####', '#S  #', '#   #', '#  G#', '#####']);
+    const perception = maze.perceive({ x: 1, y: 1 });
+    expect(perception.visibleCells.map((cell) => cell.position)).toEqual(expect.arrayContaining([
+      { x: 1, y: 1 }, { x: 2, y: 1 }, { x: 3, y: 1 },
+      { x: 1, y: 2 }, { x: 2, y: 2 }, { x: 3, y: 2 },
+      { x: 1, y: 3 }, { x: 2, y: 3 }, { x: 3, y: 3 },
+    ]));
+    expect(maze.isVisible({ x: 1, y: 1 }, { x: 3, y: 3 })).toBe(true);
+  });
+
+  it('occludes cells behind walls and sealed diagonal corners', () => {
+    const maze = new Maze(['########', '#S # G #', '#  #   #', '########']);
+    expect(maze.isVisible({ x: 1, y: 1 }, { x: 5, y: 1 })).toBe(false);
+    const corner = new Maze(['###', '#S#', '##G']);
+    expect(corner.isVisible({ x: 1, y: 1 }, { x: 2, y: 2 })).toBe(false);
+  });
+
+  it('executes a direct diagonal path without pathfinding', () => {
+    const maze = new Maze(['#####', '#S  #', '#   #', '#  G#', '#####']);
+    expect(maze.directPath({ x: 1, y: 1 }, { x: 3, y: 3 })).toEqual([{ x: 2, y: 2 }, { x: 3, y: 3 }]);
+    const blocked = new Maze(['####', '#S##', '##G#', '####']);
+    expect(blocked.directPath({ x: 1, y: 1 }, { x: 2, y: 2 })).toBeNull();
+  });
+
+  it('casts cardinal rays and stops at the first wall', () => {
+    const maze = new Maze([
+      '#########',
+      '#S   #G#',
+      '# ###  #',
+      '#     ##',
+      '########',
+    ]);
+    const perception = maze.perceive({ x: 2, y: 1 });
+    expect(perception.visual.right.visibleCells).toEqual([{ x: 3, y: 1 }, { x: 4, y: 1 }]);
+    expect(perception.visual.right.termination).toBe('wall');
+    expect(perception.visual.right.goalDistance).toBeUndefined();
+    expect(perception.visual.left.visibleCells).toEqual([{ x: 1, y: 1 }]);
+  });
+
+  it('recognizes a perpendicular opening as the end of a tunnel', () => {
+    const maze = new Maze([
+      '########',
+      '#S    G#',
+      '#####  #',
+      '########',
+    ]);
+    expect(maze.isDecisionPoint({ x: 5, y: 1 }, 'right')).toBe(true);
+    expect(maze.isDecisionPoint({ x: 3, y: 1 }, 'right')).toBe(false);
+  });
+});
+
 describe('Maze.getPathFromStart', () => {
   it('returns path from start to each position', () => {
     const layout = [

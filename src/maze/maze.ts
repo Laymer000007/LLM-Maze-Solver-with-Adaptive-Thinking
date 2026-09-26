@@ -17,6 +17,25 @@ export interface Direction {
   dy: number;
 }
 
+export type LocalCell = 'wall' | 'open' | 'goal';
+export type VisibleCell = { position: Position; cell: LocalCell };
+export type VisualDirection = {
+  direction: 'up' | 'down' | 'left' | 'right';
+  blockedImmediately: boolean;
+  visibleDistance: number;
+  visibleCells: Position[];
+  termination: 'wall' | 'edge' | 'goal';
+  goalDistance?: number;
+};
+export type LocalPerception = {
+  position: Position;
+  directions: Record<'up' | 'down' | 'left' | 'right', LocalCell>;
+  visual: Record<'up' | 'down' | 'left' | 'right', VisualDirection>;
+  visibleCells: VisibleCell[];
+  smell: number;
+  directionSmell: Record<'up' | 'down' | 'left' | 'right', number>;
+};
+
 type DistanceMap = Map<string, number>;
 
 export class Maze {
@@ -98,6 +117,121 @@ export class Maze {
   public isWalkable(position: Position): boolean {
     const cellType = this.getCellType(position);
     return cellType !== undefined && cellType !== CellType.Wall;
+  }
+
+  /** Local perception is a conservative 2D field of view. Walls and sealed corners occlude it. */
+  public perceive(position: Position): LocalPerception {
+    const cells = {
+      up: { x: position.x, y: position.y - 1 },
+      down: { x: position.x, y: position.y + 1 },
+      left: { x: position.x - 1, y: position.y },
+      right: { x: position.x + 1, y: position.y },
+    } as const;
+    const directions = Object.fromEntries(
+      Object.entries(cells).map(([direction, cell]) => {
+        const type = this.getCellType(cell);
+        return [direction, type === CellType.Goal ? 'goal' : this.isWalkable(cell) ? 'open' : 'wall'];
+      }),
+    ) as LocalPerception['directions'];
+    const visual = Object.fromEntries((Object.keys(cells) as Array<keyof typeof cells>).map((direction) => [direction, this.castVision(position, direction)])) as LocalPerception['visual'];
+    const visibleCells: VisibleCell[] = [];
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        const candidate = { x, y };
+        if (this.isWalkable(candidate) && this.hasLineOfSight(position, candidate)) {
+          visibleCells.push({ position: candidate, cell: this.getCellType(candidate) === CellType.Goal ? 'goal' : 'open' });
+        }
+      }
+    }
+    const directionSmell = Object.fromEntries(
+      Object.entries(cells).map(([direction, cell]) => [direction, this.smellAt(cell)]),
+    ) as LocalPerception['directionSmell'];
+    return { position: { ...position }, directions, visual, visibleCells, smell: this.smellAt(position), directionSmell };
+  }
+
+  /** Sensor-only cheese scent. The BFS is never used to choose or veto a move. */
+  public smellAt(position: Position): number {
+    if (!this.distancesToGoal) this.distancesToGoal = this.calculateDistancesToGoal();
+    const distance = this.distancesToGoal.get(`${position.x},${position.y}`);
+    return distance === undefined ? 0 : Math.max(0, 101 - distance);
+  }
+
+  public isVisible(from: Position, target: Position): boolean {
+    return this.isWalkable(target) && this.hasLineOfSight(from, target);
+  }
+
+  /** Return a straight physical trace, or null if a diagonal would clip a wall/corner. */
+  public directPath(from: Position, target: Position): Position[] | null {
+    if (!this.isVisible(from, target)) return null;
+    const path: Position[] = [];
+    let current = { ...from };
+    while (current.x !== target.x || current.y !== target.y) {
+      const dx = Math.sign(target.x - current.x);
+      const dy = Math.sign(target.y - current.y);
+      const next = { x: current.x + dx, y: current.y + dy };
+      if (dx !== 0 && dy !== 0 && (!this.isWalkable({ x: current.x + dx, y: current.y }) || !this.isWalkable({ x: current.x, y: current.y + dy }))) return null;
+      if (!this.isWalkable(next)) return null;
+      current = next;
+      path.push({ ...current });
+    }
+    return path;
+  }
+
+  private hasLineOfSight(from: Position, target: Position): boolean {
+    if (from.x === target.x && from.y === target.y) return true;
+    const dx = Math.abs(target.x - from.x);
+    const dy = Math.abs(target.y - from.y);
+    const sx = from.x < target.x ? 1 : -1;
+    const sy = from.y < target.y ? 1 : -1;
+    let x = from.x;
+    let y = from.y;
+    let error = dx - dy;
+    while (x !== target.x || y !== target.y) {
+      const twice = 2 * error;
+      const stepX = twice > -dy;
+      const stepY = twice < dx;
+      if (stepX && stepY) {
+        // A corner crossing touches both side cells. Either one blocks vision.
+        if (!this.isWalkable({ x: x + sx, y }) || !this.isWalkable({ x, y: y + sy })) return false;
+        error -= dy;
+        error += dx;
+        x += sx;
+        y += sy;
+      } else if (stepX) {
+        error -= dy;
+        x += sx;
+      } else {
+        error += dx;
+        y += sy;
+      }
+      if (!this.isWalkable({ x, y })) return false;
+    }
+    return true;
+  }
+
+  private castVision(position: Position, direction: keyof LocalPerception['visual']): VisualDirection {
+    const offsets = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } } as const;
+    const visibleCells: Position[] = [];
+    let current = { ...position };
+    let termination: VisualDirection['termination'] = 'wall';
+    let goalDistance: number | undefined;
+    while (true) {
+      current = { x: current.x + offsets[direction].x, y: current.y + offsets[direction].y };
+      const cell = this.getCellType(current);
+      if (cell === undefined) { termination = 'edge'; break; }
+      if (!this.isWalkable(current)) { termination = 'wall'; break; }
+      visibleCells.push({ ...current });
+      if (cell === CellType.Goal) { goalDistance = visibleCells.length; termination = 'goal'; break; }
+    }
+    return { direction, blockedImmediately: visibleCells.length === 0, visibleDistance: visibleCells.length, visibleCells, termination, goalDistance };
+  }
+
+  /** A chosen direction may advance through a tunnel, but stops at its first new choice. */
+  public isDecisionPoint(position: Position, incomingDirection: keyof LocalPerception['visual']): boolean {
+    const perception = this.perceive(position);
+    const opposite = { up: 'down', down: 'up', left: 'right', right: 'left' } as const;
+    if (perception.visual[incomingDirection].blockedImmediately) return true;
+    return (Object.keys(perception.visual) as Array<keyof LocalPerception['visual']>).some((direction) => direction !== incomingDirection && direction !== opposite[incomingDirection] && !perception.visual[direction].blockedImmediately);
   }
 
   public getDirectionsToGoal(position: Position): Direction[] {

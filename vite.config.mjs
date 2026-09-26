@@ -16,6 +16,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     silent: true,
+    exclude: ['**/node_modules/**', '**/dist/**', 'research/**'],
   },
   plugins: [],
 });

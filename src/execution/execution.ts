@@ -4,6 +4,7 @@ import path from 'path';
 import yaml from 'yaml';
 import { z } from 'zod';
 
+import type { EiLState } from '@/agent/eil';
 import type { Direction, Position } from '@/maze/maze';
 
 export const MOVES = ['up', 'down', 'left', 'right'] as const;
@@ -13,6 +14,15 @@ export const MoveActionSchema = z.object({
   move: z.enum(MOVES),
 });
 export type MoveAction = z.infer<typeof MoveActionSchema>;
+export const AGENT_MOVES = [...MOVES, 'cheese'] as const;
+export type AgentMove = (typeof AGENT_MOVES)[number];
+export const createActionSchema = (cheeseVisible: boolean) =>
+  z.object({
+    move: z.enum(cheeseVisible ? AGENT_MOVES : MOVES),
+  });
+// Kept as the broad schema for callers that need a stable schema at module load time.
+export const ActionSchema = createActionSchema(true);
+export type AgentAction = { move: AgentMove };
 
 export function directionToMove(direction: Direction): Move {
   if (direction.dx === 0 && direction.dy === -1) return 'up';
@@ -43,6 +53,26 @@ export type ExecutionFilter = {
   maze?: string;
   strategy?: string;
   includeHistory?: boolean;
+};
+
+export type AgentStep = {
+  step: number;
+  from: Position;
+  move: Move;
+  succeeded: boolean;
+  to: Position;
+  observation: string;
+  prompt: string;
+  response?: string;
+  reward: number;
+  eil: EiLState;
+};
+
+export type AgentExecution = {
+  mazeFile: string;
+  modelName: string;
+  solved: boolean;
+  steps: AgentStep[];
 };
 
 export const DEFAULT_OUTPUT_DIR = './output/executions';
@@ -84,6 +114,19 @@ export class Executions {
     const destDir = path.join(outputDir, modelId, execution.strategyName, mazeName);
     await fs.mkdir(destDir, { recursive: true });
 
+    const filePath = path.join(destDir, `${timestamp}.yaml`);
+    await fs.writeFile(filePath, yaml.stringify(execution));
+    return filePath;
+  }
+}
+
+export class AgentExecutions {
+  static async save(execution: AgentExecution, outputDir = './output/agent-executions'): Promise<string> {
+    const timestamp = new Date().toISOString().replace(/:/g, '-');
+    const modelId = execution.modelName.replace(/[:/]/g, '_');
+    const mazeName = path.basename(execution.mazeFile, '.txt');
+    const destDir = path.join(outputDir, modelId, mazeName);
+    await fs.mkdir(destDir, { recursive: true });
     const filePath = path.join(destDir, `${timestamp}.yaml`);
     await fs.writeFile(filePath, yaml.stringify(execution));
     return filePath;

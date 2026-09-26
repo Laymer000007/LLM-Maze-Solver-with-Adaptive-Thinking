@@ -1,18 +1,16 @@
 {
-  "name": "maze-exploration-experiment",
-  "version": "0.1.0",
+  "name": "llm-maze-solver-adaptive-thinking",
+  "version": "3.0.0",
   "private": true,
   "engines": {
     "node": ">=24.0.0"
   },
   "scripts": {
-    "lint": "eslint --fix .",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "execute": "vite-node src/cli/execute.ts",
-    "analyze": "vite-node src/cli/analyze.ts",
-    "export-stats": "vite-node src/cli/export-stats.ts",
-    "reasoning-test": "vite-node src/cli/reasoning-test.ts"
+    "agent-execute": "vite-node src/cli/agent-execute.ts",
+    "gui": "vite-node src/gui/server.ts"
   },
   "dependencies": {
     "@langchain/ollama": "^1.1.0",
