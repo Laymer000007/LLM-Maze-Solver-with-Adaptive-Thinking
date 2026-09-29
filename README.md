@@ -163,7 +163,14 @@ Production code is under `src/agent`, `src/maze`, `src/llm`, `src/gui`, and `src
 
 ## Screenshots
 
-Screenshots coming soon.
+<img width="390" height="394" alt="EiL1" src="https://github.com/user-attachments/assets/81b452c0-fad5-4710-8463-fbcb9d54a357" />
+<img width="386" height="500" alt="EiL2" src="https://github.com/user-attachments/assets/b6ace11d-593a-4197-8c32-4cbe73546baf" />
+<img width="1165" height="147" alt="EiL3" src="https://github.com/user-attachments/assets/794965c8-1f4e-4ac2-957f-a3b9dce6a4a5" />
+<img width="390" height="185" alt="EiL4" src="https://github.com/user-attachments/assets/b89b6d5f-dc91-467b-8ddc-53a37e6a3a95" />
+
+
+
+
 
 ## Development
 
