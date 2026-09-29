@@ -22,7 +22,7 @@ export class OllamaClient implements LLMClient {
     if (!response.ok) throw new Error(`Ollama request failed (${response.status}).`);
     const body = await response.json() as { message?: { content?: string; thinking?: string }; [key: string]: unknown };
     const content = body.message?.content ?? '';
-    return { parsed: parseAction(content), raw: { ...body, content, additional_kwargs: { reasoning_content: body.message?.thinking ?? '' }, response_metadata: body }, thinkingSupported: true };
+    return { parsed: parseAction(content), raw: { ...body, content, additional_kwargs: { reasoning_content: body.message?.thinking ?? '' }, response_metadata: body } };
   }
 
   async testConnection(): Promise<{ modelAvailable?: boolean; message: string }> {

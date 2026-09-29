@@ -38,7 +38,12 @@ async function serve(req: http.IncomingMessage, res: http.ServerResponse): Promi
   if (url.pathname === '/api/settings' && req.method === 'GET') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ configured, config: publicLLMConfig(llmConfig) })); return; }
   if (url.pathname === '/api/settings' && req.method === 'POST') {
     const data = await body(req);
-    llmConfig = sanitizeLLMConfig({ ...data, apiKey: typeof data.apiKey === 'string' ? data.apiKey : llmConfig.apiKey });
+    if (typeof data.baseUrl !== 'string' || !data.baseUrl.trim() || typeof data.model !== 'string' || !data.model.trim()) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: 'Enter an Ollama server URL and model before saving.' }));
+      return;
+    }
+    llmConfig = sanitizeLLMConfig(data);
     configured = true;
     solver.stop();
     createSolver();
@@ -49,7 +54,7 @@ async function serve(req: http.IncomingMessage, res: http.ServerResponse): Promi
   if (url.pathname === '/api/llm/test' && req.method === 'POST') {
     try {
       const data = await body(req);
-      const result = await createLLMClient(sanitizeLLMConfig({ ...data, apiKey: typeof data.apiKey === 'string' ? data.apiKey : undefined })).testConnection();
+      const result = await createLLMClient(sanitizeLLMConfig(data)).testConnection();
       res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ success: true, ...result }));
     } catch (error) {
       res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ success: false, message: error instanceof Error ? error.message : 'Connection test failed.' }));

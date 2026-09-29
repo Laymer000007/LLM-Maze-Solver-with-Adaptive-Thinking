@@ -285,7 +285,6 @@ export class ObservableMazeSolver {
           this.state.tokenCount = typeof metadata.eval_count === 'number' ? metadata.eval_count : typeof metadata.usage === 'object' ? null : null;
           this.state.response = typeof raw.content === 'string' ? raw.content : JSON.stringify(raw.content ?? decisionResult.parsed);
           this.state.parsedAction = `move ${action.move}`;
-          if (this.adaptive.thinking && !response.thinkingSupported) this.state.llmLog.unshift('Adaptive thinking requested, but provider does not expose a thinking toggle.');
         } catch (error) {
           this.activeAbortController = null;
           if (this.stopRequested) {

@@ -45,7 +45,6 @@ The environment provides sensory evidence, but the LLM remains responsible for c
 - Health and survival pressure
 - Adaptive thinking
 - Ollama support
-- OpenAI-compatible cloud LLM support
 - Real-time GUI and LLM logs
 
 ## What the mouse senses
@@ -63,12 +62,12 @@ The scent field uses BFS only to calculate the virtual sensor. It never selects,
 
 The adaptive-thinking sequence is:
 
-1. Normal decisions use fast mode, `think: false`, when the provider supports that control.
+1. Normal decisions use Ollama fast mode, `think: false`.
 2. One event reduces EiL by at least `100`.
 3. Exactly the next two LLM decisions use deeper thinking, `think: true` for Ollama.
 4. The mouse automatically returns to fast mode.
 
-This toggle is supported directly for Ollama. Generic OpenAI-compatible providers receive normal chat requests unless they expose a provider-specific equivalent. When explicit thinking control is unavailable, the maze continues normally and the GUI reports that limitation rather than pretending the provider supports it.
+Ollama is the required provider for Version 3.0 because it exposes the explicit thinking control used by this experiment.
 
 ## EiL and Health rules
 
@@ -112,22 +111,16 @@ Open [http://localhost:4173](http://localhost:4173), open **LLM Settings**, test
 
 ## LLM configuration
 
-The GUI supports:
-
-1. **Ollama / Local** — usually `http://localhost:11434`, with a model such as `qwen3:1.7b`.
-2. **OpenAI-compatible API** — a generic base URL such as `https://api.example.com/v1`, model name, temperature, and API key.
-
-Provider settings are saved in the browser. Cloud API keys are session-only by default: they are not written to the repository, logged, or returned by the settings API. Cloud providers may charge per request or token, and a run can make many requests.
+The GUI uses Ollama at `http://localhost:11434` by default, with `qwen3:1.7b` as the recommended model. Settings are saved in the browser after valid server and model values are entered.
 
 ## GUI usage
 
 1. Run `npm run gui`.
 2. Open [http://localhost:4173](http://localhost:4173).
 3. Open **LLM Settings**.
-4. Choose Ollama or OpenAI-compatible.
-5. Enter the server URL, model, temperature, and API key if needed.
-6. Select **Test Connection**, then **Save Settings**.
-7. Start the maze.
+4. Enter the Ollama server URL, model, and temperature.
+5. Select **Test Connection**, then **Save Settings**.
+6. Start the maze.
 
 The GUI shows the maze, sensory state, EiL, Health, adaptive-thinking status, movement history, and LLM logs in real time.
 

@@ -1,12 +1,10 @@
 import type { LLMConfig } from '@/llm/config';
 import { OllamaClient } from '@/llm/ollama';
-import { OpenAICompatibleClient } from '@/llm/openai-compatible';
 import type { AgentAction } from '@/execution/execution';
 
 export type LLMResponse = {
   parsed: AgentAction;
   raw: Record<string, unknown>;
-  thinkingSupported: boolean;
 };
 
 export interface LLMClient {
@@ -15,5 +13,5 @@ export interface LLMClient {
 }
 
 export function createLLMClient(config: LLMConfig): LLMClient {
-  return config.provider === 'ollama' ? new OllamaClient(config) : new OpenAICompatibleClient(config);
+  return new OllamaClient(config);
 }
