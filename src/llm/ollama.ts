@@ -1,6 +1,6 @@
 import type { AgentAction } from '@/execution/execution';
 import type { LLMClient, LLMResponse } from '@/llm/client';
-import type { LLMConfig } from '@/llm/config';
+import type { DecisionRequestContext, LLMConfig } from '@/llm/config';
 
 function parseAction(value: unknown): AgentAction {
   const parsed = typeof value === 'string' ? JSON.parse(value) : value;
@@ -12,7 +12,7 @@ function parseAction(value: unknown): AgentAction {
 export class OllamaClient implements LLMClient {
   constructor(private readonly config: LLMConfig) {}
 
-  async chooseMove(prompt: string, thinking: boolean, signal?: AbortSignal): Promise<LLMResponse> {
+  async chooseMove(prompt: string, thinking: boolean, signal?: AbortSignal, _context?: DecisionRequestContext): Promise<LLMResponse> {
     const response = await fetch(`${this.config.baseUrl}/api/chat`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

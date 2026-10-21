@@ -33,14 +33,15 @@ async function body(req: http.IncomingMessage): Promise<any> { let text = ''; fo
 async function serve(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
   const url = new URL(req.url ?? '/', `http://${req.headers.host}`);
   if (url.pathname === '/api/mazes') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(await Mazes.all())); return; }
-  if (url.pathname === '/api/status') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ name: 'LLM Maze Solver with Adaptive Thinking', version: '3.0.0', configured })); return; }
+  if (url.pathname === '/api/status') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ name: 'LLM Maze Solver with Adaptive Thinking', version: '3.0.0', configured, config: publicLLMConfig(llmConfig) })); return; }
   if (url.pathname === '/api/state') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(state)); return; }
   if (url.pathname === '/api/settings' && req.method === 'GET') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ configured, config: publicLLMConfig(llmConfig) })); return; }
   if (url.pathname === '/api/settings' && req.method === 'POST') {
     const data = await body(req);
-    if (typeof data.baseUrl !== 'string' || !data.baseUrl.trim() || typeof data.model !== 'string' || !data.model.trim()) {
+    if (state.status === 'THINKING' || state.status === 'MOVING') { res.writeHead(409, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ ok: false, error: 'Stop or reset the active maze before switching AI providers.' })); return; }
+    if ((data.provider !== 'laya' && (typeof data.baseUrl !== 'string' || !data.baseUrl.trim() || typeof data.model !== 'string' || !data.model.trim())) || (data.provider === 'laya' && (typeof data.layaUrl !== 'string' || !data.layaUrl.trim() || typeof data.layaModel !== 'string' || !data.layaModel.trim()))) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: false, error: 'Enter an Ollama server URL and model before saving.' }));
+      res.end(JSON.stringify({ ok: false, error: data.provider === 'laya' ? 'Enter a Laya server URL and model before saving.' : 'Enter an Ollama server URL and model before saving.' }));
       return;
     }
     llmConfig = sanitizeLLMConfig(data);
@@ -49,6 +50,10 @@ async function serve(req: http.IncomingMessage, res: http.ServerResponse): Promi
     createSolver();
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ ok: true, config: publicLLMConfig(llmConfig) }));
+    return;
+  }
+  if (url.pathname === '/api/ollama/models' && req.method === 'GET') {
+    try { const response = await fetch(`${llmConfig.baseUrl}/api/tags`); if (!response.ok) throw new Error(`Ollama returned HTTP ${response.status}.`); const data = await response.json() as { models?: Array<{ name?: string }> }; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ models: (data.models ?? []).map((model) => model.name).filter(Boolean) })); } catch (error) { res.writeHead(502, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ models: [], error: error instanceof Error ? error.message : 'Could not load Ollama models.' })); }
     return;
   }
   if (url.pathname === '/api/llm/test' && req.method === 'POST') {

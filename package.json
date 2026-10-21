@@ -10,7 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "agent-execute": "vite-node src/cli/agent-execute.ts",
-    "gui": "vite-node src/gui/server.ts"
+    "gui": "vite-node src/gui/server.ts",
+    "benchmark:ai": "vite-node src/benchmark/benchmark.ts",
+    "benchmark:laya-prompts": "vite-node src/benchmark/laya-prompt-accuracy.ts",
+    "benchmark:laya-numerical": "vite-node src/benchmark/laya-numerical-investigation.ts"
   },
   "dependencies": {
     "@langchain/ollama": "^1.1.0",
