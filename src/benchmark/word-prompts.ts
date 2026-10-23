@@ -49,15 +49,15 @@ type Config = { budgetMs: number; seed: number; outputDir: string; layaUrl: stri
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const MOVES4 = [...MOVES] as Move[];
-const MAZES = ['mazes/7x7_corridor_branch.txt', 'mazes/7x7_open_detour.txt'];
-const ORIENTATIONS: Transform[] = ['original', 'rotate-180'];
-const INTRO = 'You are a mouse in a dark maze, searching for cheese by smell.';
-const LAYA_INSTRUCTIONS = 'Choose exactly one movement direction. Return the direction label.';
-const OLLAMA_RETURN = 'Return only JSON: {"move":"up|down|left|right"}.';
+export const MAZES = ['mazes/7x7_corridor_branch.txt', 'mazes/7x7_open_detour.txt'];
+export const ORIENTATIONS: Transform[] = ['original', 'rotate-180'];
+export const INTRO = 'You are a mouse in a dark maze, searching for cheese by smell.';
+export const LAYA_INSTRUCTIONS = 'Choose exactly one movement direction. Return the direction label.';
+export const OLLAMA_RETURN = 'Return only JSON: {"move":"up|down|left|right"}.';
 export const stepCapFor = (optimalSteps: number) => Math.max(3 * optimalSteps, 60);
 const key = (p: Position) => `${p.x},${p.y}`;
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+export const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 function nextPosition(p: Position, move: Move): Position {
   return { x: p.x + (move === 'left' ? -1 : move === 'right' ? 1 : 0), y: p.y + (move === 'up' ? -1 : move === 'down' ? 1 : 0) };
 }
@@ -430,7 +430,7 @@ async function main(): Promise<void> {
   await fs.writeFile(path.join(runDir, 'report.md'), report(meta, entries, policiesForReport, runs, skipped, examples));
   console.log(`Done in ${seconds(performance.now() - started)}. Report: ${path.join(runDir, 'report.md')}`);
 }
-if (!process.env.VITEST)
+if (!process.env.VITEST && !process.env.WORD_PROMPTS_AS_LIBRARY)
   main().catch((error) => {
     console.error(redactSecrets(error instanceof Error ? error.message : String(error)));
     process.exitCode = 1;
