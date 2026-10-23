@@ -1,0 +1,110 @@
+{
+  "laya-numbers-baseline": {
+    "endpoint": "http://192.168.88.100:8000/v1/systemone",
+    "body": {
+      "state": {
+        "body": "Choose the best legal movement for a maze mouse.\nCurrent position: (1,2)\nGoal position: (5,5)\nOnly these legal choices are available:\nDOWN: score=12; visits=0; smell=95\nUP: score=-10; visits=1; smell=93\nReturn only JSON: {\"move\":\"up|down|left|right\"}."
+      },
+      "questions": {
+        "move": {
+          "type": "choice",
+          "instructions": "Choose exactly one movement direction. Return the direction label.",
+          "criteria": {
+            "DOWN": "down movement; existing expected sensor score 12; visited 0",
+            "UP": "up movement; existing expected sensor score -10; visited 1"
+          }
+        }
+      }
+    }
+  },
+  "laya-words-lookahead": {
+    "endpoint": "http://192.168.88.100:8000/v1/systemone",
+    "body": {
+      "state": {
+        "body": "You are a mouse in a dark maze, searching for cheese by smell.\nThe smell is noticeable.\nChoose the direction most likely to lead to the cheese."
+      },
+      "questions": {
+        "move": {
+          "type": "choice",
+          "instructions": "Choose exactly one movement direction. Return the direction label.",
+          "criteria": {
+            "UP": "an open passage; the smell grows weaker that way; you've been there before",
+            "DOWN": "an open passage; the smell grows stronger that way; you haven't been there"
+          }
+        }
+      }
+    }
+  },
+  "laya-words-feedback": {
+    "endpoint": "http://192.168.88.100:8000/v1/systemone",
+    "body": {
+      "state": {
+        "body": "You are a mouse in a dark maze, searching for cheese by smell.\nThat step took you closer: the smell got stronger.\nThe smell is noticeable.\nChoose the direction most likely to lead to the cheese."
+      },
+      "questions": {
+        "move": {
+          "type": "choice",
+          "instructions": "Choose exactly one movement direction. Return the direction label.",
+          "criteria": {
+            "DOWN": "an open passage; you haven't been there",
+            "UP": "an open passage; you've been there before"
+          }
+        }
+      }
+    }
+  },
+  "ollama-numbers-baseline": {
+    "endpoint": "http://192.168.88.100:11434/api/chat",
+    "body": {
+      "model": "qwen3:1.7b",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Choose the best legal movement for a maze mouse.\nCurrent position: (1,2)\nGoal position: (5,5)\nOnly these legal choices are available:\nUP: score=-10; visits=1; smell=93\nDOWN: score=12; visits=0; smell=95\nReturn only JSON: {\"move\":\"up|down|left|right\"}."
+        }
+      ],
+      "stream": false,
+      "format": "json",
+      "think": false,
+      "options": {
+        "temperature": 0.2
+      }
+    }
+  },
+  "ollama-words-lookahead": {
+    "endpoint": "http://192.168.88.100:11434/api/chat",
+    "body": {
+      "model": "qwen3:1.7b",
+      "messages": [
+        {
+          "role": "user",
+          "content": "You are a mouse in a dark maze, searching for cheese by smell.\nThe smell is noticeable.\nYou can go:\nUP: an open passage; the smell grows weaker that way; you've been there before.\nDOWN: an open passage; the smell grows stronger that way; you haven't been there.\nChoose one direction.\nReturn only JSON: {\"move\":\"up|down|left|right\"}."
+        }
+      ],
+      "stream": false,
+      "format": "json",
+      "think": false,
+      "options": {
+        "temperature": 0.2
+      }
+    }
+  },
+  "ollama-words-feedback": {
+    "endpoint": "http://192.168.88.100:11434/api/chat",
+    "body": {
+      "model": "qwen3:1.7b",
+      "messages": [
+        {
+          "role": "user",
+          "content": "You are a mouse in a dark maze, searching for cheese by smell.\nThat step took you closer: the smell got stronger.\nThe smell is noticeable.\nYou can go:\nDOWN: an open passage; you haven't been there.\nUP: an open passage; you've been there before.\nChoose one direction.\nReturn only JSON: {\"move\":\"up|down|left|right\"}."
+        }
+      ],
+      "stream": false,
+      "format": "json",
+      "think": false,
+      "options": {
+        "temperature": 0.2
+      }
+    }
+  }
+}
