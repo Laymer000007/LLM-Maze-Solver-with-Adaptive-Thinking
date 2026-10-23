@@ -465,7 +465,7 @@ async function postJson(url: string, headers: Record<string, string>, body: unkn
     clearTimeout(timer);
   }
 }
-async function callLaya(layaUrl: string, body: Record<string, unknown>, timeoutMs: number): Promise<Decision> {
+export async function callLaya(layaUrl: string, body: Record<string, unknown>, timeoutMs: number): Promise<Decision> {
   const secret = requireLayaKey();
   const result = await postJson(`${layaUrl}/v1/systemone`, { authorization: `Bearer ${secret}` }, body, timeoutMs);
   if (result.failure) return result;
@@ -477,7 +477,7 @@ async function callLaya(layaUrl: string, body: Record<string, unknown>, timeoutM
 export function ollamaRequestBody(model: string, prompt: string, think: boolean): Record<string, unknown> {
   return { model, messages: [{ role: 'user', content: prompt }], stream: false, format: 'json', think, options: { temperature: OLLAMA_TEMPERATURE } };
 }
-async function callOllama(ollamaUrl: string, model: string, prompt: string, think: boolean, timeoutMs: number): Promise<Decision> {
+export async function callOllama(ollamaUrl: string, model: string, prompt: string, think: boolean, timeoutMs: number): Promise<Decision> {
   const result = await postJson(`${ollamaUrl}/api/chat`, {}, ollamaRequestBody(model, prompt, think), timeoutMs);
   if (result.failure) return result;
   let parsed: any = null;
@@ -1453,7 +1453,7 @@ async function main(): Promise<void> {
   for (const [file, body] of Object.entries(outputs)) await fs.writeFile(path.join(runDir, file), body);
   console.log(`Done in ${duration(performance.now() - started)}. Report: ${path.join(runDir, 'report.md')}`);
 }
-if (!process.env.VITEST)
+if (!process.env.VITEST && !process.env.FULL_MAZE_EVAL_AS_LIBRARY)
   main().catch((error) => {
     console.error(redactSecrets(error instanceof Error ? error.message : String(error)));
     process.exitCode = 1;
