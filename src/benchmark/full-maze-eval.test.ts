@@ -2,7 +2,9 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { Maze } from '@/maze/maze';
+import { Maze, type LocalPerception, type Position } from '@/maze/maze';
+import { MOVES } from '@/execution/execution';
+import type { AgentMemoryState } from '@/agent/memory';
 import type { Move } from '@/execution/execution';
 import {
   TRANSFORMS, bfsShortestPath, resolveLayaKey, buildSuiteEntry, createPolicies, layaBody, rng, runEpisode, runsCsv, runsJson, seededShuffle, stepCapFor, transformLayout, transformPosition, wilson,
@@ -199,5 +201,39 @@ describe('credentials', () => {
     const output = runsJson({ layaUrl: NETWORK.layaUrl }, runs) + runsCsv(runs);
     expect(output).not.toContain(FAKE_KEY);
     expect(output).toContain('[REDACTED]');
+  });
+});
+
+// Verbatim copy of the benchmark.ts builders (importing benchmark.ts would run its main()).
+namespace reference {
+  type FrozenState = { position: Position; goal: Position; perception: LocalPerception; memory: AgentMemoryState; validActions: Move[] };
+  type Experiment = 'A-raw' | 'B-constrained' | 'C-repeated';
+  const MOVES4 = [...MOVES] as Move[];
+  const key = (p: Position) => `${p.x},${p.y}`;
+  function nextPosition(position: Position, move: Move): Position { return move === 'up' ? { x: position.x, y: position.y - 1 } : move === 'down' ? { x: position.x, y: position.y + 1 } : move === 'left' ? { x: position.x - 1, y: position.y } : { x: position.x + 1, y: position.y }; }
+  function rawPrompt(state: FrozenState): string {
+    const p = state.perception; const directions = MOVES4.map((move) => `${move.toUpperCase()}: ${p.directions[move]}; smell=${p.directionSmell[move]}; ${p.directions[move] === 'wall' ? 'blocked' : 'open'}; visits=${state.memory.visitCounts[key(nextPosition(state.position, move))] ?? 0}`).join('\n');
+    return ['You control a mouse navigating a maze.', `Current position: (${state.position.x},${state.position.y})`, `Goal position: (${state.goal.x},${state.goal.y})`, `Current smell: ${p.smell}`, 'Choose exactly one movement label: UP, DOWN, LEFT, RIGHT.', directions, 'Return only JSON: {"move":"up|down|left|right"}.'].join('\n');
+  }
+  function constrainedPrompt(state: FrozenState): string {
+    const choices = state.validActions.map((move) => `${move.toUpperCase()}: score=${state.memory.actionEffects[move]?.totalExpectedEiLDelta ?? 'n/a'}; visits=${state.memory.visitCounts[key(nextPosition(state.position, move))] ?? 0}; smell=${state.perception.directionSmell[move]}`).join('\n');
+    return ['Choose the best legal movement for a maze mouse.', `Current position: (${state.position.x},${state.position.y})`, `Goal position: (${state.goal.x},${state.goal.y})`, 'Only these legal choices are available:', choices, 'Return only JSON: {"move":"up|down|left|right"}.'].join('\n');
+  }
+  export function layaBody(state: FrozenState, experiment: Experiment): Record<string, unknown> {
+    const legal = experiment === 'A-raw' ? MOVES4 : state.validActions; const descriptions = Object.fromEntries(legal.map((move) => [move.toUpperCase(), experiment === 'A-raw' ? `${move} movement; local state ${state.perception.directions[move]}, smell ${state.perception.directionSmell[move]}` : `${move} movement; existing expected sensor score ${state.memory.actionEffects[move]?.totalExpectedEiLDelta}; visited ${state.memory.visitCounts[key(nextPosition(state.position, move))] ?? 0}`]));
+    const prompt = experiment === 'A-raw' ? rawPrompt(state) : constrainedPrompt(state);
+    return { state: { body: prompt }, questions: { move: { type: 'choice', instructions: 'Choose exactly one movement direction. Return the direction label.', criteria: descriptions } } };
+  }
+}
+
+describe('Laya payload parity with benchmark.ts', () => {
+  it('builds byte-identical bodies for the frozen dataset states', async () => {
+    const file = path.resolve(__dirname, '../../benchmark-results/frozen-dataset.json');
+    const { states } = JSON.parse(await fs.readFile(file, 'utf-8')) as { states: DecisionState[] };
+    expect(states.length).toBeGreaterThanOrEqual(10);
+    for (const state of states) {
+      expect(JSON.stringify(layaBody(state, 'B-constrained'))).toBe(JSON.stringify(reference.layaBody(state, 'B-constrained')));
+      expect(JSON.stringify(layaBody(state, 'A-raw'))).toBe(JSON.stringify(reference.layaBody(state, 'A-raw')));
+    }
   });
 });

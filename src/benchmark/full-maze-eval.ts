@@ -108,7 +108,7 @@ export type RunRecord = {
   moves: string[];
 };
 export type EpisodeOptions = { sleepMs?: number; maxConsecutiveFailures?: number; stepCap?: number; rngSeed?: number };
-type Mode = 'smoke' | 'full';
+type Mode = 'smoke' | 'full' | 'validate-frozen';
 type HarnessConfig = {
   mode: Mode;
   policies: PolicyId[];
@@ -967,7 +967,7 @@ function parseArgs(argv: string[]): HarnessConfig {
     return i >= 0 ? argv[i + 1] : undefined;
   };
   const mode = (get('--mode') ?? 'smoke') as Mode;
-  if (!['smoke', 'full'].includes(mode)) throw new Error(`Unknown --mode ${mode}; use smoke or full.`);
+  if (!['smoke', 'full', 'validate-frozen'].includes(mode)) throw new Error(`Unknown --mode ${mode}; use smoke, full or validate-frozen.`);
   const withThinking = argv.includes('--with-thinking');
   const policies = (get('--policies')
     ?.split(',')
@@ -1035,8 +1035,77 @@ async function preflight(config: HarnessConfig, policies: Policy[]): Promise<voi
   }
 }
 
+/** One laya-constrained request per frozen benchmark state; checks the harness reproduces the single-step benchmark. */
+async function validateFrozen(config: HarnessConfig): Promise<void> {
+  requireLayaKey();
+  type Frozen = DecisionState & { id: string; optimalActions: Move[] };
+  const { states } = JSON.parse(await fs.readFile(path.join(ROOT, 'benchmark-results', 'frozen-dataset.json'), 'utf-8')) as { states: Frozen[] };
+  const history = JSON.parse(await fs.readFile(path.join(ROOT, 'benchmark-results', 'latest.json'), 'utf-8')) as {
+    rows: { experiment: string; model: string; stateId: string; choice: Move | null }[];
+  };
+  const historical = new Map(history.rows.filter((r) => r.experiment === 'B-constrained' && r.model === 'laya').map((r) => [r.stateId, r.choice]));
+  const [policy] = createPolicies(['laya-constrained'], config);
+  const rows: {
+    stateId: string;
+    validActions: Move[];
+    optimalActions: Move[];
+    choice: Move | null;
+    optimal: boolean;
+    legal: boolean;
+    firstListed: boolean;
+    historicalChoice: Move | null;
+    sameAsHistorical: boolean;
+    failure: FailureKind | null;
+    latencyMs: number;
+  }[] = [];
+  for (const state of states) {
+    const decision = await policy.decide(state, rng(1));
+    const optimal = decision.choice !== null && state.optimalActions.includes(decision.choice);
+    rows.push({
+      stateId: state.id,
+      validActions: state.validActions,
+      optimalActions: state.optimalActions,
+      choice: decision.choice,
+      optimal,
+      legal: decision.choice !== null && state.validActions.includes(decision.choice),
+      firstListed: state.validActions.length >= 2 && decision.choice === state.validActions[0],
+      historicalChoice: historical.get(state.id) ?? null,
+      sameAsHistorical: historical.get(state.id) === decision.choice,
+      failure: decision.failure ?? null,
+      latencyMs: Math.round(decision.latencyMs ?? 0),
+    });
+    await sleep(SLEEP_MS);
+  }
+  const rate = (pick: (r: (typeof rows)[number]) => boolean, of: typeof rows = rows) => of.filter(pick).length / of.length;
+  const multi = rows.filter((r) => r.validActions.length >= 2);
+  const historicalOptimal =
+    states.filter((s) => {
+      const c = historical.get(s.id);
+      return c !== undefined && c !== null && s.optimalActions.includes(c);
+    }).length / states.length;
+  const summary = {
+    timestamp: now(),
+    gitCommit: git('git rev-parse HEAD'),
+    layaUrl: `${config.layaUrl}/v1/systemone`,
+    states: rows.length,
+    optimalPct: rate((r) => r.optimal) * 100,
+    historicalOptimalPct: historicalOptimal * 100,
+    legalPct: rate((r) => r.legal) * 100,
+    sameAsHistoricalPct: rate((r) => r.sameAsHistorical) * 100,
+    firstListedPct: rate((r) => r.firstListed, multi) * 100,
+    failures: rows.filter((r) => r.failure).length,
+    meanLatencyMs: rows.reduce((t, r) => t + r.latencyMs, 0) / rows.length,
+  };
+  const dir = path.join(config.outputDir, 'validation', `${summary.timestamp.replace(/[:.]/g, '-')}-frozen-laya-constrained`);
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(path.join(dir, 'results.json'), runsJson(summary, rows as unknown as RunRecord[]));
+  console.log(redactSecrets(JSON.stringify(summary, null, 2)));
+  console.log(`Written to ${dir}`);
+}
+
 async function main(): Promise<void> {
   const config = parseArgs(process.argv.slice(2));
+  if (config.mode === 'validate-frozen') return validateFrozen(config);
   if (config.policies.some((p) => p.startsWith('laya'))) requireLayaKey();
   const suite = await buildSuite();
   await freezeSuite(config.outputDir, suite);
