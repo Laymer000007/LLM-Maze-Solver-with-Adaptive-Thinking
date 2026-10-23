@@ -13,7 +13,8 @@
     "gui": "vite-node src/gui/server.ts",
     "benchmark:ai": "vite-node src/benchmark/benchmark.ts",
     "benchmark:laya-prompts": "vite-node src/benchmark/laya-prompt-accuracy.ts",
-    "benchmark:laya-numerical": "vite-node src/benchmark/laya-numerical-investigation.ts"
+    "benchmark:laya-numerical": "vite-node src/benchmark/laya-numerical-investigation.ts",
+    "benchmark:full-maze": "vite-node src/benchmark/full-maze-eval.ts"
   },
   "dependencies": {
     "@langchain/ollama": "^1.1.0",

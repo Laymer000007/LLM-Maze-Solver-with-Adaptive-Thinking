@@ -1,0 +1,3825 @@
+{
+  "stepCapRule": "max(4 * optimalSteps, 200)",
+  "entries": [
+    {
+      "id": "11x11_corridor_branch@original",
+      "sourceFile": "mazes/11x11_corridor_branch.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S#       #",
+        "# # ##### #",
+        "# # #     #",
+        "# # # #####",
+        "#   #     #",
+        "### ##### #",
+        "#   #   # #",
+        "# ### # # #",
+        "#     #  G#",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 9,
+        "y": 9
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "11x11_corridor_branch@mirror-h",
+      "sourceFile": "mazes/11x11_corridor_branch.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#       #S#",
+        "# ##### # #",
+        "#     # # #",
+        "##### # # #",
+        "#     #   #",
+        "# ##### ###",
+        "# #   #   #",
+        "# # # ### #",
+        "#G  #     #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 9
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "11x11_corridor_branch@mirror-v",
+      "sourceFile": "mazes/11x11_corridor_branch.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#     #  G#",
+        "# ### # # #",
+        "#   #   # #",
+        "### ##### #",
+        "#   #     #",
+        "# # # #####",
+        "# # #     #",
+        "# # ##### #",
+        "#S#       #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 9,
+        "y": 1
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "11x11_corridor_branch@rotate-180",
+      "sourceFile": "mazes/11x11_corridor_branch.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#G  #     #",
+        "# # # ### #",
+        "# #   #   #",
+        "# ##### ###",
+        "#     #   #",
+        "##### # # #",
+        "#     # # #",
+        "# ##### # #",
+        "#       #S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "11x11_corridor_dead-end@original",
+      "sourceFile": "mazes/11x11_corridor_dead-end.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S#       #",
+        "# ### #####",
+        "#   #     #",
+        "# ### ### #",
+        "# #   #   #",
+        "# # ##### #",
+        "# #   # # #",
+        "# ### # # #",
+        "#       #G#",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 9,
+        "y": 9
+      },
+      "optimalSteps": 32
+    },
+    {
+      "id": "11x11_corridor_dead-end@mirror-h",
+      "sourceFile": "mazes/11x11_corridor_dead-end.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#       #S#",
+        "##### ### #",
+        "#     #   #",
+        "# ### ### #",
+        "#   #   # #",
+        "# ##### # #",
+        "# # #   # #",
+        "# # # ### #",
+        "#G#       #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 9
+      },
+      "optimalSteps": 32
+    },
+    {
+      "id": "11x11_corridor_dead-end@mirror-v",
+      "sourceFile": "mazes/11x11_corridor_dead-end.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#       #G#",
+        "# ### # # #",
+        "# #   # # #",
+        "# # ##### #",
+        "# #   #   #",
+        "# ### ### #",
+        "#   #     #",
+        "# ### #####",
+        "#S#       #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 9,
+        "y": 1
+      },
+      "optimalSteps": 32
+    },
+    {
+      "id": "11x11_corridor_dead-end@rotate-180",
+      "sourceFile": "mazes/11x11_corridor_dead-end.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#G#       #",
+        "# # # ### #",
+        "# # #   # #",
+        "# ##### # #",
+        "#   #   # #",
+        "# ### ### #",
+        "#     #   #",
+        "##### ### #",
+        "#       #S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 32
+    },
+    {
+      "id": "11x11_corridor_loop@original",
+      "sourceFile": "mazes/11x11_corridor_loop.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S#       #",
+        "# # ##### #",
+        "# #     # #",
+        "# ### # # #",
+        "#     #   #",
+        "######### #",
+        "#         #",
+        "# ### #####",
+        "#        G#",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 9,
+        "y": 9
+      },
+      "optimalSteps": 28
+    },
+    {
+      "id": "11x11_corridor_loop@mirror-h",
+      "sourceFile": "mazes/11x11_corridor_loop.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#       #S#",
+        "# ##### # #",
+        "# #     # #",
+        "# # # ### #",
+        "#   #     #",
+        "# #########",
+        "#         #",
+        "##### ### #",
+        "#G        #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 9
+      },
+      "optimalSteps": 28
+    },
+    {
+      "id": "11x11_corridor_loop@mirror-v",
+      "sourceFile": "mazes/11x11_corridor_loop.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        G#",
+        "# ### #####",
+        "#         #",
+        "######### #",
+        "#     #   #",
+        "# ### # # #",
+        "# #     # #",
+        "# # ##### #",
+        "#S#       #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 9,
+        "y": 1
+      },
+      "optimalSteps": 28
+    },
+    {
+      "id": "11x11_corridor_loop@rotate-180",
+      "sourceFile": "mazes/11x11_corridor_loop.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#G        #",
+        "##### ### #",
+        "#         #",
+        "# #########",
+        "#   #     #",
+        "# # # ### #",
+        "# #     # #",
+        "# ##### # #",
+        "#       #S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 28
+    },
+    {
+      "id": "11x11_corridor_spiral@original",
+      "sourceFile": "mazes/11x11_corridor_spiral.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S#       #",
+        "# # ##### #",
+        "# # #   # #",
+        "# # # # # #",
+        "# # #G# # #",
+        "# # ### # #",
+        "# #     # #",
+        "# ####### #",
+        "#         #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 5
+      },
+      "optimalSteps": 48
+    },
+    {
+      "id": "11x11_corridor_spiral@mirror-h",
+      "sourceFile": "mazes/11x11_corridor_spiral.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#       #S#",
+        "# ##### # #",
+        "# #   # # #",
+        "# # # # # #",
+        "# # #G# # #",
+        "# # ### # #",
+        "# #     # #",
+        "# ####### #",
+        "#         #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 5
+      },
+      "optimalSteps": 48
+    },
+    {
+      "id": "11x11_corridor_spiral@mirror-v",
+      "sourceFile": "mazes/11x11_corridor_spiral.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#         #",
+        "# ####### #",
+        "# #     # #",
+        "# # ### # #",
+        "# # #G# # #",
+        "# # # # # #",
+        "# # #   # #",
+        "# # ##### #",
+        "#S#       #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 5,
+        "y": 5
+      },
+      "optimalSteps": 48
+    },
+    {
+      "id": "11x11_corridor_spiral@rotate-180",
+      "sourceFile": "mazes/11x11_corridor_spiral.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#         #",
+        "# ####### #",
+        "# #     # #",
+        "# # ### # #",
+        "# # #G# # #",
+        "# # # # # #",
+        "# #   # # #",
+        "# ##### # #",
+        "#       #S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 5,
+        "y": 5
+      },
+      "optimalSteps": 48
+    },
+    {
+      "id": "11x11_corridor_straight@original",
+      "sourceFile": "mazes/11x11_corridor_straight.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S        #",
+        "######### #",
+        "#         #",
+        "# #########",
+        "#         #",
+        "######### #",
+        "#         #",
+        "# #########",
+        "#        G#",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 9,
+        "y": 9
+      },
+      "optimalSteps": 48
+    },
+    {
+      "id": "11x11_corridor_straight@mirror-h",
+      "sourceFile": "mazes/11x11_corridor_straight.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        S#",
+        "# #########",
+        "#         #",
+        "######### #",
+        "#         #",
+        "# #########",
+        "#         #",
+        "######### #",
+        "#G        #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 9
+      },
+      "optimalSteps": 48
+    },
+    {
+      "id": "11x11_corridor_straight@mirror-v",
+      "sourceFile": "mazes/11x11_corridor_straight.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        G#",
+        "# #########",
+        "#         #",
+        "######### #",
+        "#         #",
+        "# #########",
+        "#         #",
+        "######### #",
+        "#S        #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 9,
+        "y": 1
+      },
+      "optimalSteps": 48
+    },
+    {
+      "id": "11x11_corridor_straight@rotate-180",
+      "sourceFile": "mazes/11x11_corridor_straight.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#G        #",
+        "######### #",
+        "#         #",
+        "# #########",
+        "#         #",
+        "######### #",
+        "#         #",
+        "# #########",
+        "#        S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 48
+    },
+    {
+      "id": "11x11_open_detour@original",
+      "sourceFile": "mazes/11x11_open_detour.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#    S    #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "# #########",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#    G    #",
+        "###########"
+      ],
+      "start": {
+        "x": 5,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 9
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_detour@mirror-h",
+      "sourceFile": "mazes/11x11_open_detour.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#    S    #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "######### #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#    G    #",
+        "###########"
+      ],
+      "start": {
+        "x": 5,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 9
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_detour@mirror-v",
+      "sourceFile": "mazes/11x11_open_detour.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#    G    #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "# #########",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#    S    #",
+        "###########"
+      ],
+      "start": {
+        "x": 5,
+        "y": 9
+      },
+      "goal": {
+        "x": 5,
+        "y": 1
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_detour@rotate-180",
+      "sourceFile": "mazes/11x11_open_detour.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#    G    #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "######### #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#    S    #",
+        "###########"
+      ],
+      "start": {
+        "x": 5,
+        "y": 9
+      },
+      "goal": {
+        "x": 5,
+        "y": 1
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_empty@original",
+      "sourceFile": "mazes/11x11_open_empty.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S        #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#        G#",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 9,
+        "y": 9
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_empty@mirror-h",
+      "sourceFile": "mazes/11x11_open_empty.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        S#",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#G        #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 9
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_empty@mirror-v",
+      "sourceFile": "mazes/11x11_open_empty.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        G#",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#S        #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 9,
+        "y": 1
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_empty@rotate-180",
+      "sourceFile": "mazes/11x11_open_empty.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#G        #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#        S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_pass@original",
+      "sourceFile": "mazes/11x11_open_pass.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S        #",
+        "#         #",
+        "#         #",
+        "#   ###   #",
+        "#   ###   #",
+        "#   ###   #",
+        "#         #",
+        "#         #",
+        "#        G#",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 9,
+        "y": 9
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_pass@mirror-h",
+      "sourceFile": "mazes/11x11_open_pass.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        S#",
+        "#         #",
+        "#         #",
+        "#   ###   #",
+        "#   ###   #",
+        "#   ###   #",
+        "#         #",
+        "#         #",
+        "#G        #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 9
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_pass@mirror-v",
+      "sourceFile": "mazes/11x11_open_pass.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        G#",
+        "#         #",
+        "#         #",
+        "#   ###   #",
+        "#   ###   #",
+        "#   ###   #",
+        "#         #",
+        "#         #",
+        "#S        #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 9,
+        "y": 1
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "11x11_open_pass@rotate-180",
+      "sourceFile": "mazes/11x11_open_pass.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#G        #",
+        "#         #",
+        "#         #",
+        "#   ###   #",
+        "#   ###   #",
+        "#   ###   #",
+        "#         #",
+        "#         #",
+        "#        S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "15x15_corridor_branch@original",
+      "sourceFile": "mazes/15x15_corridor_branch.txt",
+      "transform": "original",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#S#           #",
+        "# # ######### #",
+        "# #         # #",
+        "# ######### # #",
+        "#           # #",
+        "####### ##### #",
+        "#       #     #",
+        "# ####### #####",
+        "#       #     #",
+        "####### ##### #",
+        "#       #   # #",
+        "# ####### # # #",
+        "#         #  G#",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 13,
+        "y": 13
+      },
+      "optimalSteps": 52
+    },
+    {
+      "id": "15x15_corridor_branch@mirror-h",
+      "sourceFile": "mazes/15x15_corridor_branch.txt",
+      "transform": "mirror-h",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#           #S#",
+        "# ######### # #",
+        "# #         # #",
+        "# # ######### #",
+        "# #           #",
+        "# ##### #######",
+        "#     #       #",
+        "##### ####### #",
+        "#     #       #",
+        "# ##### #######",
+        "# #   #       #",
+        "# # # ####### #",
+        "#G  #         #",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 13
+      },
+      "optimalSteps": 52
+    },
+    {
+      "id": "15x15_corridor_branch@mirror-v",
+      "sourceFile": "mazes/15x15_corridor_branch.txt",
+      "transform": "mirror-v",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#         #  G#",
+        "# ####### # # #",
+        "#       #   # #",
+        "####### ##### #",
+        "#       #     #",
+        "# ####### #####",
+        "#       #     #",
+        "####### ##### #",
+        "#           # #",
+        "# ######### # #",
+        "# #         # #",
+        "# # ######### #",
+        "#S#           #",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 13
+      },
+      "goal": {
+        "x": 13,
+        "y": 1
+      },
+      "optimalSteps": 52
+    },
+    {
+      "id": "15x15_corridor_branch@rotate-180",
+      "sourceFile": "mazes/15x15_corridor_branch.txt",
+      "transform": "rotate-180",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#G  #         #",
+        "# # # ####### #",
+        "# #   #       #",
+        "# ##### #######",
+        "#     #       #",
+        "##### ####### #",
+        "#     #       #",
+        "# ##### #######",
+        "# #           #",
+        "# # ######### #",
+        "# #         # #",
+        "# ######### # #",
+        "#           #S#",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 13
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 52
+    },
+    {
+      "id": "15x15_corridor_dead-end@original",
+      "sourceFile": "mazes/15x15_corridor_dead-end.txt",
+      "transform": "original",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#S#   #   #   #",
+        "# # ### # # # #",
+        "# #     # # # #",
+        "# ##### #   # #",
+        "#     # # ### #",
+        "# ### # # # # #",
+        "# #   # #   # #",
+        "# # ### ##### #",
+        "# # #     #   #",
+        "# # ##### # ###",
+        "# #       #   #",
+        "# ####### ### #",
+        "#   #       #G#",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 13,
+        "y": 13
+      },
+      "optimalSteps": 62
+    },
+    {
+      "id": "15x15_corridor_dead-end@mirror-h",
+      "sourceFile": "mazes/15x15_corridor_dead-end.txt",
+      "transform": "mirror-h",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#   #   #   #S#",
+        "# # # # ### # #",
+        "# # # #     # #",
+        "# #   # ##### #",
+        "# ### # #     #",
+        "# # # # # ### #",
+        "# #   # #   # #",
+        "# ##### ### # #",
+        "#   #     # # #",
+        "### # ##### # #",
+        "#   #       # #",
+        "# ### ####### #",
+        "#G#       #   #",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 13
+      },
+      "optimalSteps": 62
+    },
+    {
+      "id": "15x15_corridor_dead-end@mirror-v",
+      "sourceFile": "mazes/15x15_corridor_dead-end.txt",
+      "transform": "mirror-v",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#   #       #G#",
+        "# ####### ### #",
+        "# #       #   #",
+        "# # ##### # ###",
+        "# # #     #   #",
+        "# # ### ##### #",
+        "# #   # #   # #",
+        "# ### # # # # #",
+        "#     # # ### #",
+        "# ##### #   # #",
+        "# #     # # # #",
+        "# # ### # # # #",
+        "#S#   #   #   #",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 13
+      },
+      "goal": {
+        "x": 13,
+        "y": 1
+      },
+      "optimalSteps": 62
+    },
+    {
+      "id": "15x15_corridor_dead-end@rotate-180",
+      "sourceFile": "mazes/15x15_corridor_dead-end.txt",
+      "transform": "rotate-180",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#G#       #   #",
+        "# ### ####### #",
+        "#   #       # #",
+        "### # ##### # #",
+        "#   #     # # #",
+        "# ##### ### # #",
+        "# #   # #   # #",
+        "# # # # # ### #",
+        "# ### # #     #",
+        "# #   # ##### #",
+        "# # # #     # #",
+        "# # # # ### # #",
+        "#   #   #   #S#",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 13
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 62
+    },
+    {
+      "id": "15x15_corridor_loop@original",
+      "sourceFile": "mazes/15x15_corridor_loop.txt",
+      "transform": "original",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#S#           #",
+        "# # ######### #",
+        "# #         # #",
+        "# ######### # #",
+        "#           # #",
+        "########### # #",
+        "#         #   #",
+        "# ##### # ### #",
+        "# #     #     #",
+        "# # ######### #",
+        "# #           #",
+        "# ### #########",
+        "#            G#",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 13,
+        "y": 13
+      },
+      "optimalSteps": 40
+    },
+    {
+      "id": "15x15_corridor_loop@mirror-h",
+      "sourceFile": "mazes/15x15_corridor_loop.txt",
+      "transform": "mirror-h",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#           #S#",
+        "# ######### # #",
+        "# #         # #",
+        "# # ######### #",
+        "# #           #",
+        "# # ###########",
+        "#   #         #",
+        "# ### # ##### #",
+        "#     #     # #",
+        "# ######### # #",
+        "#           # #",
+        "######### ### #",
+        "#G            #",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 13
+      },
+      "optimalSteps": 40
+    },
+    {
+      "id": "15x15_corridor_loop@mirror-v",
+      "sourceFile": "mazes/15x15_corridor_loop.txt",
+      "transform": "mirror-v",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#            G#",
+        "# ### #########",
+        "# #           #",
+        "# # ######### #",
+        "# #     #     #",
+        "# ##### # ### #",
+        "#         #   #",
+        "########### # #",
+        "#           # #",
+        "# ######### # #",
+        "# #         # #",
+        "# # ######### #",
+        "#S#           #",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 13
+      },
+      "goal": {
+        "x": 13,
+        "y": 1
+      },
+      "optimalSteps": 40
+    },
+    {
+      "id": "15x15_corridor_loop@rotate-180",
+      "sourceFile": "mazes/15x15_corridor_loop.txt",
+      "transform": "rotate-180",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#G            #",
+        "######### ### #",
+        "#           # #",
+        "# ######### # #",
+        "#     #     # #",
+        "# ### # ##### #",
+        "#   #         #",
+        "# # ###########",
+        "# #           #",
+        "# # ######### #",
+        "# #         # #",
+        "# ######### # #",
+        "#           #S#",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 13
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 40
+    },
+    {
+      "id": "15x15_corridor_spiral@original",
+      "sourceFile": "mazes/15x15_corridor_spiral.txt",
+      "transform": "original",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#S#           #",
+        "# # ######### #",
+        "# # #       # #",
+        "# # # ##### # #",
+        "# # # #   # # #",
+        "# # # # # # # #",
+        "# # # #G# # # #",
+        "# # # ### # # #",
+        "# # #     # # #",
+        "# # ####### # #",
+        "# #         # #",
+        "# ########### #",
+        "#             #",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 7,
+        "y": 7
+      },
+      "optimalSteps": 96
+    },
+    {
+      "id": "15x15_corridor_spiral@mirror-h",
+      "sourceFile": "mazes/15x15_corridor_spiral.txt",
+      "transform": "mirror-h",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#           #S#",
+        "# ######### # #",
+        "# #       # # #",
+        "# # ##### # # #",
+        "# # #   # # # #",
+        "# # # # # # # #",
+        "# # # #G# # # #",
+        "# # # ### # # #",
+        "# # #     # # #",
+        "# # ####### # #",
+        "# #         # #",
+        "# ########### #",
+        "#             #",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 1
+      },
+      "goal": {
+        "x": 7,
+        "y": 7
+      },
+      "optimalSteps": 96
+    },
+    {
+      "id": "15x15_corridor_spiral@mirror-v",
+      "sourceFile": "mazes/15x15_corridor_spiral.txt",
+      "transform": "mirror-v",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#             #",
+        "# ########### #",
+        "# #         # #",
+        "# # ####### # #",
+        "# # #     # # #",
+        "# # # ### # # #",
+        "# # # #G# # # #",
+        "# # # # # # # #",
+        "# # # #   # # #",
+        "# # # ##### # #",
+        "# # #       # #",
+        "# # ######### #",
+        "#S#           #",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 13
+      },
+      "goal": {
+        "x": 7,
+        "y": 7
+      },
+      "optimalSteps": 96
+    },
+    {
+      "id": "15x15_corridor_spiral@rotate-180",
+      "sourceFile": "mazes/15x15_corridor_spiral.txt",
+      "transform": "rotate-180",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#             #",
+        "# ########### #",
+        "# #         # #",
+        "# # ####### # #",
+        "# # #     # # #",
+        "# # # ### # # #",
+        "# # # #G# # # #",
+        "# # # # # # # #",
+        "# # #   # # # #",
+        "# # ##### # # #",
+        "# #       # # #",
+        "# ######### # #",
+        "#           #S#",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 13
+      },
+      "goal": {
+        "x": 7,
+        "y": 7
+      },
+      "optimalSteps": 96
+    },
+    {
+      "id": "15x15_corridor_straight@original",
+      "sourceFile": "mazes/15x15_corridor_straight.txt",
+      "transform": "original",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#S            #",
+        "############# #",
+        "#             #",
+        "# #############",
+        "#             #",
+        "############# #",
+        "#             #",
+        "# #############",
+        "#             #",
+        "############# #",
+        "#             #",
+        "# #############",
+        "#            G#",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 13,
+        "y": 13
+      },
+      "optimalSteps": 96
+    },
+    {
+      "id": "15x15_corridor_straight@mirror-h",
+      "sourceFile": "mazes/15x15_corridor_straight.txt",
+      "transform": "mirror-h",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#            S#",
+        "# #############",
+        "#             #",
+        "############# #",
+        "#             #",
+        "# #############",
+        "#             #",
+        "############# #",
+        "#             #",
+        "# #############",
+        "#             #",
+        "############# #",
+        "#G            #",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 13
+      },
+      "optimalSteps": 96
+    },
+    {
+      "id": "15x15_corridor_straight@mirror-v",
+      "sourceFile": "mazes/15x15_corridor_straight.txt",
+      "transform": "mirror-v",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#            G#",
+        "# #############",
+        "#             #",
+        "############# #",
+        "#             #",
+        "# #############",
+        "#             #",
+        "############# #",
+        "#             #",
+        "# #############",
+        "#             #",
+        "############# #",
+        "#S            #",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 13
+      },
+      "goal": {
+        "x": 13,
+        "y": 1
+      },
+      "optimalSteps": 96
+    },
+    {
+      "id": "15x15_corridor_straight@rotate-180",
+      "sourceFile": "mazes/15x15_corridor_straight.txt",
+      "transform": "rotate-180",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#G            #",
+        "############# #",
+        "#             #",
+        "# #############",
+        "#             #",
+        "############# #",
+        "#             #",
+        "# #############",
+        "#             #",
+        "############# #",
+        "#             #",
+        "# #############",
+        "#            S#",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 13
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 96
+    },
+    {
+      "id": "15x15_open_detour@original",
+      "sourceFile": "mazes/15x15_open_detour.txt",
+      "transform": "original",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#      S      #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "# #############",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#      G      #",
+        "###############"
+      ],
+      "start": {
+        "x": 7,
+        "y": 1
+      },
+      "goal": {
+        "x": 7,
+        "y": 13
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_detour@mirror-h",
+      "sourceFile": "mazes/15x15_open_detour.txt",
+      "transform": "mirror-h",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#      S      #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "############# #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#      G      #",
+        "###############"
+      ],
+      "start": {
+        "x": 7,
+        "y": 1
+      },
+      "goal": {
+        "x": 7,
+        "y": 13
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_detour@mirror-v",
+      "sourceFile": "mazes/15x15_open_detour.txt",
+      "transform": "mirror-v",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#      G      #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "# #############",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#      S      #",
+        "###############"
+      ],
+      "start": {
+        "x": 7,
+        "y": 13
+      },
+      "goal": {
+        "x": 7,
+        "y": 1
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_detour@rotate-180",
+      "sourceFile": "mazes/15x15_open_detour.txt",
+      "transform": "rotate-180",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#      G      #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "############# #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#      S      #",
+        "###############"
+      ],
+      "start": {
+        "x": 7,
+        "y": 13
+      },
+      "goal": {
+        "x": 7,
+        "y": 1
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_empty@original",
+      "sourceFile": "mazes/15x15_open_empty.txt",
+      "transform": "original",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#S            #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#            G#",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 13,
+        "y": 13
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_empty@mirror-h",
+      "sourceFile": "mazes/15x15_open_empty.txt",
+      "transform": "mirror-h",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#            S#",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#G            #",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 13
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_empty@mirror-v",
+      "sourceFile": "mazes/15x15_open_empty.txt",
+      "transform": "mirror-v",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#            G#",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#S            #",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 13
+      },
+      "goal": {
+        "x": 13,
+        "y": 1
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_empty@rotate-180",
+      "sourceFile": "mazes/15x15_open_empty.txt",
+      "transform": "rotate-180",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#G            #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#            S#",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 13
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_pass@original",
+      "sourceFile": "mazes/15x15_open_pass.txt",
+      "transform": "original",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#S            #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#            G#",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 13,
+        "y": 13
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_pass@mirror-h",
+      "sourceFile": "mazes/15x15_open_pass.txt",
+      "transform": "mirror-h",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#            S#",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#G            #",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 13
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_pass@mirror-v",
+      "sourceFile": "mazes/15x15_open_pass.txt",
+      "transform": "mirror-v",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#            G#",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#S            #",
+        "###############"
+      ],
+      "start": {
+        "x": 1,
+        "y": 13
+      },
+      "goal": {
+        "x": 13,
+        "y": 1
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "15x15_open_pass@rotate-180",
+      "sourceFile": "mazes/15x15_open_pass.txt",
+      "transform": "rotate-180",
+      "width": 15,
+      "height": 15,
+      "layout": [
+        "###############",
+        "#G            #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#    #####    #",
+        "#             #",
+        "#             #",
+        "#             #",
+        "#            S#",
+        "###############"
+      ],
+      "start": {
+        "x": 13,
+        "y": 13
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 24
+    },
+    {
+      "id": "50x50_exploration@original",
+      "sourceFile": "mazes/50x50_exploration.txt",
+      "transform": "original",
+      "width": 50,
+      "height": 50,
+      "layout": [
+        "##################################################",
+        "#S                                               #",
+        "#                                                #",
+        "#       #             ##     #                   #",
+        "#       #             ##     #                   #",
+        "#       #                    #                   #",
+        "#   ######## ############### ################    #",
+        "#       #                    #                   #",
+        "#       #                                        #",
+        "#                #           #    ##             #",
+        "#       #        #           #    #              #",
+        "#       #        #           #                   #",
+        "#     ############## ################ #########  #",
+        "#       #        #           #                   #",
+        "#                #                    #          #",
+        "#       #        #           ###      #          #",
+        "#       #        #           ###      #          #",
+        "#       #        #           #        #          #",
+        "#                                     #          #",
+        "#  ####### ################### #############     #",
+        "#                #                    #          #",
+        "#                #                               #",
+        "#           ##                        #          #",
+        "#           ##   #                    #          #",
+        "#                #                 ## #          #",
+        "#                #                 #  #          #",
+        "#                                     #          #",
+        "#      ################ ################ ######  #",
+        "#                                     #     #    #",
+        "#           #                  ##     #     #    #",
+        "#           #                  ##     #     #    #",
+        "#     ##    #                         #     #    #",
+        "#     #     #                               #    #",
+        "#           #            #                  #    #",
+        "#           #            #                       #",
+        "#  ############ ################# ###########    #",
+        "#           #            #                  #    #",
+        "#           #            #                  #    #",
+        "#           #       ##   #                  #    #",
+        "#           #       ##   #                       #",
+        "#       ##  #                               #    #",
+        "#       #                #                  #    #",
+        "#     ################################ ########  #",
+        "#           #            #                  #    #",
+        "#           #                   ##          #    #",
+        "#           #            #      ##               #",
+        "#           #            #                       #",
+        "#                        #                       #",
+        "#                                               G#",
+        "##################################################"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 48,
+        "y": 48
+      },
+      "optimalSteps": 94
+    },
+    {
+      "id": "50x50_exploration@mirror-h",
+      "sourceFile": "mazes/50x50_exploration.txt",
+      "transform": "mirror-h",
+      "width": 50,
+      "height": 50,
+      "layout": [
+        "##################################################",
+        "#                                               S#",
+        "#                                                #",
+        "#                   #     ##             #       #",
+        "#                   #     ##             #       #",
+        "#                   #                    #       #",
+        "#    ################ ############### ########   #",
+        "#                   #                    #       #",
+        "#                                        #       #",
+        "#             ##    #           #                #",
+        "#              #    #           #        #       #",
+        "#                   #           #        #       #",
+        "#  ######### ################ ##############     #",
+        "#                   #           #        #       #",
+        "#          #                    #                #",
+        "#          #      ###           #        #       #",
+        "#          #      ###           #        #       #",
+        "#          #        #           #        #       #",
+        "#          #                                     #",
+        "#     ############# ################### #######  #",
+        "#          #                    #                #",
+        "#                               #                #",
+        "#          #                        ##           #",
+        "#          #                    #   ##           #",
+        "#          # ##                 #                #",
+        "#          #  #                 #                #",
+        "#          #                                     #",
+        "#  ###### ################ ################      #",
+        "#    #     #                                     #",
+        "#    #     #     ##                  #           #",
+        "#    #     #     ##                  #           #",
+        "#    #     #                         #    ##     #",
+        "#    #                               #     #     #",
+        "#    #                  #            #           #",
+        "#                       #            #           #",
+        "#    ########### ################# ############  #",
+        "#    #                  #            #           #",
+        "#    #                  #            #           #",
+        "#    #                  #   ##       #           #",
+        "#                       #   ##       #           #",
+        "#    #                               #  ##       #",
+        "#    #                  #                #       #",
+        "#  ######## ################################     #",
+        "#    #                  #            #           #",
+        "#    #          ##                   #           #",
+        "#               ##      #            #           #",
+        "#                       #            #           #",
+        "#                       #                        #",
+        "#G                                               #",
+        "##################################################"
+      ],
+      "start": {
+        "x": 48,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 48
+      },
+      "optimalSteps": 94
+    },
+    {
+      "id": "50x50_exploration@mirror-v",
+      "sourceFile": "mazes/50x50_exploration.txt",
+      "transform": "mirror-v",
+      "width": 50,
+      "height": 50,
+      "layout": [
+        "##################################################",
+        "#                                               G#",
+        "#                        #                       #",
+        "#           #            #                       #",
+        "#           #            #      ##               #",
+        "#           #                   ##          #    #",
+        "#           #            #                  #    #",
+        "#     ################################ ########  #",
+        "#       #                #                  #    #",
+        "#       ##  #                               #    #",
+        "#           #       ##   #                       #",
+        "#           #       ##   #                  #    #",
+        "#           #            #                  #    #",
+        "#           #            #                  #    #",
+        "#  ############ ################# ###########    #",
+        "#           #            #                       #",
+        "#           #            #                  #    #",
+        "#     #     #                               #    #",
+        "#     ##    #                         #     #    #",
+        "#           #                  ##     #     #    #",
+        "#           #                  ##     #     #    #",
+        "#                                     #     #    #",
+        "#      ################ ################ ######  #",
+        "#                                     #          #",
+        "#                #                 #  #          #",
+        "#                #                 ## #          #",
+        "#           ##   #                    #          #",
+        "#           ##                        #          #",
+        "#                #                               #",
+        "#                #                    #          #",
+        "#  ####### ################### #############     #",
+        "#                                     #          #",
+        "#       #        #           #        #          #",
+        "#       #        #           ###      #          #",
+        "#       #        #           ###      #          #",
+        "#                #                    #          #",
+        "#       #        #           #                   #",
+        "#     ############## ################ #########  #",
+        "#       #        #           #                   #",
+        "#       #        #           #    #              #",
+        "#                #           #    ##             #",
+        "#       #                                        #",
+        "#       #                    #                   #",
+        "#   ######## ############### ################    #",
+        "#       #                    #                   #",
+        "#       #             ##     #                   #",
+        "#       #             ##     #                   #",
+        "#                                                #",
+        "#S                                               #",
+        "##################################################"
+      ],
+      "start": {
+        "x": 1,
+        "y": 48
+      },
+      "goal": {
+        "x": 48,
+        "y": 1
+      },
+      "optimalSteps": 94
+    },
+    {
+      "id": "50x50_exploration@rotate-180",
+      "sourceFile": "mazes/50x50_exploration.txt",
+      "transform": "rotate-180",
+      "width": 50,
+      "height": 50,
+      "layout": [
+        "##################################################",
+        "#G                                               #",
+        "#                       #                        #",
+        "#                       #            #           #",
+        "#               ##      #            #           #",
+        "#    #          ##                   #           #",
+        "#    #                  #            #           #",
+        "#  ######## ################################     #",
+        "#    #                  #                #       #",
+        "#    #                               #  ##       #",
+        "#                       #   ##       #           #",
+        "#    #                  #   ##       #           #",
+        "#    #                  #            #           #",
+        "#    #                  #            #           #",
+        "#    ########### ################# ############  #",
+        "#                       #            #           #",
+        "#    #                  #            #           #",
+        "#    #                               #     #     #",
+        "#    #     #                         #    ##     #",
+        "#    #     #     ##                  #           #",
+        "#    #     #     ##                  #           #",
+        "#    #     #                                     #",
+        "#  ###### ################ ################      #",
+        "#          #                                     #",
+        "#          #  #                 #                #",
+        "#          # ##                 #                #",
+        "#          #                    #   ##           #",
+        "#          #                        ##           #",
+        "#                               #                #",
+        "#          #                    #                #",
+        "#     ############# ################### #######  #",
+        "#          #                                     #",
+        "#          #        #           #        #       #",
+        "#          #      ###           #        #       #",
+        "#          #      ###           #        #       #",
+        "#          #                    #                #",
+        "#                   #           #        #       #",
+        "#  ######### ################ ##############     #",
+        "#                   #           #        #       #",
+        "#              #    #           #        #       #",
+        "#             ##    #           #                #",
+        "#                                        #       #",
+        "#                   #                    #       #",
+        "#    ################ ############### ########   #",
+        "#                   #                    #       #",
+        "#                   #     ##             #       #",
+        "#                   #     ##             #       #",
+        "#                                                #",
+        "#                                               S#",
+        "##################################################"
+      ],
+      "start": {
+        "x": 48,
+        "y": 48
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 94
+    },
+    {
+      "id": "5x5_corridor_straight@original",
+      "sourceFile": "mazes/5x5_corridor_straight.txt",
+      "transform": "original",
+      "width": 5,
+      "height": 5,
+      "layout": [
+        "#####",
+        "#S#G#",
+        "# # #",
+        "#   #",
+        "#####"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 3,
+        "y": 1
+      },
+      "optimalSteps": 6
+    },
+    {
+      "id": "5x5_corridor_straight@mirror-h",
+      "sourceFile": "mazes/5x5_corridor_straight.txt",
+      "transform": "mirror-h",
+      "width": 5,
+      "height": 5,
+      "layout": [
+        "#####",
+        "#G#S#",
+        "# # #",
+        "#   #",
+        "#####"
+      ],
+      "start": {
+        "x": 3,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 6
+    },
+    {
+      "id": "5x5_corridor_straight@mirror-v",
+      "sourceFile": "mazes/5x5_corridor_straight.txt",
+      "transform": "mirror-v",
+      "width": 5,
+      "height": 5,
+      "layout": [
+        "#####",
+        "#   #",
+        "# # #",
+        "#S#G#",
+        "#####"
+      ],
+      "start": {
+        "x": 1,
+        "y": 3
+      },
+      "goal": {
+        "x": 3,
+        "y": 3
+      },
+      "optimalSteps": 6
+    },
+    {
+      "id": "5x5_corridor_straight@rotate-180",
+      "sourceFile": "mazes/5x5_corridor_straight.txt",
+      "transform": "rotate-180",
+      "width": 5,
+      "height": 5,
+      "layout": [
+        "#####",
+        "#   #",
+        "# # #",
+        "#G#S#",
+        "#####"
+      ],
+      "start": {
+        "x": 3,
+        "y": 3
+      },
+      "goal": {
+        "x": 1,
+        "y": 3
+      },
+      "optimalSteps": 6
+    },
+    {
+      "id": "5x5_open_empty@original",
+      "sourceFile": "mazes/5x5_open_empty.txt",
+      "transform": "original",
+      "width": 5,
+      "height": 5,
+      "layout": [
+        "#####",
+        "#S  #",
+        "#   #",
+        "#  G#",
+        "#####"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 3,
+        "y": 3
+      },
+      "optimalSteps": 4
+    },
+    {
+      "id": "5x5_open_empty@mirror-h",
+      "sourceFile": "mazes/5x5_open_empty.txt",
+      "transform": "mirror-h",
+      "width": 5,
+      "height": 5,
+      "layout": [
+        "#####",
+        "#  S#",
+        "#   #",
+        "#G  #",
+        "#####"
+      ],
+      "start": {
+        "x": 3,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 3
+      },
+      "optimalSteps": 4
+    },
+    {
+      "id": "5x5_open_empty@mirror-v",
+      "sourceFile": "mazes/5x5_open_empty.txt",
+      "transform": "mirror-v",
+      "width": 5,
+      "height": 5,
+      "layout": [
+        "#####",
+        "#  G#",
+        "#   #",
+        "#S  #",
+        "#####"
+      ],
+      "start": {
+        "x": 1,
+        "y": 3
+      },
+      "goal": {
+        "x": 3,
+        "y": 1
+      },
+      "optimalSteps": 4
+    },
+    {
+      "id": "5x5_open_empty@rotate-180",
+      "sourceFile": "mazes/5x5_open_empty.txt",
+      "transform": "rotate-180",
+      "width": 5,
+      "height": 5,
+      "layout": [
+        "#####",
+        "#G  #",
+        "#   #",
+        "#  S#",
+        "#####"
+      ],
+      "start": {
+        "x": 3,
+        "y": 3
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 4
+    },
+    {
+      "id": "7x7_corridor_branch@original",
+      "sourceFile": "mazes/7x7_corridor_branch.txt",
+      "transform": "original",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#S#   #",
+        "# # # #",
+        "#   # #",
+        "# ### #",
+        "#    G#",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 5
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_corridor_branch@mirror-h",
+      "sourceFile": "mazes/7x7_corridor_branch.txt",
+      "transform": "mirror-h",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#   #S#",
+        "# # # #",
+        "# #   #",
+        "# ### #",
+        "#G    #",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 5
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_corridor_branch@mirror-v",
+      "sourceFile": "mazes/7x7_corridor_branch.txt",
+      "transform": "mirror-v",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#    G#",
+        "# ### #",
+        "#   # #",
+        "# # # #",
+        "#S#   #",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 5
+      },
+      "goal": {
+        "x": 5,
+        "y": 1
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_corridor_branch@rotate-180",
+      "sourceFile": "mazes/7x7_corridor_branch.txt",
+      "transform": "rotate-180",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#G    #",
+        "# ### #",
+        "# #   #",
+        "# # # #",
+        "#   #S#",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 5
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_corridor_dead-end@original",
+      "sourceFile": "mazes/7x7_corridor_dead-end.txt",
+      "transform": "original",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#S#   #",
+        "# # ###",
+        "# #   #",
+        "# # # #",
+        "#   #G#",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 5
+      },
+      "optimalSteps": 12
+    },
+    {
+      "id": "7x7_corridor_dead-end@mirror-h",
+      "sourceFile": "mazes/7x7_corridor_dead-end.txt",
+      "transform": "mirror-h",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#   #S#",
+        "### # #",
+        "#   # #",
+        "# # # #",
+        "#G#   #",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 5
+      },
+      "optimalSteps": 12
+    },
+    {
+      "id": "7x7_corridor_dead-end@mirror-v",
+      "sourceFile": "mazes/7x7_corridor_dead-end.txt",
+      "transform": "mirror-v",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#   #G#",
+        "# # # #",
+        "# #   #",
+        "# # ###",
+        "#S#   #",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 5
+      },
+      "goal": {
+        "x": 5,
+        "y": 1
+      },
+      "optimalSteps": 12
+    },
+    {
+      "id": "7x7_corridor_dead-end@rotate-180",
+      "sourceFile": "mazes/7x7_corridor_dead-end.txt",
+      "transform": "rotate-180",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#G#   #",
+        "# # # #",
+        "#   # #",
+        "### # #",
+        "#   #S#",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 5
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 12
+    },
+    {
+      "id": "7x7_corridor_loop@original",
+      "sourceFile": "mazes/7x7_corridor_loop.txt",
+      "transform": "original",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#S#   #",
+        "# # # #",
+        "#     #",
+        "# # # #",
+        "#   #G#",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 5
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_corridor_loop@mirror-h",
+      "sourceFile": "mazes/7x7_corridor_loop.txt",
+      "transform": "mirror-h",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#   #S#",
+        "# # # #",
+        "#     #",
+        "# # # #",
+        "#G#   #",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 5
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_corridor_loop@mirror-v",
+      "sourceFile": "mazes/7x7_corridor_loop.txt",
+      "transform": "mirror-v",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#   #G#",
+        "# # # #",
+        "#     #",
+        "# # # #",
+        "#S#   #",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 5
+      },
+      "goal": {
+        "x": 5,
+        "y": 1
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_corridor_loop@rotate-180",
+      "sourceFile": "mazes/7x7_corridor_loop.txt",
+      "transform": "rotate-180",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#G#   #",
+        "# # # #",
+        "#     #",
+        "# # # #",
+        "#   #S#",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 5
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_corridor_spiral@original",
+      "sourceFile": "mazes/7x7_corridor_spiral.txt",
+      "transform": "original",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#S#   #",
+        "# # # #",
+        "# #G# #",
+        "# ### #",
+        "#     #",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 3,
+        "y": 3
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "7x7_corridor_spiral@mirror-h",
+      "sourceFile": "mazes/7x7_corridor_spiral.txt",
+      "transform": "mirror-h",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#   #S#",
+        "# # # #",
+        "# #G# #",
+        "# ### #",
+        "#     #",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 1
+      },
+      "goal": {
+        "x": 3,
+        "y": 3
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "7x7_corridor_spiral@mirror-v",
+      "sourceFile": "mazes/7x7_corridor_spiral.txt",
+      "transform": "mirror-v",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#     #",
+        "# ### #",
+        "# #G# #",
+        "# # # #",
+        "#S#   #",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 5
+      },
+      "goal": {
+        "x": 3,
+        "y": 3
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "7x7_corridor_spiral@rotate-180",
+      "sourceFile": "mazes/7x7_corridor_spiral.txt",
+      "transform": "rotate-180",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#     #",
+        "# ### #",
+        "# #G# #",
+        "# # # #",
+        "#   #S#",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 5
+      },
+      "goal": {
+        "x": 3,
+        "y": 3
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "7x7_corridor_straight@original",
+      "sourceFile": "mazes/7x7_corridor_straight.txt",
+      "transform": "original",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#S    #",
+        "##### #",
+        "#     #",
+        "# #####",
+        "#    G#",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 5
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "7x7_corridor_straight@mirror-h",
+      "sourceFile": "mazes/7x7_corridor_straight.txt",
+      "transform": "mirror-h",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#    S#",
+        "# #####",
+        "#     #",
+        "##### #",
+        "#G    #",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 5
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "7x7_corridor_straight@mirror-v",
+      "sourceFile": "mazes/7x7_corridor_straight.txt",
+      "transform": "mirror-v",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#    G#",
+        "# #####",
+        "#     #",
+        "##### #",
+        "#S    #",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 5
+      },
+      "goal": {
+        "x": 5,
+        "y": 1
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "7x7_corridor_straight@rotate-180",
+      "sourceFile": "mazes/7x7_corridor_straight.txt",
+      "transform": "rotate-180",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#G    #",
+        "##### #",
+        "#     #",
+        "# #####",
+        "#    S#",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 5
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "7x7_open_detour@original",
+      "sourceFile": "mazes/7x7_open_detour.txt",
+      "transform": "original",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#  S  #",
+        "#     #",
+        "# #####",
+        "#     #",
+        "#  G  #",
+        "#######"
+      ],
+      "start": {
+        "x": 3,
+        "y": 1
+      },
+      "goal": {
+        "x": 3,
+        "y": 5
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_detour@mirror-h",
+      "sourceFile": "mazes/7x7_open_detour.txt",
+      "transform": "mirror-h",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#  S  #",
+        "#     #",
+        "##### #",
+        "#     #",
+        "#  G  #",
+        "#######"
+      ],
+      "start": {
+        "x": 3,
+        "y": 1
+      },
+      "goal": {
+        "x": 3,
+        "y": 5
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_detour@mirror-v",
+      "sourceFile": "mazes/7x7_open_detour.txt",
+      "transform": "mirror-v",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#  G  #",
+        "#     #",
+        "# #####",
+        "#     #",
+        "#  S  #",
+        "#######"
+      ],
+      "start": {
+        "x": 3,
+        "y": 5
+      },
+      "goal": {
+        "x": 3,
+        "y": 1
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_detour@rotate-180",
+      "sourceFile": "mazes/7x7_open_detour.txt",
+      "transform": "rotate-180",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#  G  #",
+        "#     #",
+        "##### #",
+        "#     #",
+        "#  S  #",
+        "#######"
+      ],
+      "start": {
+        "x": 3,
+        "y": 5
+      },
+      "goal": {
+        "x": 3,
+        "y": 1
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_empty@original",
+      "sourceFile": "mazes/7x7_open_empty.txt",
+      "transform": "original",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#S    #",
+        "#     #",
+        "#     #",
+        "#     #",
+        "#    G#",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 5
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_empty@mirror-h",
+      "sourceFile": "mazes/7x7_open_empty.txt",
+      "transform": "mirror-h",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#    S#",
+        "#     #",
+        "#     #",
+        "#     #",
+        "#G    #",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 5
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_empty@mirror-v",
+      "sourceFile": "mazes/7x7_open_empty.txt",
+      "transform": "mirror-v",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#    G#",
+        "#     #",
+        "#     #",
+        "#     #",
+        "#S    #",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 5
+      },
+      "goal": {
+        "x": 5,
+        "y": 1
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_empty@rotate-180",
+      "sourceFile": "mazes/7x7_open_empty.txt",
+      "transform": "rotate-180",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#G    #",
+        "#     #",
+        "#     #",
+        "#     #",
+        "#    S#",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 5
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_pass@original",
+      "sourceFile": "mazes/7x7_open_pass.txt",
+      "transform": "original",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#S    #",
+        "#     #",
+        "#  #  #",
+        "#     #",
+        "#    G#",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 5
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_pass@mirror-h",
+      "sourceFile": "mazes/7x7_open_pass.txt",
+      "transform": "mirror-h",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#    S#",
+        "#     #",
+        "#  #  #",
+        "#     #",
+        "#G    #",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 5
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_pass@mirror-v",
+      "sourceFile": "mazes/7x7_open_pass.txt",
+      "transform": "mirror-v",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#    G#",
+        "#     #",
+        "#  #  #",
+        "#     #",
+        "#S    #",
+        "#######"
+      ],
+      "start": {
+        "x": 1,
+        "y": 5
+      },
+      "goal": {
+        "x": 5,
+        "y": 1
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "7x7_open_pass@rotate-180",
+      "sourceFile": "mazes/7x7_open_pass.txt",
+      "transform": "rotate-180",
+      "width": 7,
+      "height": 7,
+      "layout": [
+        "#######",
+        "#G    #",
+        "#     #",
+        "#  #  #",
+        "#     #",
+        "#    S#",
+        "#######"
+      ],
+      "start": {
+        "x": 5,
+        "y": 5
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "v212_open_goal_2_8@original",
+      "sourceFile": "mazes/v212_open_goal_2_8.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S        #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "# G       #",
+        "#         #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 2,
+        "y": 8
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "v212_open_goal_2_8@mirror-h",
+      "sourceFile": "mazes/v212_open_goal_2_8.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        S#",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#       G #",
+        "#         #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 8,
+        "y": 8
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "v212_open_goal_2_8@mirror-v",
+      "sourceFile": "mazes/v212_open_goal_2_8.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#         #",
+        "# G       #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#S        #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 2,
+        "y": 2
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "v212_open_goal_2_8@rotate-180",
+      "sourceFile": "mazes/v212_open_goal_2_8.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#         #",
+        "#       G #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#        S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 8,
+        "y": 2
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "v212_open_goal_3_3@original",
+      "sourceFile": "mazes/v212_open_goal_3_3.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S        #",
+        "#         #",
+        "#  G      #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 3,
+        "y": 3
+      },
+      "optimalSteps": 4
+    },
+    {
+      "id": "v212_open_goal_3_3@mirror-h",
+      "sourceFile": "mazes/v212_open_goal_3_3.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        S#",
+        "#         #",
+        "#      G  #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 7,
+        "y": 3
+      },
+      "optimalSteps": 4
+    },
+    {
+      "id": "v212_open_goal_3_3@mirror-v",
+      "sourceFile": "mazes/v212_open_goal_3_3.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#  G      #",
+        "#         #",
+        "#S        #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 3,
+        "y": 7
+      },
+      "optimalSteps": 4
+    },
+    {
+      "id": "v212_open_goal_3_3@rotate-180",
+      "sourceFile": "mazes/v212_open_goal_3_3.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#      G  #",
+        "#         #",
+        "#        S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 7,
+        "y": 7
+      },
+      "optimalSteps": 4
+    },
+    {
+      "id": "v212_open_goal_5_7@original",
+      "sourceFile": "mazes/v212_open_goal_5_7.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S        #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#    G    #",
+        "#         #",
+        "#         #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 7
+      },
+      "optimalSteps": 10
+    },
+    {
+      "id": "v212_open_goal_5_7@mirror-h",
+      "sourceFile": "mazes/v212_open_goal_5_7.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        S#",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#    G    #",
+        "#         #",
+        "#         #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 5,
+        "y": 7
+      },
+      "optimalSteps": 10
+    },
+    {
+      "id": "v212_open_goal_5_7@mirror-v",
+      "sourceFile": "mazes/v212_open_goal_5_7.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#         #",
+        "#         #",
+        "#    G    #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#S        #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 5,
+        "y": 3
+      },
+      "optimalSteps": 10
+    },
+    {
+      "id": "v212_open_goal_5_7@rotate-180",
+      "sourceFile": "mazes/v212_open_goal_5_7.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#         #",
+        "#         #",
+        "#    G    #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#        S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 5,
+        "y": 3
+      },
+      "optimalSteps": 10
+    },
+    {
+      "id": "v212_open_goal_8_2@original",
+      "sourceFile": "mazes/v212_open_goal_8_2.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S        #",
+        "#       G #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 8,
+        "y": 2
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "v212_open_goal_8_2@mirror-h",
+      "sourceFile": "mazes/v212_open_goal_8_2.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        S#",
+        "# G       #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 2,
+        "y": 2
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "v212_open_goal_8_2@mirror-v",
+      "sourceFile": "mazes/v212_open_goal_8_2.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#       G #",
+        "#S        #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 8,
+        "y": 8
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "v212_open_goal_8_2@rotate-180",
+      "sourceFile": "mazes/v212_open_goal_8_2.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "# G       #",
+        "#        S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 2,
+        "y": 8
+      },
+      "optimalSteps": 8
+    },
+    {
+      "id": "v212_open_goal_9_9@original",
+      "sourceFile": "mazes/v212_open_goal_9_9.txt",
+      "transform": "original",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#S        #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#        G#",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 1
+      },
+      "goal": {
+        "x": 9,
+        "y": 9
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "v212_open_goal_9_9@mirror-h",
+      "sourceFile": "mazes/v212_open_goal_9_9.txt",
+      "transform": "mirror-h",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        S#",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#G        #",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 1
+      },
+      "goal": {
+        "x": 1,
+        "y": 9
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "v212_open_goal_9_9@mirror-v",
+      "sourceFile": "mazes/v212_open_goal_9_9.txt",
+      "transform": "mirror-v",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#        G#",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#S        #",
+        "###########"
+      ],
+      "start": {
+        "x": 1,
+        "y": 9
+      },
+      "goal": {
+        "x": 9,
+        "y": 1
+      },
+      "optimalSteps": 16
+    },
+    {
+      "id": "v212_open_goal_9_9@rotate-180",
+      "sourceFile": "mazes/v212_open_goal_9_9.txt",
+      "transform": "rotate-180",
+      "width": 11,
+      "height": 11,
+      "layout": [
+        "###########",
+        "#G        #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#         #",
+        "#        S#",
+        "###########"
+      ],
+      "start": {
+        "x": 9,
+        "y": 9
+      },
+      "goal": {
+        "x": 1,
+        "y": 1
+      },
+      "optimalSteps": 16
+    }
+  ]
+}
