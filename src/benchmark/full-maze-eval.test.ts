@@ -7,14 +7,14 @@ import { MOVES } from '@/execution/execution';
 import type { AgentMemoryState } from '@/agent/memory';
 import type { Move } from '@/execution/execution';
 import {
-  TRANSFORMS, bfsShortestPath, resolveLayaKey, buildSuiteEntry, createPolicies, layaBody, rng, runEpisode, runsCsv, runsJson, seededShuffle, stepCapFor, transformLayout, transformPosition, wilson,
+  TRANSFORMS, bfsShortestPath, resolveLayaKey, layaBody as buildLayaBody, ollamaRequestBody, rawNoSmellPrompt, seedCount, stuckWindowFor, buildSuiteEntry, createPolicies, layaBody, rng, runEpisode, runsCsv, runsJson, seededShuffle, stepCapFor, transformLayout, transformPosition, wilson,
   type DecisionState, type Policy,
 } from './full-maze-eval';
 
 const LAYOUT = ['#######', '#S#   #', '# # # #', '#   #G#', '#######'];
 const CORRIDOR = ['#####', '#S G#', '#####'];
 const NETWORK = { timeoutMs: 1000, ollamaUrl: 'http://ollama.invalid', ollamaModel: 'qwen3:1.7b', layaUrl: 'http://laya.invalid' };
-const fixed = (choose: (state: DecisionState) => Move | null, failure?: 'timeout' | 'http' | 'parse'): Policy => ({ id: 'fixed-rd', deterministic: true, config: { payloadBuilder: 'test', endpoint: null, model: null, think: null, temperature: null, format: null, optionOrdering: 'test' }, decide: async (state) => ({ choice: choose(state), latencyMs: failure ? 5 : null, failure }) });
+const fixed = (choose: (state: DecisionState) => Move | null, failure?: 'timeout' | 'http' | 'parse'): Policy => ({ id: 'fixed-rd', kind: 'baseline', deterministic: true, config: { payloadBuilder: 'test', endpoint: null, model: null, think: null, temperature: null, format: null, optionOrdering: 'test', sees: 'test' }, decide: async (state) => ({ choice: choose(state), latencyMs: failure ? 5 : null, failure }) });
 
 afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 
@@ -112,6 +112,82 @@ describe('run loop', () => {
   });
 });
 
+describe('stuck rule', () => {
+  const corridor = buildSuiteEntry(['#######', '#S    #', '##### #', '#G    #', '#######'], 'long.txt', 'original');
+
+  it('uses max(50, 2 × optimalSteps)', () => {
+    expect(stuckWindowFor(10)).toBe(50);
+    expect(stuckWindowFor(60)).toBe(120);
+  });
+
+  it('ends an oscillating run as stuck once no new cell has been visited for the window', async () => {
+    let i = 0;
+    const run = await runEpisode(corridor, fixed(() => (i++ % 2 === 0 ? 'right' : 'left')), 1, { sleepMs: 0 });
+    expect(run.status).toBe('stuck');
+    expect(run.stuck).toBe(true);
+    expect(run.completed).toBe(false);
+    expect(run.lastNewCellStep).toBe(1);
+    expect(run.steps).toBe(1 + run.stuckWindow);
+  });
+
+  it('ends a run that keeps hitting the same wall as stuck, not step-cap', async () => {
+    const run = await runEpisode(corridor, fixed(() => 'up'), 1, { sleepMs: 0 });
+    expect(run.status).toBe('stuck');
+    expect(run.lastNewCellStep).toBe(0);
+    expect(run.steps).toBe(run.stuckWindow);
+    expect(run.illegalMoves).toBe(run.stuckWindow);
+  });
+
+  it('resets the window whenever a new cell is visited', async () => {
+    const script: Move[] = ['right', 'left', 'right', 'right', 'left', 'right', 'right'];
+    let i = 0;
+    const run = await runEpisode(corridor, fixed(() => script[i++] ?? 'left'), 1, { sleepMs: 0, stuckWindow: 4 });
+    expect(run.lastNewCellStep).toBe(7);
+    expect(run.status).toBe('stuck');
+    expect(run.steps).toBe(11);
+  });
+
+  it('does not override completion or the step cap when the cap comes first', async () => {
+    const reached = await runEpisode(buildSuiteEntry(CORRIDOR, 'c.txt', 'original'), fixed(() => 'right'), 1, { sleepMs: 0, stuckWindow: 1 });
+    expect(reached.status).toBe('completed');
+    const capped = await runEpisode(corridor, fixed(() => 'up'), 1, { sleepMs: 0, stepCap: 10 });
+    expect(capped.status).toBe('step-cap');
+  });
+});
+
+describe('smell-free payloads', () => {
+  it('serialise without any smell or score value, keeping walls, visits and coordinates', async () => {
+    const maze = new Maze(['#########', '#S      #', '# ##### #', '#     #G#', '#########']);
+    const { AgentMemory } = await import('@/agent/memory');
+    const memory = new AgentMemory();
+    let position = maze.startPosition;
+    for (const move of ['right', 'right', 'left'] as Move[]) {
+      const perception = maze.perceive(position);
+      memory.rememberPerception(perception, position === maze.startPosition);
+      const target = { x: position.x + (move === 'right' ? 1 : -1), y: position.y };
+      memory.rememberAction({ from: position, move, succeeded: true, to: target, message: 'move', effects: memory.evaluate(perception, move) });
+      position = target;
+    }
+    const perception = maze.perceive(position);
+    memory.rememberPerception(perception);
+    const snapshot = memory.snapshot();
+    const state: DecisionState = { position, goal: maze.goalPosition, perception, memory: snapshot, validActions: ['left', 'right'] };
+    const smells = [perception.smell, ...(['up', 'down', 'left', 'right'] as Move[]).filter((m) => perception.directions[m] !== 'wall').map((m) => perception.directionSmell[m])];
+    const scores = Object.values(snapshot.actionEffects).map((e) => e!.totalExpectedEiLDelta);
+    expect(smells.every((v) => v > 9)).toBe(true);
+    const allowed = new Set([0, position.x, position.y, maze.goalPosition.x, maze.goalPosition.y, ...Object.values(snapshot.visitCounts)].map(String));
+    for (const text of [JSON.stringify(buildLayaBody(state, 'A-raw-nosmell')), rawNoSmellPrompt(state), JSON.stringify((ollamaRequestBody('m', rawNoSmellPrompt(state), false) as any).messages)]) {
+      expect(text).not.toMatch(/smell|score/i);
+      for (const number of text.match(/-?\d+/g) ?? []) expect(allowed.has(number)).toBe(true);
+      for (const value of [...smells, ...scores.filter((v) => !allowed.has(String(v)))]) expect(text).not.toMatch(new RegExp(`(^|\\D)${value}(\\D|$)`));
+      expect(text).toMatch(/wall/);
+      expect(text).toMatch(/visits=2|visits=1/);
+      expect(text.includes(`(${position.x},${position.y})`) || text.includes(`(${position.x},${position.y})`.replace(/"/g, ''))).toBe(true);
+    }
+    expect(Object.keys((buildLayaBody(state, 'A-raw-nosmell') as any).questions.move.criteria)).toEqual(['UP', 'DOWN', 'LEFT', 'RIGHT']);
+  });
+});
+
 describe('statistics and randomness', () => {
   it('computes Wilson intervals', () => {
     const { low, high } = wilson(5, 10);
@@ -138,6 +214,32 @@ describe('statistics and randomness', () => {
     const state: DecisionState = { position: maze.startPosition, goal: maze.goalPosition, perception, memory: memory.snapshot(), validActions: ['up', 'down', 'left', 'right'] };
     const body = layaBody(state, 'B-constrained', ['left', 'up', 'right', 'down']) as any;
     expect(Object.keys(body.questions.move.criteria)).toEqual(['LEFT', 'UP', 'RIGHT', 'DOWN']);
+  });
+});
+
+describe('seed counts', () => {
+  it('runs Laya once only when the determinism check passed, random-legal three times and Ollama once', () => {
+    const [scorer, random, laya, ollama] = createPolicies(['scorer', 'random-legal', 'laya-constrained-shuffled', 'ollama-raw-nosmell'], NETWORK);
+    expect([scorer, random, laya, ollama].map((p) => seedCount(p, 'tier-a', true))).toEqual([1, 3, 1, 1]);
+    expect(seedCount(laya, 'tier-a', false)).toBe(3);
+    expect(seedCount(random, 'smoke', true)).toBe(1);
+  });
+});
+
+describe('criteria check', () => {
+  const maze = ['#######', '#S    #', '# ### #', '#    G#', '#######'];
+  it('finds no mismatches in the real laya-constrained payload and flags a tampered one', async () => {
+    vi.stubEnv('LAYA_API_KEY', 'fake-laya-key-123456789');
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ answers: { move: { choice: 'RIGHT' } } }), { status: 200 })));
+    const entry = buildSuiteEntry(maze, 'm.txt', 'original');
+    const [policy] = createPolicies(['laya-constrained'], NETWORK);
+    const run = await runEpisode(entry, policy, 1, { sleepMs: 0, stepCap: 20 });
+    expect(run.criteriaChecked).toBeGreaterThan(5);
+    expect(run.criteriaMismatches).toBe(0);
+    const tampered: Policy = { ...policy, decide: async (state, random) => { const d = await policy.decide(state, random); return { ...d, criteria: Object.fromEntries(Object.entries(d.criteria!).map(([k, v]) => [k, v.replace(/visited (\d+)$/, (_, n) => `visited ${Number(n) + 1}`)])) }; } };
+    const bad = await runEpisode(entry, tampered, 1, { sleepMs: 0, stepCap: 3 });
+    expect(bad.criteriaMismatches).toBe(bad.criteriaChecked);
+    expect(bad.errors[0]).toMatch(/criteria mismatch/);
   });
 });
 

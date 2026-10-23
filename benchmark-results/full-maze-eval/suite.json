@@ -1,5 +1,53 @@
 {
   "stepCapRule": "max(4 * optimalSteps, 200)",
+  "stuckRule": "stuck when no new cell visited in the last max(50, 2 * optimalSteps) steps",
+  "tierB": {
+    "rule": "1 seed, Ollama policies, 8 mazes × 4 orientations",
+    "mazes": [
+      "mazes/5x5_open_empty.txt",
+      "mazes/7x7_corridor_spiral.txt",
+      "mazes/7x7_open_detour.txt",
+      "mazes/11x11_corridor_dead-end.txt",
+      "mazes/11x11_corridor_loop.txt",
+      "mazes/15x15_corridor_spiral.txt",
+      "mazes/15x15_open_detour.txt",
+      "mazes/50x50_exploration.txt"
+    ],
+    "entryIds": [
+      "11x11_corridor_dead-end@original",
+      "11x11_corridor_dead-end@mirror-h",
+      "11x11_corridor_dead-end@mirror-v",
+      "11x11_corridor_dead-end@rotate-180",
+      "11x11_corridor_loop@original",
+      "11x11_corridor_loop@mirror-h",
+      "11x11_corridor_loop@mirror-v",
+      "11x11_corridor_loop@rotate-180",
+      "15x15_corridor_spiral@original",
+      "15x15_corridor_spiral@mirror-h",
+      "15x15_corridor_spiral@mirror-v",
+      "15x15_corridor_spiral@rotate-180",
+      "15x15_open_detour@original",
+      "15x15_open_detour@mirror-h",
+      "15x15_open_detour@mirror-v",
+      "15x15_open_detour@rotate-180",
+      "50x50_exploration@original",
+      "50x50_exploration@mirror-h",
+      "50x50_exploration@mirror-v",
+      "50x50_exploration@rotate-180",
+      "5x5_open_empty@original",
+      "5x5_open_empty@mirror-h",
+      "5x5_open_empty@mirror-v",
+      "5x5_open_empty@rotate-180",
+      "7x7_corridor_spiral@original",
+      "7x7_corridor_spiral@mirror-h",
+      "7x7_corridor_spiral@mirror-v",
+      "7x7_corridor_spiral@rotate-180",
+      "7x7_open_detour@original",
+      "7x7_open_detour@mirror-h",
+      "7x7_open_detour@mirror-v",
+      "7x7_open_detour@rotate-180"
+    ]
+  },
   "entries": [
     {
       "id": "11x11_corridor_branch@original",
