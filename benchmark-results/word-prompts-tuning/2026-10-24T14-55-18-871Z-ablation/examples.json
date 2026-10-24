@@ -1,0 +1,74 @@
+{
+  "laya-warmer-only": {
+    "endpoint": "http://192.168.88.100:8000/v1/systemone",
+    "body": {
+      "state": {
+        "body": "You are a mouse in a dark maze, searching for cheese by smell.\nThe smell is faint.\nThe cheese is where the smell is strongest. Always move in a direction where the smell grows stronger. Never choose a direction where it grows weaker.\nChoose the direction most likely to lead to the cheese."
+      },
+      "questions": {
+        "move": {
+          "type": "choice",
+          "instructions": "The cheese is where the smell is strongest. Always move in a direction where the smell grows stronger. Never choose a direction where it grows weaker. Choose exactly one movement direction. Return the direction label.",
+          "criteria": {
+            "DOWN": "warmer, the smell grows stronger",
+            "UP": "colder, the smell grows weaker"
+          }
+        }
+      }
+    }
+  },
+  "laya-smell-only": {
+    "endpoint": "http://192.168.88.100:8000/v1/systemone",
+    "body": {
+      "state": {
+        "body": "You are a mouse in a dark maze, searching for cheese by smell.\nThe smell is faint.\nThe cheese is where the smell is strongest. Always move in a direction where the smell grows stronger. Never choose a direction where it grows weaker.\nChoose the direction most likely to lead to the cheese."
+      },
+      "questions": {
+        "move": {
+          "type": "choice",
+          "instructions": "The cheese is where the smell is strongest. Always move in a direction where the smell grows stronger. Never choose a direction where it grows weaker. Choose exactly one movement direction. Return the direction label.",
+          "criteria": {
+            "DOWN": "the smell grows stronger",
+            "UP": "the smell grows weaker"
+          }
+        }
+      }
+    }
+  },
+  "ollama-warmer-only": {
+    "endpoint": "http://192.168.88.100:11434/api/chat",
+    "body": {
+      "model": "qwen3:1.7b",
+      "messages": [
+        {
+          "role": "user",
+          "content": "You are a mouse in a dark maze, searching for cheese by smell.\nThe smell is faint.\nThe cheese is where the smell is strongest. Always move in a direction where the smell grows stronger. Never choose a direction where it grows weaker.\nYou can go:\nUP: colder, the smell grows weaker.\nDOWN: warmer, the smell grows stronger.\nChoose one direction.\nReturn only JSON: {\"move\":\"up|down|left|right\"}."
+        }
+      ],
+      "stream": false,
+      "format": "json",
+      "think": false,
+      "options": {
+        "temperature": 0.2
+      }
+    }
+  },
+  "ollama-smell-only": {
+    "endpoint": "http://192.168.88.100:11434/api/chat",
+    "body": {
+      "model": "qwen3:1.7b",
+      "messages": [
+        {
+          "role": "user",
+          "content": "You are a mouse in a dark maze, searching for cheese by smell.\nThe smell is faint.\nThe cheese is where the smell is strongest. Always move in a direction where the smell grows stronger. Never choose a direction where it grows weaker.\nYou can go:\nUP: the smell grows weaker.\nDOWN: the smell grows stronger.\nChoose one direction.\nReturn only JSON: {\"move\":\"up|down|left|right\"}."
+        }
+      ],
+      "stream": false,
+      "format": "json",
+      "think": false,
+      "options": {
+        "temperature": 0.2
+      }
+    }
+  }
+}

@@ -51,8 +51,10 @@ import { Maze } from '@/maze/maze';
 // Prompt-tuning round: single-step "toward stronger smell" on the 100 frozen states, then the best variant per model
 // through the 4 maze entries of the word-prompt experiment. Words only; production prompts are untouched.
 
-export type TuningVariant = 'lookahead' | 'lookahead-rule' | 'warmer-only';
+export type TuningVariant = 'lookahead' | 'lookahead-rule' | 'warmer-only' | 'smell-only';
+/** Variants of the main tuning round; smell-only is used only by --mode ablation. */
 export const TUNING_VARIANTS: TuningVariant[] = ['lookahead', 'lookahead-rule', 'warmer-only'];
+export const ABLATION_VARIANTS: TuningVariant[] = ['warmer-only', 'smell-only'];
 export const RULE =
   'The cheese is where the smell is strongest. Always move in a direction where the smell grows stronger. Never choose a direction where it grows weaker.';
 export type Arm = { model: Model; variant: TuningVariant; think: boolean };
@@ -71,6 +73,10 @@ class BudgetReached extends Error {}
 export function warmerLine(state: DecisionState, move: Move): string {
   return state.perception.directionSmell[move] > state.perception.smell ? 'warmer, the smell grows stronger' : 'colder, the smell grows weaker';
 }
+/** warmerLine() without the "warmer, " / "colder, " prefix. */
+export function smellOnlyLine(state: DecisionState, move: Move): string {
+  return state.perception.directionSmell[move] > state.perception.smell ? 'the smell grows stronger' : 'the smell grows weaker';
+}
 /** Legal directions whose neighbour cell smells stronger than the current one. */
 export function strongerMoves(state: DecisionState): Move[] {
   return state.validActions.filter((move) => state.perception.directionSmell[move] > state.perception.smell);
@@ -79,7 +85,7 @@ export function strongerMoves(state: DecisionState): Move[] {
 /** The request body for an arm, before the Ollama envelope; for Ollama it is { prompt }. */
 export function tunedRequest(model: Model, variant: TuningVariant, state: DecisionState, order: Move[]): Record<string, unknown> {
   if (variant === 'lookahead') return wordRequest(model, 'words-lookahead', state, order, '');
-  const line = variant === 'lookahead-rule' ? lookaheadLine : warmerLine;
+  const line = variant === 'lookahead-rule' ? lookaheadLine : variant === 'smell-only' ? smellOnlyLine : warmerLine;
   const closeness = `${capitalise(closenessWords(state.perception.smell))}.`;
   if (model === 'laya')
     return {
@@ -142,6 +148,96 @@ function git(command: string): string {
   }
 }
 
+/** Reads the previous main tuning round's rows, to check warmer-only reproduces. */
+async function previousTuningRows(outputDir: string): Promise<{ dir: string; rows: Row[] } | null> {
+  const dirs = (await fs.readdir(outputDir).catch(() => [] as string[])).filter((d) => !d.endsWith('-ablation')).sort();
+  for (const dir of dirs.reverse()) {
+    const file = path.join(outputDir, dir, 'results.json');
+    const body = await fs.readFile(file, 'utf-8').catch(() => null);
+    if (body) return { dir: path.relative(ROOT, path.join(outputDir, dir)), rows: JSON.parse(body).rows as Row[] };
+  }
+  return null;
+}
+
+async function writeAblationReport(
+  runDir: string,
+  config: Config,
+  timestamp: string,
+  states: (DecisionState & { id: string })[],
+  rows: Row[],
+  examples: Map<string, CapturedRequest>,
+  notes: string[],
+  elapsedMs: number,
+): Promise<void> {
+  const previous = await previousTuningRows(config.outputDir);
+  const byId = new Map(states.map((s) => [s.id, s]));
+  const lines = [
+    '# Ablation: warmer-only vs smell-only',
+    '',
+    `- Timestamp: ${timestamp} · commit ${git('git rev-parse HEAD')}${git('git status --porcelain') ? ' (dirty)' : ''} · seed ${config.seed}`,
+    `- Single step on the ${states.length} frozen states, 1 request per state per arm. Ollama ${config.ollamaModel}, think:false, temperature 0.2.`,
+    '- The two arms\' requests differ only in the option text: smell-only drops the "warmer, " / "colder, " prefix. Intro, closeness sentence, rule, instructions and option order are byte-identical; the order uses warmer-only\'s shuffle seed from the last round, so warmer-only\'s requests are also byte-identical to that round\'s.',
+    `- Time budget ${config.budgetMs / 60_000} min; used ${seconds(elapsedMs)}.`,
+    ...notes.map((n) => `- ${n}`),
+    '',
+  ];
+  for (const model of ['laya', 'ollama'] as Model[]) {
+    const ids = ABLATION_VARIANTS.map((variant) => armId({ model, variant, think: false }));
+    lines.push(
+      `## ${model === 'laya' ? 'Laya' : `Ollama ${config.ollamaModel}`}`,
+      '',
+      '| Arm | States | Toward stronger | Legal | Failed | Mean latency |',
+      '|---|---:|---:|---:|---:|---:|',
+    );
+    for (const id of ids) {
+      const s = summarise(rows.filter((r) => r.arm === id));
+      lines.push(
+        `| ${id.replace(`${model}-`, '')} | ${s.states} | ${pct(s.towardRate)} | ${pct(s.legalRate)} | ${s.failures} | ${Math.round(s.meanLatencyMs)} ms |`,
+      );
+    }
+    const [warmer, smell] = ids.map((id) => new Map(rows.filter((r) => r.arm === id).map((r) => [r.stateId, r])));
+    const differ = [...warmer.values()].filter((w) => smell.has(w.stateId) && smell.get(w.stateId)!.choice !== w.choice);
+    const prev = previous?.rows.filter((r) => r.arm === ids[0]) ?? [];
+    if (prev.length) {
+      const same = prev.filter((p) => warmer.get(p.stateId)?.choice === p.choice).length;
+      lines.push('', `warmer-only reproduction against \`${previous!.dir}\`: ${same}/${prev.length} identical choices.`);
+    }
+    lines.push('', `### States where the two arms chose differently: ${differ.length}`, '');
+    if (differ.length) {
+      lines.push('| State | Options (order shown) | Stronger | warmer-only | smell-only |', '|---|---|---|---|---|');
+      for (const w of differ) {
+        const mark = (choice: Move | null) =>
+          choice === null
+            ? `failed (${w.failure ?? smell.get(w.stateId)!.failure})`
+            : `${choice}${strongerMoves(byId.get(w.stateId)!).includes(choice) ? ' ✓' : ' ✗'}`;
+        lines.push(
+          `| ${w.stateId} | ${w.order.join(', ')} | ${strongerMoves(byId.get(w.stateId)!).join(', ')} | ${mark(w.choice)} | ${mark(smell.get(w.stateId)!.choice)} |`,
+        );
+      }
+      lines.push('', '✓ = a direction where the smell grows stronger.');
+    }
+    lines.push('');
+  }
+  lines.push(
+    '## Example requests',
+    '',
+    "Each arm's first request (frozen state `state-001`), exactly as sent. The Laya key travels only in the Authorization header.",
+    '',
+  );
+  for (const [id, example] of examples) {
+    lines.push(`### ${id}`, '', `POST ${example.endpoint}`, '', '```json', JSON.stringify(example.body, null, 2), '```', '');
+    const prompt = (example.body.messages as { content: string }[] | undefined)?.[0]?.content;
+    if (prompt) lines.push('Prompt text as the model reads it:', '', '```text', prompt, '```', '');
+  }
+  await fs.writeFile(
+    path.join(runDir, 'results.json'),
+    redactSecrets(JSON.stringify({ timestamp, seed: config.seed, mode: 'ablation', notes, rows }, null, 2)),
+  );
+  await fs.writeFile(path.join(runDir, 'examples.json'), redactSecrets(JSON.stringify(Object.fromEntries(examples), null, 2)));
+  await fs.writeFile(path.join(runDir, 'report.md'), redactSecrets(lines.join('\n') + '\n'));
+  console.log(`Done in ${seconds(elapsedMs)}. Report: ${path.join(runDir, 'report.md')}`);
+}
+
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const get = (name: string) => {
@@ -157,6 +253,9 @@ async function main(): Promise<void> {
     ollamaModel: process.env.OLLAMA_MODEL ?? 'qwen3:1.7b',
   };
   if (!(config.budgetMs > 0)) throw new Error('--time-budget-min must be a positive number.');
+  const mode = get('--mode') ?? 'tuning';
+  if (!['tuning', 'ablation'].includes(mode)) throw new Error(`Unknown --mode ${mode}; use tuning or ablation.`);
+  const ablation = mode === 'ablation';
   if (!resolveLayaKey()) throw new Error('No Laya key: set LAYA_API_KEY or LAYA_API_KEY_FILE (default ~/.config/laya/api_key).');
   const started = performance.now();
   const remaining = () => config.budgetMs - (performance.now() - started);
@@ -166,24 +265,32 @@ async function main(): Promise<void> {
   const { states } = JSON.parse(await fs.readFile(path.join(ROOT, 'benchmark-results', 'frozen-dataset.json'), 'utf-8')) as {
     states: (DecisionState & { id: string })[];
   };
-  const arms: Arm[] = (['laya', 'ollama'] as Model[]).flatMap((model) => TUNING_VARIANTS.map((variant) => ({ model, variant, think: false })));
-  console.log(
-    `Plan, budget ${config.budgetMs / 60_000} min:\n` +
-      `  1. ${arms.length} arms × ${states.length} frozen states = ${arms.length * states.length} requests (~${seconds(states.length * 3 * (270 + 460 + 2 * SLEEP_MS))} at the last run's latencies)\n` +
-      `  2. best Ollama arm with think:true: ${THINK_CAP}–${states.length} requests (capped at ${THINK_CAP} if ${THINK_PROBE} probe requests project past the budget minus ${MAZE_RESERVE_MS / 60_000} min)\n` +
-      `  3. best arm per model on 4 maze entries: at most ${2 * 4 * 60} requests; stops cleanly when the budget runs out`,
+  const arms: Arm[] = (['laya', 'ollama'] as Model[]).flatMap((model) =>
+    (ablation ? ABLATION_VARIANTS : TUNING_VARIANTS).map((variant) => ({ model, variant, think: false })),
   );
+  if (ablation)
+    console.log(
+      `Plan, budget ${config.budgetMs / 60_000} min: ${arms.length} arms × ${states.length} frozen states = ${arms.length * states.length} requests (~${seconds(states.length * 2 * (333 + 523 + 2 * SLEEP_MS))} at the last run's warmer-only latencies). No maze runs.`,
+    );
+  else
+    console.log(
+      `Plan, budget ${config.budgetMs / 60_000} min:\n` +
+        `  1. ${arms.length} arms × ${states.length} frozen states = ${arms.length * states.length} requests (~${seconds(states.length * 3 * (270 + 460 + 2 * SLEEP_MS))} at the last run's latencies)\n` +
+        `  2. best Ollama arm with think:true: ${THINK_CAP}–${states.length} requests (capped at ${THINK_CAP} if ${THINK_PROBE} probe requests project past the budget minus ${MAZE_RESERVE_MS / 60_000} min)\n` +
+        `  3. best arm per model on 4 maze entries: at most ${2 * 4 * 60} requests; stops cleanly when the budget runs out`,
+    );
   const timestamp = new Date().toISOString();
-  const runDir = path.join(config.outputDir, timestamp.replace(/[:.]/g, '-'));
+  const runDir = path.join(config.outputDir, `${timestamp.replace(/[:.]/g, '-')}${ablation ? '-ablation' : ''}`);
   await fs.mkdir(runDir, { recursive: true });
   const rows: Row[] = [];
   const examples = new Map<string, CapturedRequest>();
   const notes: string[] = [];
-  const runArm = async (arm: Arm, subset: typeof states) => {
+  // orderArm: whose shuffle seed to use; the ablation shares warmer-only's so both arms see the same order.
+  const runArm = async (arm: Arm, subset: typeof states, orderArm: Arm = arm) => {
     const id = armId(arm);
     for (const state of subset) {
       guard();
-      const order = seededShuffle(state.validActions, rng(runSeed(config.seed, state.id, id)));
+      const order = seededShuffle(state.validActions, rng(runSeed(config.seed, state.id, armId(orderArm))));
       if (!examples.has(id))
         examples.set(id, {
           endpoint: arm.model === 'laya' ? `${config.layaUrl}/v1/systemone` : `${config.ollamaUrl}/api/chat`,
@@ -225,6 +332,16 @@ async function main(): Promise<void> {
     const r = await call();
     console.log(`warm-up ${label}: ${r.failure ?? r.choice} ${Math.round(r.latencyMs ?? 0)} ms`);
     if (r.failure === 'http') throw new Error(`${label} warm-up failed: ${r.error}`);
+  }
+  if (ablation) {
+    try {
+      for (const arm of arms) await runArm(arm, states, { ...arm, variant: 'warmer-only' });
+    } catch (error) {
+      if (!(error instanceof BudgetReached)) throw error;
+      notes.push(`Time budget reached after ${seconds(performance.now() - started)}; the report covers what finished.`);
+    }
+    await writeAblationReport(runDir, config, timestamp, states, rows, examples, notes, performance.now() - started);
+    return;
   }
   const entries: SuiteEntry[] = [];
   for (const file of MAZES) {

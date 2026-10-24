@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import { rng, seededShuffle, type DecisionState } from '@/benchmark/full-maze-eval';
 import {
+  ABLATION_VARIANTS,
   RULE,
   TUNING_VARIANTS,
   armId,
@@ -19,7 +20,7 @@ import {
 const loadStates = async () =>
   (JSON.parse(await fs.readFile(path.resolve(__dirname, '../../benchmark-results/frozen-dataset.json'), 'utf-8')) as { states: (DecisionState & { id: string })[] }).states;
 const ARMS: Arm[] = [
-  ...(['laya', 'ollama'] as const).flatMap((model) => TUNING_VARIANTS.map((variant) => ({ model, variant, think: false }))),
+  ...(['laya', 'ollama'] as const).flatMap((model) => [...TUNING_VARIANTS, 'smell-only' as const].map((variant) => ({ model, variant, think: false }))),
   { model: 'ollama', variant: 'lookahead-rule', think: true },
 ];
 /** What the model reads: the whole Laya body, or the Ollama messages (the envelope holds model "qwen3:1.7b" and temperature 0.2). */
@@ -67,6 +68,36 @@ describe('tuning requests', () => {
     expect((armRequest({ model: 'ollama', variant: 'lookahead-rule', think: true }, state, order, 'm') as any).think).toBe(true);
     expect((armRequest({ model: 'ollama', variant: 'lookahead-rule', think: false }, state, order, 'm') as any).think).toBe(false);
     expect(armId({ model: 'ollama', variant: 'warmer-only', think: true })).toBe('ollama-warmer-only-think');
+  });
+});
+
+describe('ablation requests', () => {
+  it('warmer-only and smell-only differ only in the option text, for every frozen state and both models', async () => {
+    expect(ABLATION_VARIANTS).toEqual(['warmer-only', 'smell-only']);
+    for (const state of await loadStates())
+      for (const model of ['laya', 'ollama'] as const) {
+        const order = seededShuffle(state.validActions, rng(9));
+        const warmer = armRequest({ model, variant: 'warmer-only', think: false }, state, order, 'qwen3:1.7b') as any;
+        const smell = armRequest({ model, variant: 'smell-only', think: false }, state, order, 'qwen3:1.7b') as any;
+        const warmerText = JSON.stringify(warmer);
+        // "warmer"/"colder" appear exactly once per option, nowhere else ...
+        expect(warmerText.match(/warmer, |colder, /g)).toHaveLength(order.length);
+        // ... and removing them gives the smell-only request byte for byte.
+        expect(warmerText.replace(/warmer, |colder, /g, '')).toBe(JSON.stringify(smell));
+        if (model === 'laya') {
+          expect(smell.state).toEqual(warmer.state);
+          expect(smell.questions.move.instructions).toBe(warmer.questions.move.instructions);
+          expect(Object.keys(smell.questions.move.criteria)).toEqual(Object.keys(warmer.questions.move.criteria));
+          for (const text of Object.values(smell.questions.move.criteria)) expect(['the smell grows stronger', 'the smell grows weaker']).toContain(text);
+        } else {
+          const [w, m] = [warmer, smell].map((b) => (b.messages[0].content as string).split('\n'));
+          expect(m.length).toBe(w.length);
+          const changed = w.map((line, i) => (line === m[i] ? null : i)).filter((i) => i !== null);
+          expect(changed).toHaveLength(order.length);
+          for (const i of changed) expect(m[i!]).toMatch(/^(UP|DOWN|LEFT|RIGHT): the smell grows (stronger|weaker)\.$/);
+          expect({ ...smell, messages: null }).toEqual({ ...warmer, messages: null });
+        }
+      }
   });
 });
 
