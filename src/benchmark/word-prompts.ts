@@ -171,7 +171,7 @@ export function createWordPolicy(
     decide,
   };
 }
-function baselinePolicy(id: 'scorer' | 'random-legal'): Policy {
+export function baselinePolicy(id: 'scorer' | 'random-legal'): Policy {
   const choose = <T>(random: () => number, values: T[]) => values[Math.floor(random() * values.length) % values.length];
   return {
     id,

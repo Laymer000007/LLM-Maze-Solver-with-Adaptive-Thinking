@@ -32,6 +32,8 @@ import {
 } from '@/benchmark/full-maze-eval';
 import {
   INTRO,
+  baselinePolicy,
+  createWordPolicy,
   LAYA_INSTRUCTIONS,
   MAZES,
   OLLAMA_RETURN,
@@ -72,6 +74,7 @@ export const armId = (arm: Arm) => `${arm.model}-${arm.variant}${arm.think ? '-t
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 const pct = (value: number) => `${(value * 100).toFixed(0)}%`;
 class BudgetReached extends Error {}
+class ArmDropped extends Error {}
 
 export function warmerLine(state: DecisionState, move: Move): string {
   return state.perception.directionSmell[move] > state.perception.smell ? 'warmer, the smell grows stronger' : 'colder, the smell grows weaker';
@@ -242,6 +245,276 @@ async function writeAblationReport(
   console.log(`Done in ${seconds(elapsedMs)}. Report: ${path.join(runDir, 'report.md')}`);
 }
 
+// ---------- Maze check ----------
+
+export const MAZE_CHECK_ARMS: Record<'laya-best' | 'ollama-best', Arm> = {
+  'laya-best': { model: 'laya', variant: 'warmer-only-positive', think: false },
+  'ollama-best': { model: 'ollama', variant: 'warmer-only', think: false },
+};
+const FIRST_ENTRIES = ['7x7_corridor_branch', '7x7_open_detour'];
+const EXTRA_ENTRIES = ['11x11_corridor_dead-end', '15x15_corridor_spiral'];
+/** An arm averaging more than this per request after 10 requests is dropped. */
+export const SLOW_ARM_MS = 3000;
+/** Assumed latency before an arm has its own measurements (the last single-step runs). */
+const PRIOR_LATENCY_MS: Record<string, number> = { 'laya-best': 290, 'ollama-best': 530, 'laya-numbers-baseline': 360, 'ollama-numbers-baseline': 460 };
+export type ColderStep = { policy: string; entry: string; step: number; position: string; options: Move[]; choice: Move | null; legal: boolean };
+/** Every legal direction smells weaker than the current cell: every option is "colder". */
+export function allColder(state: DecisionState): boolean {
+  return state.validActions.length > 0 && strongerMoves(state).length === 0;
+}
+export function armPolicy(
+  id: string,
+  arm: Arm,
+  config: Pick<Config, 'layaUrl' | 'ollamaUrl' | 'ollamaModel'>,
+  capture?: (request: CapturedRequest) => void,
+): Policy {
+  return {
+    id: id as PolicyId, // experiment-only id
+    kind: arm.model,
+    deterministic: true,
+    config: {
+      payloadBuilder: `${armId(arm)} words`,
+      endpoint: arm.model === 'laya' ? `${config.layaUrl}/v1/systemone` : `${config.ollamaUrl}/api/chat`,
+      model: arm.model === 'laya' ? null : config.ollamaModel,
+      think: arm.model === 'laya' ? null : arm.think,
+      temperature: arm.model === 'laya' ? null : 0.2,
+      format: arm.model === 'laya' ? 'systemone choice question' : 'json',
+      optionOrdering: 'legal moves, seeded shuffle per request',
+      sees: 'warmer/colder per direction (words)',
+    },
+    decide: async (state, random) => {
+      const order = seededShuffle(state.validActions, random);
+      capture?.({
+        endpoint: arm.model === 'laya' ? `${config.layaUrl}/v1/systemone` : `${config.ollamaUrl}/api/chat`,
+        body: armRequest(arm, state, order, config.ollamaModel),
+      });
+      return { ...(await ask(arm, state, order, config as Config)), presented: order };
+    },
+  };
+}
+
+async function mazeCheck(config: Config): Promise<void> {
+  const started = performance.now();
+  const remaining = () => config.budgetMs - (performance.now() - started);
+  const entryFor = async (name: string, transform: 'original' | 'rotate-180') =>
+    buildSuiteEntry((await Maze.fromFile(path.join(ROOT, 'mazes', `${name}.txt`))).layout, `mazes/${name}.txt`, transform);
+  const load = async (names: string[]) => Promise.all(names.flatMap((n) => (['original', 'rotate-180'] as const).map((t) => entryFor(n, t))));
+  const first = await load(FIRST_ENTRIES);
+  const extra = await load(EXTRA_ENTRIES);
+  const examples = new Map<string, CapturedRequest>();
+  const capture = (id: string) => (request: CapturedRequest) => {
+    if (!examples.has(id)) examples.set(id, request);
+  };
+  const policies: Record<string, Policy> = {
+    scorer: baselinePolicy('scorer'),
+    'random-legal': baselinePolicy('random-legal'),
+    'laya-best': armPolicy('laya-best', MAZE_CHECK_ARMS['laya-best'], config, capture('laya-best')),
+    'ollama-best': armPolicy('ollama-best', MAZE_CHECK_ARMS['ollama-best'], config, capture('ollama-best')),
+    'laya-numbers-baseline': createWordPolicy('laya', 'numbers-baseline', config, capture('laya-numbers-baseline')),
+    'ollama-numbers-baseline': createWordPolicy('ollama', 'numbers-baseline', config, capture('ollama-numbers-baseline')),
+  };
+  const core = ['scorer', 'random-legal', 'laya-best', 'ollama-best'];
+  const numbers = ['laya-numbers-baseline', 'ollama-numbers-baseline'];
+  // Priority order: every policy on the first 4 entries before any extra entry.
+  const phases: { label: string; entries: SuiteEntry[]; ids: string[] }[] = [
+    { label: 'first 4 entries, best prompts and free baselines', entries: first, ids: core },
+    { label: 'first 4 entries, numbers baselines', entries: first, ids: numbers },
+    { label: 'extra entries, best prompts and free baselines', entries: extra, ids: core },
+    { label: 'extra entries, numbers baselines', entries: extra, ids: numbers },
+  ];
+  const latency: Record<string, { total: number; count: number }> = {};
+  const meanLatency = (id: string) => (latency[id]?.count ? latency[id].total / latency[id].count : (PRIOR_LATENCY_MS[id] ?? 0));
+  const cap = (e: SuiteEntry) => stepCapFor(e.optimalSteps);
+  console.log(`Plan, budget ${config.budgetMs / 60_000} min, in priority order (requests at most = step cap per run):`);
+  for (const phase of phases) {
+    const models = phase.ids.filter((id) => !['scorer', 'random-legal'].includes(id));
+    const maxRequests = models.length * phase.entries.reduce((t, e) => t + cap(e), 0);
+    const maxMs = models.reduce((t, id) => t + phase.entries.reduce((u, e) => u + cap(e) * (meanLatency(id) + SLEEP_MS), 0), 0);
+    console.log(`  ${phase.label}: ${phase.entries.length * phase.ids.length} runs, ≤${maxRequests} requests, ≤${seconds(maxMs)}`);
+  }
+  for (const [label, call] of [
+    [
+      'laya',
+      () =>
+        callLaya(
+          config.layaUrl,
+          {
+            state: { body: INTRO },
+            questions: { move: { type: 'choice', instructions: LAYA_INSTRUCTIONS, criteria: { UP: 'an open passage', DOWN: 'an open passage' } } },
+          },
+          TIMEOUT_MS,
+        ),
+    ],
+    ['ollama', () => callOllama(config.ollamaUrl, config.ollamaModel, `${INTRO}\n${OLLAMA_RETURN}`, false, TIMEOUT_MS)],
+  ] as const) {
+    const r = await call();
+    console.log(`warm-up ${label}: ${r.failure ?? r.choice} ${Math.round(r.latencyMs ?? 0)} ms`);
+    if (r.failure === 'http') throw new Error(`${label} warm-up failed: ${r.error}`);
+  }
+  const timestamp = new Date().toISOString();
+  const runDir = path.join(config.outputDir, `${timestamp.replace(/[:.]/g, '-')}-maze-check`);
+  await fs.mkdir(runDir, { recursive: true });
+  const runs: RunRecord[] = [];
+  const colder: ColderStep[] = [];
+  const dropped = new Map<string, string>();
+  const notes: string[] = [];
+  for (const phase of phases)
+    for (const entry of phase.entries)
+      for (const id of phase.ids) {
+        if (dropped.has(id)) continue;
+        const model = !['scorer', 'random-legal'].includes(id);
+        const projected = model ? cap(entry) * (meanLatency(id) + SLEEP_MS) : 0;
+        if (projected > remaining()) {
+          notes.push(`Skipped ${entry.id}/${id}: up to ${seconds(projected)} needed, ${seconds(Math.max(0, remaining()))} left.`);
+          console.log(notes.at(-1));
+          continue;
+        }
+        const inner = policies[id];
+        let step = 0;
+        const policy: Policy = {
+          ...inner,
+          decide: async (state, random) => {
+            step++;
+            if (remaining() <= 0) throw new BudgetReached();
+            const decision = await inner.decide(state, random);
+            if (decision.latencyMs !== null) {
+              latency[id] = { total: (latency[id]?.total ?? 0) + decision.latencyMs, count: (latency[id]?.count ?? 0) + 1 };
+              if (latency[id].count >= 10 && meanLatency(id) > SLOW_ARM_MS && !dropped.has(id)) {
+                dropped.set(id, `mean latency ${Math.round(meanLatency(id))} ms after ${latency[id].count} requests`);
+                throw new ArmDropped();
+              }
+            }
+            if (allColder(state))
+              colder.push({
+                policy: id,
+                entry: entry.id,
+                step,
+                position: `(${state.position.x},${state.position.y})`,
+                options: decision.presented ?? state.validActions,
+                choice: decision.choice,
+                legal: decision.choice !== null && state.validActions.includes(decision.choice),
+              });
+            return decision;
+          },
+        };
+        try {
+          const run = await runEpisode(entry, policy, config.seed, {
+            stepCap: cap(entry),
+            stuckWindow: stuckWindowFor(entry.optimalSteps),
+            rngSeed: runSeed(config.seed, entry.id, id),
+          });
+          runs.push(run);
+          console.log(
+            `${entry.id}/${id} → ${run.status} in ${run.steps}/${run.stepCap} (optimal ${run.optimalSteps}), walls ${run.illegalMoves}, ${seconds(run.wallClockMs)} · elapsed ${seconds(performance.now() - started)}`,
+          );
+        } catch (error) {
+          if (error instanceof ArmDropped) {
+            notes.push(`${entry.id}/${id} stopped mid-run: arm dropped as too slow (${dropped.get(id)}).`);
+            console.log(notes.at(-1));
+            continue;
+          }
+          if (!(error instanceof BudgetReached)) throw error;
+          notes.push(`${entry.id}/${id} stopped mid-run: time budget reached after ${seconds(performance.now() - started)}.`);
+          console.log(notes.at(-1));
+        }
+        if (dropped.has(id) && !notes.some((n) => n.startsWith(`Dropped ${id}`))) notes.push(`Dropped ${id}: ${dropped.get(id)}.`);
+      }
+  const elapsed = performance.now() - started;
+  const ids = Object.keys(policies).filter((id) => runs.some((r) => r.policy === id));
+  const entries = [...first, ...extra].filter((e) => runs.some((r) => r.mazeId === e.id));
+  const lines = [
+    '# Maze check: best single-step prompts',
+    '',
+    `- Timestamp: ${timestamp} · commit ${git('git rev-parse HEAD')}${git('git status --porcelain') ? ' (dirty)' : ''} · seed ${config.seed}`,
+    `- laya-best: warmer/colder options + positive-only rule ("${POSITIVE_RULE}"). ollama-best: warmer/colder options + full rule ("${RULE}"), ${config.ollamaModel}, think:false, temperature 0.2. Numbers baselines: the constrained numeric payloads, shuffled.`,
+    `- Step cap max(3 × optimal, 60); stuck when no new cell for max(50, 2 × optimal) steps; option order shuffled per request with a seeded RNG. Every policy ran on the first 4 entries before any extra entry. An arm is dropped if it averages over ${SLOW_ARM_MS} ms per request after 10 requests; a run is skipped if its step cap at the arm's mean latency would not fit the remaining budget.`,
+    `- Time budget ${config.budgetMs / 60_000} min; used ${seconds(elapsed)}.`,
+    ...notes.map((n) => `- ${n}`),
+    '',
+    '## Per policy',
+    '',
+    '| Policy | Entries run | Completed | Steps / optimal (completed) | Stuck | Step-cap | Aborted | Wall choices | Toward stronger smell | Mean latency |',
+    '|---|---:|---:|---|---:|---:|---:|---:|---:|---:|',
+  ];
+  for (const id of ids) {
+    const group = runs.filter((r) => r.policy === id);
+    const a = aggregate(group);
+    const smell = group
+      .map((run) => towardStrongerSmell(entries.find((e) => e.id === run.mazeId)!, run.moves))
+      .reduce((t, x) => ({ toward: t.toward + x.toward, chosen: t.chosen + x.chosen }), { toward: 0, chosen: 0 });
+    const walls = group.reduce((t, r) => t + r.illegalMoves, 0);
+    const steps = group.reduce((t, r) => t + r.steps, 0);
+    const done =
+      group
+        .filter((r) => r.completed)
+        .map((r) => `${r.steps}/${r.optimalSteps}`)
+        .join(', ') || '—';
+    lines.push(
+      `| ${id} | ${group.length} | ${a.completed}/${a.runs} | ${done} | ${a.stuck} | ${a.stepCapped} | ${a.aborted} | ${walls}/${steps} (${pct(steps ? walls / steps : 0)}) | ${smell.chosen ? pct(smell.toward / smell.chosen) : 'n/a'} | ${a.meanLatencyMs === null ? '—' : `${Math.round(a.meanLatencyMs)} ms`} |`,
+    );
+  }
+  lines.push(
+    '',
+    '## Per entry',
+    '',
+    `| Policy | ${entries.map((e) => `${e.id} (opt ${e.optimalSteps})`).join(' | ')} |`,
+    `|---|${entries.map(() => '---').join('|')}|`,
+  );
+  for (const id of ids)
+    lines.push(
+      `| ${id} | ${entries
+        .map((e) => {
+          const run = runs.find((r) => r.policy === id && r.mazeId === e.id);
+          return run ? `${run.status} ${run.steps}` : 'not run';
+        })
+        .join(' | ')} |`,
+    );
+  const mismatches = runs.reduce((t, r) => t + r.criteriaMismatches, 0);
+  const checked = runs.reduce((t, r) => t + r.criteriaChecked, 0);
+  lines.push(
+    '',
+    `Criteria check on the Laya numbers baseline: ${checked} criteria, ${mismatches} mismatches.`,
+    '',
+    '## Steps where every open direction is "colder"',
+    '',
+    'For example backing out of a dead end: every legal option says the smell grows weaker, so there is no "warmer" option to follow.',
+    '',
+    '| Policy | Such steps | Legal choices | Wall/illegal or failed | Choices |',
+    '|---|---:|---:|---:|---|',
+  );
+  for (const id of ids) {
+    const steps = colder.filter((c) => c.policy === id);
+    const choices = Object.entries(steps.reduce((t, c) => ({ ...t, [c.choice ?? 'failed']: (t[c.choice ?? 'failed'] ?? 0) + 1 }), {} as Record<string, number>))
+      .map(([k, v]) => `${k} ×${v}`)
+      .join(', ');
+    lines.push(`| ${id} | ${steps.length} | ${steps.filter((c) => c.legal).length} | ${steps.filter((c) => !c.legal).length} | ${choices || '—'} |`);
+  }
+  const modelColder = colder.filter((c) => !['scorer', 'random-legal'].includes(c.policy));
+  if (modelColder.length) {
+    lines.push(
+      '',
+      '<details><summary>Every all-colder step of the model policies</summary>',
+      '',
+      '| Policy | Entry | Step | Position | Options shown | Choice | Legal |',
+      '|---|---|---:|---|---|---|---|',
+    );
+    for (const c of modelColder)
+      lines.push(`| ${c.policy} | ${c.entry} | ${c.step} | ${c.position} | ${c.options.join(', ')} | ${c.choice ?? 'failed'} | ${c.legal ? 'yes' : 'no'} |`);
+    lines.push('', '</details>');
+  }
+  lines.push('', '## Example requests', '', "Each model policy's first request, exactly as sent. The Laya key travels only in the Authorization header.", '');
+  for (const [id, example] of examples) {
+    lines.push(`### ${id}`, '', `POST ${example.endpoint}`, '', '```json', JSON.stringify(example.body, null, 2), '```', '');
+    const prompt = (example.body.messages as { content: string }[] | undefined)?.[0]?.content;
+    if (prompt) lines.push('Prompt text as the model reads it:', '', '```text', prompt, '```', '');
+  }
+  await fs.writeFile(path.join(runDir, 'runs.json'), runsJson({ timestamp, seed: config.seed, notes, dropped: Object.fromEntries(dropped) }, runs));
+  await fs.writeFile(path.join(runDir, 'colder-steps.json'), redactSecrets(JSON.stringify(colder, null, 2)));
+  await fs.writeFile(path.join(runDir, 'examples.json'), redactSecrets(JSON.stringify(Object.fromEntries(examples), null, 2)));
+  await fs.writeFile(path.join(runDir, 'report.md'), redactSecrets(lines.join('\n') + '\n'));
+  console.log(`Done in ${seconds(elapsed)}. Report: ${path.join(runDir, 'report.md')}`);
+}
+
 /** The positive-rule arms next to the four arms of the latest --mode ablation run. */
 async function writePositiveReport(
   runDir: string,
@@ -336,7 +609,12 @@ async function main(): Promise<void> {
   };
   if (!(config.budgetMs > 0)) throw new Error('--time-budget-min must be a positive number.');
   const mode = get('--mode') ?? 'tuning';
-  if (!['tuning', 'ablation', 'ablation-positive'].includes(mode)) throw new Error(`Unknown --mode ${mode}; use tuning, ablation or ablation-positive.`);
+  const modes = ['tuning', 'ablation', 'ablation-positive', 'maze-check'];
+  if (!modes.includes(mode)) throw new Error(`Unknown --mode ${mode}; use ${modes.join(', ')}.`);
+  if (mode === 'maze-check') {
+    if (!resolveLayaKey()) throw new Error('No Laya key: set LAYA_API_KEY or LAYA_API_KEY_FILE (default ~/.config/laya/api_key).');
+    return mazeCheck(config);
+  }
   const ablation = mode !== 'tuning';
   if (!resolveLayaKey()) throw new Error('No Laya key: set LAYA_API_KEY or LAYA_API_KEY_FILE (default ~/.config/laya/api_key).');
   const started = performance.now();
@@ -596,7 +874,7 @@ async function main(): Promise<void> {
   await fs.writeFile(path.join(runDir, 'report.md'), redactSecrets(lines.join('\n') + '\n'));
   console.log(`Done in ${seconds(performance.now() - started)}. Report: ${path.join(runDir, 'report.md')}`);
 }
-if (!process.env.VITEST)
+if (!process.env.VITEST && !process.env.WORD_PROMPTS_TUNING_AS_LIBRARY)
   main().catch((error) => {
     console.error(redactSecrets(error instanceof Error ? error.message : String(error)));
     process.exitCode = 1;

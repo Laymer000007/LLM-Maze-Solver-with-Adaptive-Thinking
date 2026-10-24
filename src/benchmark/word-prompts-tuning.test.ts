@@ -1,16 +1,19 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { rng, seededShuffle, type DecisionState } from '@/benchmark/full-maze-eval';
 import {
   ABLATION_VARIANTS,
+  MAZE_CHECK_ARMS,
   POSITIVE_RULE,
   POSITIVE_VARIANTS,
   RULE,
   TUNING_VARIANTS,
   armId,
+  allColder,
+  armPolicy,
   armRequest,
   bestArm,
   strongerMoves,
@@ -118,6 +121,45 @@ describe('positive-rule requests', () => {
           expect(positive).not.toContain('Never');
           expect(full.split(RULE).join(POSITIVE_RULE)).toBe(positive);
         }
+  });
+});
+
+describe('maze-check arms', () => {
+  it('lock in warmer/colder + positive rule for Laya and warmer/colder + full rule for Ollama', async () => {
+    const [state] = await loadStates();
+    const laya = JSON.stringify(armRequest(MAZE_CHECK_ARMS['laya-best'], state, state.validActions, 'qwen3:1.7b'));
+    const ollama = armRequest(MAZE_CHECK_ARMS['ollama-best'], state, state.validActions, 'qwen3:1.7b') as any;
+    expect(laya).toContain(POSITIVE_RULE);
+    expect(laya).not.toContain('Never');
+    expect(laya).toMatch(/warmer, the smell grows stronger|colder, the smell grows weaker/);
+    expect(ollama.messages[0].content).toContain(RULE);
+    expect(ollama.messages[0].content).toMatch(/: (warmer|colder), the smell grows/);
+    expect(ollama.think).toBe(false);
+    expect(laya + JSON.stringify(ollama.messages)).not.toMatch(/\d/);
+  });
+
+  it('capture the exact request each decision sends, with shuffled legal options', async () => {
+    const [, state] = await loadStates();
+    const captured: Record<string, unknown>[] = [];
+    vi.stubEnv('LAYA_API_KEY', 'fake-laya-key-123456789');
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ answers: { move: { choice: state.validActions[0].toUpperCase() } } }), { status: 200 })));
+    const policy = armPolicy('laya-best', MAZE_CHECK_ARMS['laya-best'], { layaUrl: 'http://laya.invalid', ollamaUrl: 'http://o.invalid', ollamaModel: 'm' }, (r) => captured.push(r.body));
+    const decision = await policy.decide(state, rng(3));
+    expect(decision.choice).toBe(state.validActions[0]);
+    expect(Object.keys((captured[0] as any).questions.move.criteria)).toEqual(decision.presented!.map((m) => m.toUpperCase()));
+    expect([...decision.presented!].sort()).toEqual([...state.validActions].sort());
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  it('flags a step as all-colder only when no legal direction smells stronger', async () => {
+    const states = await loadStates();
+    for (const state of states) expect(allColder(state)).toBe(false);
+    const [state] = states;
+    const deadEnd = { ...state, validActions: state.validActions.filter((m) => state.perception.directionSmell[m] <= state.perception.smell) };
+    expect(deadEnd.validActions.length).toBeGreaterThan(0);
+    expect(allColder(deadEnd)).toBe(true);
+    expect(allColder({ ...state, validActions: [] })).toBe(false);
   });
 });
 
