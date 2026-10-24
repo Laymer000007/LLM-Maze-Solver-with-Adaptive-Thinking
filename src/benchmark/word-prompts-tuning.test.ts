@@ -6,6 +6,8 @@ import { describe, expect, it } from 'vitest';
 import { rng, seededShuffle, type DecisionState } from '@/benchmark/full-maze-eval';
 import {
   ABLATION_VARIANTS,
+  POSITIVE_RULE,
+  POSITIVE_VARIANTS,
   RULE,
   TUNING_VARIANTS,
   armId,
@@ -20,7 +22,7 @@ import {
 const loadStates = async () =>
   (JSON.parse(await fs.readFile(path.resolve(__dirname, '../../benchmark-results/frozen-dataset.json'), 'utf-8')) as { states: (DecisionState & { id: string })[] }).states;
 const ARMS: Arm[] = [
-  ...(['laya', 'ollama'] as const).flatMap((model) => [...TUNING_VARIANTS, 'smell-only' as const].map((variant) => ({ model, variant, think: false }))),
+  ...(['laya', 'ollama'] as const).flatMap((model) => [...TUNING_VARIANTS, ...ABLATION_VARIANTS, ...POSITIVE_VARIANTS].map((variant) => ({ model, variant, think: false }))),
   { model: 'ollama', variant: 'lookahead-rule', think: true },
 ];
 /** What the model reads: the whole Laya body, or the Ollama messages (the envelope holds model "qwen3:1.7b" and temperature 0.2). */
@@ -98,6 +100,24 @@ describe('ablation requests', () => {
           expect({ ...smell, messages: null }).toEqual({ ...warmer, messages: null });
         }
       }
+  });
+});
+
+describe('positive-rule requests', () => {
+  it('differ from warmer-only / smell-only only in the rule sentence, for every frozen state and both models', async () => {
+    expect(POSITIVE_VARIANTS).toEqual(['warmer-only-positive', 'smell-only-positive']);
+    expect(POSITIVE_RULE).toBe('The cheese is where the smell is strongest. Always move in the direction where the smell grows stronger.');
+    for (const state of await loadStates())
+      for (const model of ['laya', 'ollama'] as const)
+        for (const base of ['warmer-only', 'smell-only'] as const) {
+          const order = seededShuffle(state.validActions, rng(9));
+          const full = JSON.stringify(armRequest({ model, variant: base, think: false }, state, order, 'qwen3:1.7b'));
+          const positive = JSON.stringify(armRequest({ model, variant: `${base}-positive`, think: false }, state, order, 'qwen3:1.7b'));
+          // The full rule appears in the body, and for Laya in the instructions too; nothing else mentions "Never".
+          expect(full.split(RULE)).toHaveLength(model === 'laya' ? 3 : 2);
+          expect(positive).not.toContain('Never');
+          expect(full.split(RULE).join(POSITIVE_RULE)).toBe(positive);
+        }
   });
 });
 

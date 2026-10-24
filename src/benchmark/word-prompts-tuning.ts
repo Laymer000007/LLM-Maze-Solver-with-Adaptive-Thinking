@@ -51,12 +51,15 @@ import { Maze } from '@/maze/maze';
 // Prompt-tuning round: single-step "toward stronger smell" on the 100 frozen states, then the best variant per model
 // through the 4 maze entries of the word-prompt experiment. Words only; production prompts are untouched.
 
-export type TuningVariant = 'lookahead' | 'lookahead-rule' | 'warmer-only' | 'smell-only';
+export type TuningVariant = 'lookahead' | 'lookahead-rule' | 'warmer-only' | 'smell-only' | 'warmer-only-positive' | 'smell-only-positive';
 /** Variants of the main tuning round; smell-only is used only by --mode ablation. */
 export const TUNING_VARIANTS: TuningVariant[] = ['lookahead', 'lookahead-rule', 'warmer-only'];
 export const ABLATION_VARIANTS: TuningVariant[] = ['warmer-only', 'smell-only'];
+/** --mode ablation-positive: the same two arms with the positive-only rule. */
+export const POSITIVE_VARIANTS: TuningVariant[] = ['warmer-only-positive', 'smell-only-positive'];
 export const RULE =
   'The cheese is where the smell is strongest. Always move in a direction where the smell grows stronger. Never choose a direction where it grows weaker.';
+export const POSITIVE_RULE = 'The cheese is where the smell is strongest. Always move in the direction where the smell grows stronger.';
 export type Arm = { model: Model; variant: TuningVariant; think: boolean };
 type Config = { budgetMs: number; seed: number; outputDir: string; layaUrl: string; ollamaUrl: string; ollamaModel: string };
 type Row = { arm: string; stateId: string; choice: Move | null; legal: boolean; toward: boolean; latencyMs: number; failure: string | null; order: Move[] };
@@ -85,15 +88,16 @@ export function strongerMoves(state: DecisionState): Move[] {
 /** The request body for an arm, before the Ollama envelope; for Ollama it is { prompt }. */
 export function tunedRequest(model: Model, variant: TuningVariant, state: DecisionState, order: Move[]): Record<string, unknown> {
   if (variant === 'lookahead') return wordRequest(model, 'words-lookahead', state, order, '');
-  const line = variant === 'lookahead-rule' ? lookaheadLine : variant === 'smell-only' ? smellOnlyLine : warmerLine;
+  const line = variant === 'lookahead-rule' ? lookaheadLine : variant.startsWith('smell-only') ? smellOnlyLine : warmerLine;
+  const rule = variant.endsWith('-positive') ? POSITIVE_RULE : RULE;
   const closeness = `${capitalise(closenessWords(state.perception.smell))}.`;
   if (model === 'laya')
     return {
-      state: { body: [INTRO, closeness, RULE, 'Choose the direction most likely to lead to the cheese.'].join('\n') },
+      state: { body: [INTRO, closeness, rule, 'Choose the direction most likely to lead to the cheese.'].join('\n') },
       questions: {
         move: {
           type: 'choice',
-          instructions: `${RULE} ${LAYA_INSTRUCTIONS}`,
+          instructions: `${rule} ${LAYA_INSTRUCTIONS}`,
           criteria: Object.fromEntries(order.map((move) => [move.toUpperCase(), line(state, move)])),
         },
       },
@@ -102,7 +106,7 @@ export function tunedRequest(model: Model, variant: TuningVariant, state: Decisi
     prompt: [
       INTRO,
       closeness,
-      RULE,
+      rule,
       'You can go:',
       ...order.map((move) => `${move.toUpperCase()}: ${line(state, move)}.`),
       'Choose one direction.',
@@ -150,7 +154,7 @@ function git(command: string): string {
 
 /** Reads the previous main tuning round's rows, to check warmer-only reproduces. */
 async function previousTuningRows(outputDir: string): Promise<{ dir: string; rows: Row[] } | null> {
-  const dirs = (await fs.readdir(outputDir).catch(() => [] as string[])).filter((d) => !d.endsWith('-ablation')).sort();
+  const dirs = (await fs.readdir(outputDir).catch(() => [] as string[])).filter((d) => !d.includes('-ablation')).sort();
   for (const dir of dirs.reverse()) {
     const file = path.join(outputDir, dir, 'results.json');
     const body = await fs.readFile(file, 'utf-8').catch(() => null);
@@ -238,6 +242,84 @@ async function writeAblationReport(
   console.log(`Done in ${seconds(elapsedMs)}. Report: ${path.join(runDir, 'report.md')}`);
 }
 
+/** The positive-rule arms next to the four arms of the latest --mode ablation run. */
+async function writePositiveReport(
+  runDir: string,
+  config: Config,
+  timestamp: string,
+  states: (DecisionState & { id: string })[],
+  rows: Row[],
+  examples: Map<string, CapturedRequest>,
+  notes: string[],
+  elapsedMs: number,
+): Promise<void> {
+  const previousDir = (await fs.readdir(config.outputDir))
+    .filter((d) => d.endsWith('-ablation'))
+    .sort()
+    .at(-1);
+  const previous: Row[] = previousDir ? JSON.parse(await fs.readFile(path.join(config.outputDir, previousDir, 'results.json'), 'utf-8')).rows : [];
+  const all = [...previous, ...rows];
+  const lines = [
+    '# Ablation: positive-only rule',
+    '',
+    `- Timestamp: ${timestamp} · commit ${git('git rev-parse HEAD')}${git('git status --porcelain') ? ' (dirty)' : ''} · seed ${config.seed}`,
+    `- Single step on the ${states.length} frozen states, 1 request per state per arm, option order from warmer-only's shuffle seed (identical across all six arms). Ollama ${config.ollamaModel}, think:false, temperature 0.2.`,
+    `- Full rule: "${RULE}"`,
+    `- Positive rule: "${POSITIVE_RULE}" (replaces the full rule in the body and, for Laya, in the question instructions; nothing else changes).`,
+    `- The four earlier arms come from \`${previousDir ? path.relative(ROOT, path.join(config.outputDir, previousDir)) : 'none found'}\`; the two positive arms are new. Time budget ${config.budgetMs / 60_000} min; used ${seconds(elapsedMs)}.`,
+    ...notes.map((n) => `- ${n}`),
+    '',
+  ];
+  for (const model of ['laya', 'ollama'] as Model[]) {
+    lines.push(
+      `## ${model === 'laya' ? 'Laya' : `Ollama ${config.ollamaModel}`}`,
+      '',
+      '| Option text | Rule | Run | Toward stronger | Legal | Failed | Mean latency |',
+      '|---|---|---|---:|---:|---:|---:|',
+    );
+    for (const variant of ['warmer-only', 'warmer-only-positive', 'smell-only', 'smell-only-positive'] as TuningVariant[]) {
+      const id = armId({ model, variant, think: false });
+      const group = all.filter((r) => r.arm === id);
+      if (!group.length) continue;
+      const s = summarise(group);
+      lines.push(
+        `| ${variant.startsWith('warmer') ? 'warmer/colder' : 'smell only'} | ${variant.endsWith('-positive') ? 'positive only' : 'full (with "Never…")'} | ${variant.endsWith('-positive') ? 'new' : 'previous'} | ${pct(s.towardRate)} | ${pct(s.legalRate)} | ${s.failures} | ${Math.round(s.meanLatencyMs)} ms |`,
+      );
+    }
+    for (const base of ['warmer-only', 'smell-only'] as TuningVariant[]) {
+      const [a, b] = [base, `${base}-positive` as TuningVariant].map(
+        (v) => new Map(all.filter((r) => r.arm === armId({ model, variant: v, think: false })).map((r) => [r.stateId, r])),
+      );
+      const differ = [...a.values()].filter((r) => b.has(r.stateId) && b.get(r.stateId)!.choice !== r.choice);
+      const better = differ.filter((r) => !r.toward && b.get(r.stateId)!.toward).length;
+      const worse = differ.filter((r) => r.toward && !b.get(r.stateId)!.toward).length;
+      lines.push(
+        '',
+        `${base} → ${base}-positive: ${differ.length} states chose differently (${better} became toward stronger, ${worse} stopped being toward stronger): ${differ.map((r) => r.stateId).join(', ') || 'none'}.`,
+      );
+    }
+    lines.push('');
+  }
+  lines.push(
+    '## Example requests (new arms)',
+    '',
+    "Each new arm's first request (frozen state `state-001`), exactly as sent. The Laya key travels only in the Authorization header.",
+    '',
+  );
+  for (const [id, example] of examples) {
+    lines.push(`### ${id}`, '', `POST ${example.endpoint}`, '', '```json', JSON.stringify(example.body, null, 2), '```', '');
+    const prompt = (example.body.messages as { content: string }[] | undefined)?.[0]?.content;
+    if (prompt) lines.push('Prompt text as the model reads it:', '', '```text', prompt, '```', '');
+  }
+  await fs.writeFile(
+    path.join(runDir, 'results.json'),
+    redactSecrets(JSON.stringify({ timestamp, seed: config.seed, mode: 'ablation-positive', previous: previousDir ?? null, notes, rows }, null, 2)),
+  );
+  await fs.writeFile(path.join(runDir, 'examples.json'), redactSecrets(JSON.stringify(Object.fromEntries(examples), null, 2)));
+  await fs.writeFile(path.join(runDir, 'report.md'), redactSecrets(lines.join('\n') + '\n'));
+  console.log(`Done in ${seconds(elapsedMs)}. Report: ${path.join(runDir, 'report.md')}`);
+}
+
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const get = (name: string) => {
@@ -254,8 +336,8 @@ async function main(): Promise<void> {
   };
   if (!(config.budgetMs > 0)) throw new Error('--time-budget-min must be a positive number.');
   const mode = get('--mode') ?? 'tuning';
-  if (!['tuning', 'ablation'].includes(mode)) throw new Error(`Unknown --mode ${mode}; use tuning or ablation.`);
-  const ablation = mode === 'ablation';
+  if (!['tuning', 'ablation', 'ablation-positive'].includes(mode)) throw new Error(`Unknown --mode ${mode}; use tuning, ablation or ablation-positive.`);
+  const ablation = mode !== 'tuning';
   if (!resolveLayaKey()) throw new Error('No Laya key: set LAYA_API_KEY or LAYA_API_KEY_FILE (default ~/.config/laya/api_key).');
   const started = performance.now();
   const remaining = () => config.budgetMs - (performance.now() - started);
@@ -266,7 +348,11 @@ async function main(): Promise<void> {
     states: (DecisionState & { id: string })[];
   };
   const arms: Arm[] = (['laya', 'ollama'] as Model[]).flatMap((model) =>
-    (ablation ? ABLATION_VARIANTS : TUNING_VARIANTS).map((variant) => ({ model, variant, think: false })),
+    (mode === 'ablation' ? ABLATION_VARIANTS : mode === 'ablation-positive' ? POSITIVE_VARIANTS : TUNING_VARIANTS).map((variant) => ({
+      model,
+      variant,
+      think: false,
+    })),
   );
   if (ablation)
     console.log(
@@ -280,7 +366,7 @@ async function main(): Promise<void> {
         `  3. best arm per model on 4 maze entries: at most ${2 * 4 * 60} requests; stops cleanly when the budget runs out`,
     );
   const timestamp = new Date().toISOString();
-  const runDir = path.join(config.outputDir, `${timestamp.replace(/[:.]/g, '-')}${ablation ? '-ablation' : ''}`);
+  const runDir = path.join(config.outputDir, `${timestamp.replace(/[:.]/g, '-')}${ablation ? `-${mode}` : ''}`);
   await fs.mkdir(runDir, { recursive: true });
   const rows: Row[] = [];
   const examples = new Map<string, CapturedRequest>();
@@ -340,7 +426,8 @@ async function main(): Promise<void> {
       if (!(error instanceof BudgetReached)) throw error;
       notes.push(`Time budget reached after ${seconds(performance.now() - started)}; the report covers what finished.`);
     }
-    await writeAblationReport(runDir, config, timestamp, states, rows, examples, notes, performance.now() - started);
+    if (mode === 'ablation-positive') await writePositiveReport(runDir, config, timestamp, states, rows, examples, notes, performance.now() - started);
+    else await writeAblationReport(runDir, config, timestamp, states, rows, examples, notes, performance.now() - started);
     return;
   }
   const entries: SuiteEntry[] = [];

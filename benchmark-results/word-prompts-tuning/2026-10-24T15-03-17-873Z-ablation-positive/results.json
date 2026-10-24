@@ -1,0 +1,5489 @@
+{
+  "timestamp": "2026-10-24T15:03:17.873Z",
+  "seed": 20261023,
+  "mode": "ablation-positive",
+  "previous": "2026-10-24T14-55-18-871Z-ablation",
+  "notes": [],
+  "rows": [
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-001",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 420,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-002",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 269,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-003",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 269,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-004",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-005",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-006",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 283,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-007",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 300,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-008",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-009",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 268,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-010",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 292,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-011",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 245,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-012",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-013",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 266,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-014",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 299,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-015",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 303,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-016",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 290,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-017",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 352,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-018",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 325,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-019",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 303,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-020",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 268,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-021",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-022",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 286,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-023",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 241,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-024",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 311,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-025",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 274,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-026",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 298,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-027",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 281,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-028",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 311,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-029",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 343,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-030",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 393,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-031",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 298,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-032",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 299,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-033",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-034",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-035",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-036",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-037",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 273,
+      "failure": null,
+      "order": [
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-038",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 300,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-039",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 282,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-040",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-041",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-042",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-043",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-044",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-045",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-046",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 300,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-047",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 305,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-048",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 302,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-049",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 304,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-050",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-051",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 299,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-052",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-053",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-054",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-055",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-056",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-057",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-058",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 302,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-059",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-060",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 283,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-061",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-062",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-063",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-064",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 314,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-065",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 271,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-066",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 241,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-067",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-068",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-069",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-070",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 283,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-071",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 308,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-072",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 315,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-073",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 292,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-074",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 269,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-075",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 269,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-076",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 268,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-077",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 267,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-078",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 301,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-079",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 292,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-080",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 307,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-081",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 360,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-082",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 318,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-083",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 297,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-084",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 266,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-085",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 337,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-086",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 309,
+      "failure": null,
+      "order": [
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-087",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-088",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-089",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-090",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 304,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-091",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-092",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 300,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-093",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 317,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-094",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 302,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-095",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 303,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-096",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 301,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-097",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-098",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 285,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-099",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-100",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-001",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 254,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-002",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 258,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-003",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 254,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-004",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 257,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-005",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 257,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-006",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 271,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-007",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 290,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-008",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 268,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-009",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 258,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-010",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 260,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-011",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 327,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-012",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 268,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-013",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 255,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-014",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 281,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-015",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 285,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-016",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 271,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-017",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 282,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-018",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 256,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-019",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 281,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-020",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 256,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-021",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 256,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-022",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 270,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-023",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 236,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-024",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 256,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-025",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 256,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-026",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 295,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-027",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 311,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-028",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 303,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-029",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 286,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-030",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-031",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-032",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 284,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-033",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 255,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-034",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 255,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-035",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 255,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-036",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 257,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-037",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 259,
+      "failure": null,
+      "order": [
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-038",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 282,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-039",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 270,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-040",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 269,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-041",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 257,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-042",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 255,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-043",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 257,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-044",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 255,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-045",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 258,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-046",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 281,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-047",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 284,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-048",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 283,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-049",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 283,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-050",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 256,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-051",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 283,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-052",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 273,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-053",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 257,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-054",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 258,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-055",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 257,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-056",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 256,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-057",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 255,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-058",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 286,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-059",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 269,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-060",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 272,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-061",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 271,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-062",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 272,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-063",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 270,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-064",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 290,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-065",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-066",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 278,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-067",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 315,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-068",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-069",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 266,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-070",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 289,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-071",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 288,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-072",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 283,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-073",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-074",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 255,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-075",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 256,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-076",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 259,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-077",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 257,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-078",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 284,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-079",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 271,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-080",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 284,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-081",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 271,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-082",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 272,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-083",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 286,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-084",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 239,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-085",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 260,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-086",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 267,
+      "failure": null,
+      "order": [
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-087",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-088",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 257,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-089",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 258,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-090",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 282,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-091",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 273,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-092",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 282,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-093",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 298,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-094",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 319,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-095",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 341,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-096",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 285,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-097",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 260,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-098",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 271,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-099",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 255,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "laya-smell-only-positive",
+      "stateId": "state-100",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-001",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 643,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-002",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 496,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-003",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 491,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-004",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 229,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-005",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 488,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-006",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 536,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-007",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 617,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-008",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 554,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-009",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 236,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-010",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 229,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-011",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 389,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-012",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 445,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-013",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 522,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-014",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 550,
+      "failure": null,
+      "order": [
+        "up",
+        "left",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-015",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 586,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-016",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 386,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-017",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 553,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-018",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 632,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-019",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 734,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-020",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 530,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-021",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 666,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-022",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 544,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-023",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 391,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-024",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 509,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-025",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 493,
+      "failure": null,
+      "order": [
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-026",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 585,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-027",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 544,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-028",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 586,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-029",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 546,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-030",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 587,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-031",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 633,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-032",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 552,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-033",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 392,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-034",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 448,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-035",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 474,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-036",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 444,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-037",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 568,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-038",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 460,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-039",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 546,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-040",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 603,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-041",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 258,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-042",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 531,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-043",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 485,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-044",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 449,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-045",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 449,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-046",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 577,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-047",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 524,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-048",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 589,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-049",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 548,
+      "failure": null,
+      "order": [
+        "up",
+        "left",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-050",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 465,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-051",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 546,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-052",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 586,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-053",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 489,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-054",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 493,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-055",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 396,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-056",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 235,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-057",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 464,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-058",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 547,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-059",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 507,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-060",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 555,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-061",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 514,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-062",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 547,
+      "failure": null,
+      "order": [
+        "up",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-063",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 458,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-064",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 463,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-065",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 241,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-066",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 410,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-067",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 497,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-068",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 474,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-069",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 235,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-070",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 492,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-071",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 495,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-072",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 551,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-073",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 237,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-074",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 490,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-075",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 234,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-076",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 230,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-077",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 233,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-078",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 595,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-079",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 499,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-080",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 496,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-081",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 494,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-082",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 466,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-083",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 629,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-084",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 409,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-085",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 517,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-086",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 466,
+      "failure": null,
+      "order": [
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-087",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 471,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-088",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 453,
+      "failure": null,
+      "order": [
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-089",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 517,
+      "failure": null,
+      "order": [
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-090",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 616,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-091",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 557,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-092",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 509,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-093",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 631,
+      "failure": null,
+      "order": [
+        "up",
+        "left",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-094",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 581,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-095",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 625,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-096",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 558,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-097",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 323,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-098",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 497,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-099",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 469,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-warmer-only-positive",
+      "stateId": "state-100",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 235,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-001",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 480,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-002",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 528,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-003",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 487,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-004",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 238,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-005",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 491,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-006",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 551,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-007",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 546,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-008",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 506,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-009",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 235,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-010",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 233,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-011",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 396,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-012",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 444,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-013",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 469,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-014",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 548,
+      "failure": null,
+      "order": [
+        "up",
+        "left",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-015",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 581,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-016",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 398,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-017",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 539,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-018",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 492,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-019",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 537,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-020",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 513,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-021",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 502,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-022",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 502,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-023",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 401,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-024",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 467,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-025",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 540,
+      "failure": null,
+      "order": [
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-026",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 542,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-027",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 535,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-028",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 545,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-029",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 535,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-030",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 549,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-031",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 622,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-032",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 575,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-033",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 401,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-034",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 448,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-035",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 448,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-036",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 448,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-037",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 445,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-038",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 451,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-039",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 505,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-040",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 506,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-041",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 235,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-042",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 462,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-043",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 447,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-044",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 519,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-045",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 498,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-046",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 588,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-047",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 504,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-048",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 537,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-049",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 538,
+      "failure": null,
+      "order": [
+        "up",
+        "left",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-050",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 454,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-051",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 536,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-052",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 496,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-053",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 236,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-054",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 481,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-055",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 402,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-056",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 236,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-057",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 445,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-058",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 535,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-059",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 506,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-060",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 449,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-061",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 507,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-062",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 499,
+      "failure": null,
+      "order": [
+        "up",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-063",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 549,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-064",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 465,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-065",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 236,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-066",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 395,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-067",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 547,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-068",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 537,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-069",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 250,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-070",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 547,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-071",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 562,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-072",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 237,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-073",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 238,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-074",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 499,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-075",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 235,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-076",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 232,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-077",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 235,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-078",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 633,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-079",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 540,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-080",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 542,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-081",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 604,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-082",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 434,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-083",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 571,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-084",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 427,
+      "failure": null,
+      "order": [
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-085",
+      "choice": "up",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 991,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-086",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 468,
+      "failure": null,
+      "order": [
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-087",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 457,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-088",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 430,
+      "failure": null,
+      "order": [
+        "left",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-089",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 515,
+      "failure": null,
+      "order": [
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-090",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 589,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-091",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 543,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-092",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 540,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-093",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 578,
+      "failure": null,
+      "order": [
+        "up",
+        "left",
+        "right",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-094",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 584,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-095",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 633,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-096",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 549,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-097",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 236,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-098",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 527,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-099",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 508,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ]
+    },
+    {
+      "arm": "ollama-smell-only-positive",
+      "stateId": "state-100",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 235,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ]
+    }
+  ]
+}
