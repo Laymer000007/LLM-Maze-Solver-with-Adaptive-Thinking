@@ -53,18 +53,40 @@ import { Maze } from '@/maze/maze';
 // Prompt-tuning round: single-step "toward stronger smell" on the 100 frozen states, then the best variant per model
 // through the 4 maze entries of the word-prompt experiment. Words only; production prompts are untouched.
 
-export type TuningVariant = 'lookahead' | 'lookahead-rule' | 'warmer-only' | 'smell-only' | 'warmer-only-positive' | 'smell-only-positive';
+export type TuningVariant =
+  | 'lookahead'
+  | 'lookahead-rule'
+  | 'warmer-only'
+  | 'smell-only'
+  | 'warmer-only-positive'
+  | 'smell-only-positive'
+  | 'rule-instructions-only'
+  | 'rule-state-only';
 /** Variants of the main tuning round; smell-only is used only by --mode ablation. */
 export const TUNING_VARIANTS: TuningVariant[] = ['lookahead', 'lookahead-rule', 'warmer-only'];
 export const ABLATION_VARIANTS: TuningVariant[] = ['warmer-only', 'smell-only'];
 /** --mode ablation-positive: the same two arms with the positive-only rule. */
 export const POSITIVE_VARIANTS: TuningVariant[] = ['warmer-only-positive', 'smell-only-positive'];
+/** --mode ablation-placement, Laya only: warmer/colder + positive rule, with the rule in both places, instructions only, or state.body only. */
+export const PLACEMENT_VARIANTS: TuningVariant[] = ['warmer-only-positive', 'rule-instructions-only', 'rule-state-only'];
+const RULE_PLACEMENT_ONLY: TuningVariant[] = ['rule-instructions-only', 'rule-state-only'];
 export const RULE =
   'The cheese is where the smell is strongest. Always move in a direction where the smell grows stronger. Never choose a direction where it grows weaker.';
 export const POSITIVE_RULE = 'The cheese is where the smell is strongest. Always move in the direction where the smell grows stronger.';
 export type Arm = { model: Model; variant: TuningVariant; think: boolean };
 type Config = { budgetMs: number; seed: number; outputDir: string; layaUrl: string; ollamaUrl: string; ollamaModel: string };
-type Row = { arm: string; stateId: string; choice: Move | null; legal: boolean; toward: boolean; latencyMs: number; failure: string | null; order: Move[] };
+type Row = {
+  arm: string;
+  stateId: string;
+  choice: Move | null;
+  legal: boolean;
+  toward: boolean;
+  latencyMs: number;
+  failure: string | null;
+  order: Move[];
+  /** Laya's usage.input_tokens, when returned. */
+  inputTokens?: number | null;
+};
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const THINK_CAP = 50;
@@ -92,15 +114,19 @@ export function strongerMoves(state: DecisionState): Move[] {
 export function tunedRequest(model: Model, variant: TuningVariant, state: DecisionState, order: Move[]): Record<string, unknown> {
   if (variant === 'lookahead') return wordRequest(model, 'words-lookahead', state, order, '');
   const line = variant === 'lookahead-rule' ? lookaheadLine : variant.startsWith('smell-only') ? smellOnlyLine : warmerLine;
-  const rule = variant.endsWith('-positive') ? POSITIVE_RULE : RULE;
+  const placementOnly = RULE_PLACEMENT_ONLY.includes(variant);
+  if (placementOnly && model !== 'laya') throw new Error(`${variant} is a Laya-only variant.`);
+  const rule = variant.endsWith('-positive') || placementOnly ? POSITIVE_RULE : RULE;
   const closeness = `${capitalise(closenessWords(state.perception.smell))}.`;
   if (model === 'laya')
     return {
-      state: { body: [INTRO, closeness, rule, 'Choose the direction most likely to lead to the cheese.'].join('\n') },
+      state: {
+        body: [INTRO, closeness, ...(variant === 'rule-instructions-only' ? [] : [rule]), 'Choose the direction most likely to lead to the cheese.'].join('\n'),
+      },
       questions: {
         move: {
           type: 'choice',
-          instructions: `${rule} ${LAYA_INSTRUCTIONS}`,
+          instructions: variant === 'rule-state-only' ? LAYA_INSTRUCTIONS : `${rule} ${LAYA_INSTRUCTIONS}`,
           criteria: Object.fromEntries(order.map((move) => [move.toUpperCase(), line(state, move)])),
         },
       },
@@ -515,6 +541,98 @@ async function mazeCheck(config: Config): Promise<void> {
   console.log(`Done in ${seconds(elapsed)}. Report: ${path.join(runDir, 'report.md')}`);
 }
 
+/** Laya rule-placement arms, with usage.input_tokens and changes against rule-both. */
+async function writePlacementReport(
+  runDir: string,
+  config: Config,
+  timestamp: string,
+  states: (DecisionState & { id: string })[],
+  rows: Row[],
+  examples: Map<string, CapturedRequest>,
+  notes: string[],
+  elapsedMs: number,
+): Promise<void> {
+  const label: Record<string, string> = {
+    'warmer-only-positive': 'rule-both',
+    'rule-instructions-only': 'rule-instructions-only',
+    'rule-state-only': 'rule-state-only',
+  };
+  const where: Record<string, string> = {
+    'warmer-only-positive': 'state.body + instructions',
+    'rule-instructions-only': 'instructions only',
+    'rule-state-only': 'state.body only',
+  };
+  const previousDir = (await fs.readdir(config.outputDir))
+    .filter((d) => d.endsWith('-ablation-positive'))
+    .sort()
+    .at(-1);
+  const previous: Row[] = previousDir ? JSON.parse(await fs.readFile(path.join(config.outputDir, previousDir, 'results.json'), 'utf-8')).rows : [];
+  const both = new Map(rows.filter((r) => r.arm === 'laya-warmer-only-positive').map((r) => [r.stateId, r]));
+  const lines = [
+    '# Ablation: where Laya gets the rule',
+    '',
+    `- Timestamp: ${timestamp} · commit ${git('git rev-parse HEAD')}${git('git status --porcelain') ? ' (dirty)' : ''} · seed ${config.seed}`,
+    `- Laya only. Single step on the ${states.length} frozen states, 1 request per state per arm, warmer/colder options, positive-only rule ("${POSITIVE_RULE}"), option order from warmer-only's shuffle seed (identical across arms).`,
+    '- rule-both is laya-best. rule-instructions-only drops the rule line from state.body; rule-state-only drops the rule from questions.move.instructions, leaving "Choose exactly one movement direction. Return the direction label."',
+    `- Input tokens are Laya's response \`usage.input_tokens\`. Time budget ${config.budgetMs / 60_000} min; used ${seconds(elapsedMs)}.`,
+    ...notes.map((n) => `- ${n}`),
+    '',
+    '| Arm | Rule in | States | Toward stronger | Legal | Failed | Mean latency | Input tokens (mean, min–max) | Choices changed vs rule-both |',
+    '|---|---|---:|---:|---:|---:|---:|---|---:|',
+  ];
+  for (const variant of PLACEMENT_VARIANTS) {
+    const id = armId({ model: 'laya', variant, think: false });
+    const group = rows.filter((r) => r.arm === id);
+    if (!group.length) continue;
+    const s = summarise(group);
+    const tokens = group.map((r) => r.inputTokens).filter((t): t is number => typeof t === 'number');
+    const tokenCell = tokens.length
+      ? `${Math.round(tokens.reduce((a, b) => a + b, 0) / tokens.length)} (${Math.min(...tokens)}–${Math.max(...tokens)})${tokens.length < group.length ? `, ${tokens.length}/${group.length} reported` : ''}`
+      : 'not returned';
+    const changed =
+      variant === 'warmer-only-positive' ? '—' : String(group.filter((r) => both.has(r.stateId) && both.get(r.stateId)!.choice !== r.choice).length);
+    lines.push(
+      `| ${label[variant]} | ${where[variant]} | ${s.states} | ${pct(s.towardRate)} | ${pct(s.legalRate)} | ${s.failures} | ${Math.round(s.meanLatencyMs)} ms | ${tokenCell} | ${changed} |`,
+    );
+  }
+  const prev = previous.filter((r) => r.arm === 'laya-warmer-only-positive');
+  if (prev.length)
+    lines.push(
+      '',
+      `rule-both reproduction against \`${path.relative(ROOT, path.join(config.outputDir, previousDir!))}\` (laya-warmer-only-positive): ${prev.filter((p) => both.get(p.stateId)?.choice === p.choice).length}/${prev.length} identical choices.`,
+    );
+  for (const variant of RULE_PLACEMENT_ONLY) {
+    const id = armId({ model: 'laya', variant, think: false });
+    const differ = rows.filter((r) => r.arm === id && both.has(r.stateId) && both.get(r.stateId)!.choice !== r.choice);
+    lines.push('', `### ${label[variant]}: states that chose differently from rule-both (${differ.length})`, '');
+    if (!differ.length) continue;
+    const byId = new Map(states.map((st) => [st.id, st]));
+    const mark = (choice: Move | null, stateId: string) =>
+      choice === null ? 'failed' : `${choice}${strongerMoves(byId.get(stateId)!).includes(choice) ? ' ✓' : ' ✗'}`;
+    lines.push('| State | Options (order shown) | Stronger | rule-both | this arm |', '|---|---|---|---|---|');
+    for (const r of differ)
+      lines.push(
+        `| ${r.stateId} | ${r.order.join(', ')} | ${strongerMoves(byId.get(r.stateId)!).join(', ')} | ${mark(both.get(r.stateId)!.choice, r.stateId)} | ${mark(r.choice, r.stateId)} |`,
+      );
+  }
+  lines.push(
+    '',
+    '## Example requests',
+    '',
+    "Each arm's first request (frozen state `state-001`), exactly as sent. The key travels only in the Authorization header.",
+    '',
+  );
+  for (const [id, example] of examples)
+    lines.push(`### ${label[id.replace('laya-', '')] ?? id}`, '', `POST ${example.endpoint}`, '', '```json', JSON.stringify(example.body, null, 2), '```', '');
+  await fs.writeFile(
+    path.join(runDir, 'results.json'),
+    redactSecrets(JSON.stringify({ timestamp, seed: config.seed, mode: 'ablation-placement', previous: previousDir ?? null, notes, rows }, null, 2)),
+  );
+  await fs.writeFile(path.join(runDir, 'examples.json'), redactSecrets(JSON.stringify(Object.fromEntries(examples), null, 2)));
+  await fs.writeFile(path.join(runDir, 'report.md'), redactSecrets(lines.join('\n') + '\n'));
+  console.log(`Done in ${seconds(elapsedMs)}. Report: ${path.join(runDir, 'report.md')}`);
+}
+
 /** The positive-rule arms next to the four arms of the latest --mode ablation run. */
 async function writePositiveReport(
   runDir: string,
@@ -609,7 +727,7 @@ async function main(): Promise<void> {
   };
   if (!(config.budgetMs > 0)) throw new Error('--time-budget-min must be a positive number.');
   const mode = get('--mode') ?? 'tuning';
-  const modes = ['tuning', 'ablation', 'ablation-positive', 'maze-check'];
+  const modes = ['tuning', 'ablation', 'ablation-positive', 'ablation-placement', 'maze-check'];
   if (!modes.includes(mode)) throw new Error(`Unknown --mode ${mode}; use ${modes.join(', ')}.`);
   if (mode === 'maze-check') {
     if (!resolveLayaKey()) throw new Error('No Laya key: set LAYA_API_KEY or LAYA_API_KEY_FILE (default ~/.config/laya/api_key).');
@@ -625,14 +743,21 @@ async function main(): Promise<void> {
   const { states } = JSON.parse(await fs.readFile(path.join(ROOT, 'benchmark-results', 'frozen-dataset.json'), 'utf-8')) as {
     states: (DecisionState & { id: string })[];
   };
-  const arms: Arm[] = (['laya', 'ollama'] as Model[]).flatMap((model) =>
-    (mode === 'ablation' ? ABLATION_VARIANTS : mode === 'ablation-positive' ? POSITIVE_VARIANTS : TUNING_VARIANTS).map((variant) => ({
-      model,
-      variant,
-      think: false,
-    })),
-  );
-  if (ablation)
+  const arms: Arm[] =
+    mode === 'ablation-placement'
+      ? PLACEMENT_VARIANTS.map((variant) => ({ model: 'laya', variant, think: false }))
+      : (['laya', 'ollama'] as Model[]).flatMap((model) =>
+          (mode === 'ablation' ? ABLATION_VARIANTS : mode === 'ablation-positive' ? POSITIVE_VARIANTS : TUNING_VARIANTS).map((variant) => ({
+            model,
+            variant,
+            think: false,
+          })),
+        );
+  if (mode === 'ablation-placement')
+    console.log(
+      `Plan, budget ${config.budgetMs / 60_000} min: ${arms.length} Laya arms × ${states.length} frozen states = ${arms.length * states.length} requests (~${seconds(arms.length * states.length * (290 + SLEEP_MS))} at laya-best's maze-check latency). No maze runs.`,
+    );
+  else if (ablation)
     console.log(
       `Plan, budget ${config.budgetMs / 60_000} min: ${arms.length} arms × ${states.length} frozen states = ${arms.length * states.length} requests (~${seconds(states.length * 2 * (333 + 523 + 2 * SLEEP_MS))} at the last run's warmer-only latencies). No maze runs.`,
     );
@@ -670,6 +795,7 @@ async function main(): Promise<void> {
         latencyMs: Math.round(decision.latencyMs ?? 0),
         failure: decision.failure ?? null,
         order,
+        inputTokens: typeof decision.usage?.input_tokens === 'number' ? decision.usage.input_tokens : null,
       });
       await new Promise((resolve) => setTimeout(resolve, SLEEP_MS));
     }
@@ -704,7 +830,8 @@ async function main(): Promise<void> {
       if (!(error instanceof BudgetReached)) throw error;
       notes.push(`Time budget reached after ${seconds(performance.now() - started)}; the report covers what finished.`);
     }
-    if (mode === 'ablation-positive') await writePositiveReport(runDir, config, timestamp, states, rows, examples, notes, performance.now() - started);
+    if (mode === 'ablation-placement') await writePlacementReport(runDir, config, timestamp, states, rows, examples, notes, performance.now() - started);
+    else if (mode === 'ablation-positive') await writePositiveReport(runDir, config, timestamp, states, rows, examples, notes, performance.now() - started);
     else await writeAblationReport(runDir, config, timestamp, states, rows, examples, notes, performance.now() - started);
     return;
   }

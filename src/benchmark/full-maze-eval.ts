@@ -90,6 +90,8 @@ export type Decision = {
   error?: string;
   presented?: Move[];
   criteria?: Record<string, string>;
+  /** Laya's response `usage` object, passed through for reporting; nothing in the run loop reads it. */
+  usage?: Record<string, unknown>;
 };
 export type PolicyConfig = {
   payloadBuilder: string;
@@ -470,9 +472,10 @@ export async function callLaya(layaUrl: string, body: Record<string, unknown>, t
   const result = await postJson(`${layaUrl}/v1/systemone`, { authorization: `Bearer ${secret}` }, body, timeoutMs);
   if (result.failure) return result;
   const choice = parseMove(result.json?.answers?.move?.choice);
+  const usage = result.json?.usage && typeof result.json.usage === 'object' ? { usage: result.json.usage as Record<string, unknown> } : {};
   return choice
-    ? { choice, latencyMs: result.latencyMs }
-    : { choice: null, latencyMs: result.latencyMs, failure: 'parse', error: 'No movement in answers.move.choice.' };
+    ? { choice, latencyMs: result.latencyMs, ...usage }
+    : { choice: null, latencyMs: result.latencyMs, failure: 'parse', error: 'No movement in answers.move.choice.', ...usage };
 }
 export function ollamaRequestBody(model: string, prompt: string, think: boolean): Record<string, unknown> {
   return { model, messages: [{ role: 'user', content: prompt }], stream: false, format: 'json', think, options: { temperature: OLLAMA_TEMPERATURE } };

@@ -1,0 +1,4419 @@
+{
+  "timestamp": "2026-10-24T16:00:05.893Z",
+  "seed": 20261023,
+  "mode": "ablation-placement",
+  "previous": "2026-10-24T15-03-17-873Z-ablation-positive",
+  "notes": [],
+  "rows": [
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-001",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 301,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-002",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 400,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-003",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 299,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-004",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 416,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-005",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 391,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-006",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 320,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "right"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-007",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 384,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up",
+        "down"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-008",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 382,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-009",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 378,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-010",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 283,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-011",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 310,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 106
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-012",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 326,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-013",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 301,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-014",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 380,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-015",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 405,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down",
+        "up"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-016",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 358,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "left"
+      ],
+      "inputTokens": 126
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-017",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 375,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 133
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-018",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 374,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-019",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 397,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up"
+      ],
+      "inputTokens": 133
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-020",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 343,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-021",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 316,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-022",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 278,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ],
+      "inputTokens": 126
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-023",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 240,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 106
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-024",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 258,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-025",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 279,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-026",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 338,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ],
+      "inputTokens": 133
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-027",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 276,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-028",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 330,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "inputTokens": 136
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-029",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 357,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-030",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 296,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up",
+        "left"
+      ],
+      "inputTokens": 136
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-031",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 295,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "inputTokens": 136
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-032",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 325,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "left",
+        "down"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-033",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 344,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-034",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 315,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-035",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 259,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-036",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 270,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-037",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 289,
+      "failure": null,
+      "order": [
+        "left",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-038",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 329,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "left",
+        "down"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-039",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 276,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-040",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-041",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-042",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 259,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-043",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 322,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-044",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 323,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-045",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 277,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-046",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 350,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-047",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 316,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right",
+        "left"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-048",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 296,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down",
+        "left"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-049",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 317,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 136
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-050",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 310,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-051",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 293,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ],
+      "inputTokens": 133
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-052",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 296,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down"
+      ],
+      "inputTokens": 126
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-053",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 301,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-054",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 260,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-055",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 283,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-056",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 314,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-057",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 278,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-058",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 345,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-059",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 281,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-060",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 277,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-061",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 277,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-062",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 277,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-063",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 276,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-064",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 301,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-065",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 265,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-066",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 240,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 106
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-067",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-068",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 265,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-069",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-070",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 278,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-071",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 302,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down",
+        "left"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-072",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 302,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-073",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-074",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-075",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-076",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-077",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-078",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 301,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-079",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 287,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-080",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 303,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left",
+        "down"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-081",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 283,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left"
+      ],
+      "inputTokens": 126
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-082",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 279,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ],
+      "inputTokens": 123
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-083",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 321,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 133
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-084",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 244,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 106
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-085",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 268,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-086",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "down",
+        "right"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-087",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-088",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 270,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-089",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-090",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 312,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "left",
+        "up"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-091",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 295,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down"
+      ],
+      "inputTokens": 125
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-092",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 301,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "inputTokens": 136
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-093",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 321,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down",
+        "up"
+      ],
+      "inputTokens": 142
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-094",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 309,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-095",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 305,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 136
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-096",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 307,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ],
+      "inputTokens": 135
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-097",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-098",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 290,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ],
+      "inputTokens": 126
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-099",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 267,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-warmer-only-positive",
+      "stateId": "state-100",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-001",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-002",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-003",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-004",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-005",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-006",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 240,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "right"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-007",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 293,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up",
+        "down"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-008",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 241,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-009",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-010",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 227,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-011",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 206,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 85
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-012",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 229,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-013",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-014",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 259,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-015",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down",
+        "up"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-016",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 254,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "left"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-017",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 253,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 112
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-018",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 228,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-019",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 256,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up"
+      ],
+      "inputTokens": 112
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-020",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 243,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-021",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 266,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-022",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 245,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-023",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 205,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 85
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-024",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-025",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 227,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ],
+      "inputTokens": 94
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-026",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 257,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ],
+      "inputTokens": 112
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-027",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 234,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-028",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 265,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-029",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 259,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-030",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-031",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-032",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 260,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "left",
+        "down"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-033",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 271,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-034",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 289,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-035",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-036",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-037",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "left",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-038",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "left",
+        "down"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-039",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 240,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-040",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 237,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-041",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-042",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-043",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 226,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-044",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 229,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-045",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-046",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 267,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-047",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right",
+        "left"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-048",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 259,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down",
+        "left"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-049",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 268,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-050",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 227,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-051",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 252,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ],
+      "inputTokens": 112
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-052",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 239,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-053",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 226,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-054",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-055",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-056",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 230,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-057",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 221,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ],
+      "inputTokens": 94
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-058",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 260,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-059",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 235,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-060",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 236,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-061",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 236,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-062",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 235,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-063",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 237,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-064",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 259,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-065",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-066",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 206,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 85
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-067",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 226,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-068",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 226,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-069",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-070",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 237,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-071",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down",
+        "left"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-072",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 270,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-073",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 228,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-074",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 228,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-075",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-076",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-077",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 226,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-078",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 260,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-079",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 237,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-080",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 265,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left",
+        "down"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-081",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-082",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 288,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ],
+      "inputTokens": 102
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-083",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 253,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 112
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-084",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 206,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 85
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-085",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-086",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "down",
+        "right"
+      ],
+      "inputTokens": 94
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-087",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 226,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-088",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 236,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-089",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 230,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-090",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "left",
+        "up"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-091",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 294,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down"
+      ],
+      "inputTokens": 104
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-092",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 337,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-093",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 299,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down",
+        "up"
+      ],
+      "inputTokens": 121
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-094",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-095",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 358,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-096",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 275,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ],
+      "inputTokens": 114
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-097",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 237,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-098",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 373,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-099",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 240,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-instructions-only",
+      "stateId": "state-100",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 233,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-001",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 270,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-002",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 286,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-003",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-004",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-005",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 222,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-006",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 242,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "right"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-007",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up",
+        "down"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-008",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 254,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-009",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 226,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-010",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 222,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-011",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 213,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 86
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-012",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 227,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-013",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 226,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-014",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 268,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-015",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down",
+        "up"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-016",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 245,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "left"
+      ],
+      "inputTokens": 106
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-017",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 113
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-018",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 249,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-019",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 306,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up"
+      ],
+      "inputTokens": 113
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-020",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-021",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-022",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 242,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ],
+      "inputTokens": 106
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-023",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 210,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 86
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-024",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-025",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-026",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ],
+      "inputTokens": 113
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-027",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 240,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-028",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 265,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "left",
+        "right"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-029",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 267,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-030",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-031",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 265,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-032",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 267,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "left",
+        "down"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-033",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 227,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-034",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-035",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 222,
+      "failure": null,
+      "order": [
+        "right",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-036",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 227,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-037",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 228,
+      "failure": null,
+      "order": [
+        "left",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-038",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "left",
+        "down"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-039",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 251,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "up"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-040",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 244,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "right"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-041",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 227,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-042",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 227,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-043",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 227,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-044",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 221,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-045",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-046",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 269,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-047",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 267,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-048",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 271,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-049",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-050",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-051",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 258,
+      "failure": null,
+      "order": [
+        "down",
+        "left",
+        "up"
+      ],
+      "inputTokens": 113
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-052",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 245,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down"
+      ],
+      "inputTokens": 106
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-053",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-054",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 229,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-055",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 228,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-056",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-057",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-058",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 278,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-059",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 261,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-060",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 262,
+      "failure": null,
+      "order": [
+        "right",
+        "left",
+        "down"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-061",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 296,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-062",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 258,
+      "failure": null,
+      "order": [
+        "left",
+        "up",
+        "right"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-063",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 250,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "up"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-064",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 263,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-065",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-066",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 207,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 86
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-067",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 222,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-068",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-069",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-070",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 241,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-071",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 269,
+      "failure": null,
+      "order": [
+        "right",
+        "up",
+        "down",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-072",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 265,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-073",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-074",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-075",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-076",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 256,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-077",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 281,
+      "failure": null,
+      "order": [
+        "left",
+        "right"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-078",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 288,
+      "failure": null,
+      "order": [
+        "down",
+        "right",
+        "left",
+        "up"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-079",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 293,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "right"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-080",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left",
+        "down"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-081",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 247,
+      "failure": null,
+      "order": [
+        "up",
+        "down",
+        "left"
+      ],
+      "inputTokens": 106
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-082",
+      "choice": "up",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 237,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ],
+      "inputTokens": 103
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-083",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 259,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 113
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-084",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 209,
+      "failure": null,
+      "order": [
+        "down"
+      ],
+      "inputTokens": 86
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-085",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 223,
+      "failure": null,
+      "order": [
+        "up",
+        "right"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-086",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 228,
+      "failure": null,
+      "order": [
+        "down",
+        "right"
+      ],
+      "inputTokens": 95
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-087",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 226,
+      "failure": null,
+      "order": [
+        "right",
+        "left"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-088",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 280,
+      "failure": null,
+      "order": [
+        "down",
+        "left"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-089",
+      "choice": "left",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 296,
+      "failure": null,
+      "order": [
+        "left",
+        "up"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-090",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 268,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "left",
+        "up"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-091",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 245,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down"
+      ],
+      "inputTokens": 105
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-092",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "up",
+        "right",
+        "down",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-093",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 278,
+      "failure": null,
+      "order": [
+        "left",
+        "right",
+        "down",
+        "up"
+      ],
+      "inputTokens": 122
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-094",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 265,
+      "failure": null,
+      "order": [
+        "left",
+        "down",
+        "up",
+        "right"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-095",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 267,
+      "failure": null,
+      "order": [
+        "down",
+        "up",
+        "right",
+        "left"
+      ],
+      "inputTokens": 116
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-096",
+      "choice": "right",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 264,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up",
+        "left"
+      ],
+      "inputTokens": 115
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-097",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 225,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-098",
+      "choice": "right",
+      "legal": true,
+      "toward": false,
+      "latencyMs": 245,
+      "failure": null,
+      "order": [
+        "right",
+        "down",
+        "up"
+      ],
+      "inputTokens": 106
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-099",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 224,
+      "failure": null,
+      "order": [
+        "up",
+        "down"
+      ],
+      "inputTokens": 96
+    },
+    {
+      "arm": "laya-rule-state-only",
+      "stateId": "state-100",
+      "choice": "down",
+      "legal": true,
+      "toward": true,
+      "latencyMs": 222,
+      "failure": null,
+      "order": [
+        "down",
+        "up"
+      ],
+      "inputTokens": 96
+    }
+  ]
+}

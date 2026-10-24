@@ -3,10 +3,12 @@ import path from 'path';
 
 import { describe, expect, it, vi } from 'vitest';
 
-import { rng, seededShuffle, type DecisionState } from '@/benchmark/full-maze-eval';
+import { callLaya, rng, seededShuffle, type DecisionState } from '@/benchmark/full-maze-eval';
+import { LAYA_INSTRUCTIONS } from '@/benchmark/word-prompts';
 import {
   ABLATION_VARIANTS,
   MAZE_CHECK_ARMS,
+  PLACEMENT_VARIANTS,
   POSITIVE_RULE,
   POSITIVE_VARIANTS,
   RULE,
@@ -27,6 +29,7 @@ const loadStates = async () =>
 const ARMS: Arm[] = [
   ...(['laya', 'ollama'] as const).flatMap((model) => [...TUNING_VARIANTS, ...ABLATION_VARIANTS, ...POSITIVE_VARIANTS].map((variant) => ({ model, variant, think: false }))),
   { model: 'ollama', variant: 'lookahead-rule', think: true },
+  ...PLACEMENT_VARIANTS.map((variant) => ({ model: 'laya' as const, variant, think: false })),
 ];
 /** What the model reads: the whole Laya body, or the Ollama messages (the envelope holds model "qwen3:1.7b" and temperature 0.2). */
 const readByModel = (arm: Arm, body: Record<string, unknown>) => JSON.stringify(arm.model === 'laya' ? body : body.messages);
@@ -160,6 +163,40 @@ describe('maze-check arms', () => {
     expect(deadEnd.validActions.length).toBeGreaterThan(0);
     expect(allColder(deadEnd)).toBe(true);
     expect(allColder({ ...state, validActions: [] })).toBe(false);
+  });
+});
+
+describe('rule-placement requests (Laya)', () => {
+  it('differ from rule-both only by the removed rule sentence, for every frozen state', async () => {
+    expect(PLACEMENT_VARIANTS).toEqual(['warmer-only-positive', 'rule-instructions-only', 'rule-state-only']);
+    for (const state of await loadStates()) {
+      const order = seededShuffle(state.validActions, rng(9));
+      const request = (variant: (typeof PLACEMENT_VARIANTS)[number]) => armRequest({ model: 'laya', variant, think: false }, state, order, 'm') as any;
+      const both = request('warmer-only-positive');
+      expect(both.state.body.split(POSITIVE_RULE)).toHaveLength(2);
+      expect(both.questions.move.instructions).toBe(`${POSITIVE_RULE} ${LAYA_INSTRUCTIONS}`);
+      const instructionsOnly = request('rule-instructions-only');
+      expect(instructionsOnly.state.body).not.toContain(POSITIVE_RULE);
+      expect(instructionsOnly).toEqual({ ...both, state: { body: both.state.body.replace(`${POSITIVE_RULE}\n`, '') } });
+      const stateOnly = request('rule-state-only');
+      expect(stateOnly.questions.move.instructions).toBe(LAYA_INSTRUCTIONS);
+      expect(stateOnly).toEqual({ ...both, questions: { move: { ...both.questions.move, instructions: LAYA_INSTRUCTIONS } } });
+    }
+  });
+
+  it('are refused for Ollama', async () => {
+    const [state] = await loadStates();
+    expect(() => armRequest({ model: 'ollama', variant: 'rule-state-only', think: false }, state, state.validActions, 'm')).toThrow(/Laya-only/);
+  });
+
+  it("pass Laya's usage object through callLaya", async () => {
+    vi.stubEnv('LAYA_API_KEY', 'fake-laya-key-123456789');
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ answers: { move: { choice: 'UP' } }, usage: { input_tokens: 123, output_tokens: 1 } }), { status: 200 })));
+    expect(await callLaya('http://laya.invalid', {}, 1000)).toMatchObject({ choice: 'up', usage: { input_tokens: 123 } });
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ answers: { move: { choice: 'UP' } } }), { status: 200 })));
+    expect((await callLaya('http://laya.invalid', {}, 1000)).usage).toBeUndefined();
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 });
 

@@ -1,0 +1,56 @@
+{
+  "laya-warmer-only-positive": {
+    "endpoint": "http://192.168.88.100:8000/v1/systemone",
+    "body": {
+      "state": {
+        "body": "You are a mouse in a dark maze, searching for cheese by smell.\nThe smell is faint.\nThe cheese is where the smell is strongest. Always move in the direction where the smell grows stronger.\nChoose the direction most likely to lead to the cheese."
+      },
+      "questions": {
+        "move": {
+          "type": "choice",
+          "instructions": "The cheese is where the smell is strongest. Always move in the direction where the smell grows stronger. Choose exactly one movement direction. Return the direction label.",
+          "criteria": {
+            "DOWN": "warmer, the smell grows stronger",
+            "UP": "colder, the smell grows weaker"
+          }
+        }
+      }
+    }
+  },
+  "laya-rule-instructions-only": {
+    "endpoint": "http://192.168.88.100:8000/v1/systemone",
+    "body": {
+      "state": {
+        "body": "You are a mouse in a dark maze, searching for cheese by smell.\nThe smell is faint.\nChoose the direction most likely to lead to the cheese."
+      },
+      "questions": {
+        "move": {
+          "type": "choice",
+          "instructions": "The cheese is where the smell is strongest. Always move in the direction where the smell grows stronger. Choose exactly one movement direction. Return the direction label.",
+          "criteria": {
+            "DOWN": "warmer, the smell grows stronger",
+            "UP": "colder, the smell grows weaker"
+          }
+        }
+      }
+    }
+  },
+  "laya-rule-state-only": {
+    "endpoint": "http://192.168.88.100:8000/v1/systemone",
+    "body": {
+      "state": {
+        "body": "You are a mouse in a dark maze, searching for cheese by smell.\nThe smell is faint.\nThe cheese is where the smell is strongest. Always move in the direction where the smell grows stronger.\nChoose the direction most likely to lead to the cheese."
+      },
+      "questions": {
+        "move": {
+          "type": "choice",
+          "instructions": "Choose exactly one movement direction. Return the direction label.",
+          "criteria": {
+            "DOWN": "warmer, the smell grows stronger",
+            "UP": "colder, the smell grows weaker"
+          }
+        }
+      }
+    }
+  }
+}
