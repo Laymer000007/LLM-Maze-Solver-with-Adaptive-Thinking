@@ -478,6 +478,21 @@ export async function callLaya(layaUrl: string, body: Record<string, unknown>, t
     ? { choice, latencyMs: result.latencyMs, ...usage }
     : { choice: null, latencyMs: result.latencyMs, failure: 'parse', error: 'No movement in answers.move.choice.', ...usage };
 }
+/** Like callLaya, but returns Laya's answer text unparsed, for requests whose labels are not direction words. */
+export async function callLayaRaw(
+  layaUrl: string,
+  body: Record<string, unknown>,
+  timeoutMs: number,
+): Promise<{ answer: string | null; latencyMs: number; failure?: FailureKind; error?: string; usage?: Record<string, unknown> }> {
+  const secret = requireLayaKey();
+  const result = await postJson(`${layaUrl}/v1/systemone`, { authorization: `Bearer ${secret}` }, body, timeoutMs);
+  if (result.failure) return { answer: null, latencyMs: result.latencyMs ?? 0, failure: result.failure, error: result.error };
+  const raw = result.json?.answers?.move?.choice;
+  const usage = result.json?.usage && typeof result.json.usage === 'object' ? { usage: result.json.usage as Record<string, unknown> } : {};
+  return typeof raw === 'string'
+    ? { answer: raw, latencyMs: result.latencyMs ?? 0, ...usage }
+    : { answer: null, latencyMs: result.latencyMs ?? 0, failure: 'parse', error: 'No string in answers.move.choice.', ...usage };
+}
 export function ollamaRequestBody(model: string, prompt: string, think: boolean): Record<string, unknown> {
   return { model, messages: [{ role: 'user', content: prompt }], stream: false, format: 'json', think, options: { temperature: OLLAMA_TEMPERATURE } };
 }

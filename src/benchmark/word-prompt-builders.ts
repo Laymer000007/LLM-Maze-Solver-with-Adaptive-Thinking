@@ -12,6 +12,8 @@ import {
   layaBody,
   ollamaRequestBody,
   scorerOptimal,
+  rng,
+  runSeed,
   seededShuffle,
 } from '@/benchmark/full-maze-eval-lib';
 import { MOVES, type Move } from '@/execution/execution';
@@ -223,8 +225,10 @@ export type Row = {
 
 export const armId = (arm: Arm) => `${arm.model}-${arm.variant}${arm.think ? '-think' : ''}`;
 
+export const WARMER_TEXT = 'warmer, the smell grows stronger';
+export const COLDER_TEXT = 'colder, the smell grows weaker';
 export function warmerLine(state: DecisionState, move: Move): string {
-  return state.perception.directionSmell[move] > state.perception.smell ? 'warmer, the smell grows stronger' : 'colder, the smell grows weaker';
+  return state.perception.directionSmell[move] > state.perception.smell ? WARMER_TEXT : COLDER_TEXT;
 }
 /** warmerLine() without the "warmer, " / "colder, " prefix. */
 export function smellOnlyLine(state: DecisionState, move: Move): string {
@@ -330,3 +334,81 @@ export function armPolicy(id: string, arm: Arm, config: ModelEndpoints, capture?
     },
   };
 }
+
+// ---------- Exhaustive laya-best requests and label schemes ----------
+
+/**
+ * Everything a laya-best request depends on: the closeness phrase and the options in the order shown, each warmer or
+ * colder. The request has no coordinates, so two cells with the same situation get byte-identical requests.
+ */
+export type Situation = { closeness: string; options: { move: Move; warmer: boolean }[] };
+export type LabelScheme = 'moves' | 'compass' | 'neutral';
+export const LABEL_SCHEMES: LabelScheme[] = ['moves', 'compass', 'neutral'];
+const COMPASS: Record<Move, string> = { up: 'NORTH', down: 'SOUTH', right: 'EAST', left: 'WEST' };
+const NEUTRAL = ['PATH_A', 'PATH_B', 'PATH_C', 'PATH_D'];
+/** The four closeness phrases, nearest first (distances 1, 4, 8 and 20 produce them). */
+export const CLOSENESS_PHRASES = [1, 4, 8, 20].map((distance) => closenessWords(101 - distance));
+
+export function situationOf(state: DecisionState, order: Move[]): Situation {
+  return {
+    closeness: closenessWords(state.perception.smell),
+    options: order.map((move) => ({ move, warmer: state.perception.directionSmell[move] > state.perception.smell })),
+  };
+}
+/** Labels for the options in shown order: direction words, compass points, or PATH_A.. by position (no direction information). */
+export function optionLabels(scheme: LabelScheme, order: Move[]): string[] {
+  return order.map((move, i) => (scheme === 'moves' ? move.toUpperCase() : scheme === 'compass' ? COMPASS[move] : NEUTRAL[i]));
+}
+/** laya-best (warmer/colder options, positive-only rule in body and instructions) with the chosen labels. */
+export function layaBestRequest(situation: Situation, scheme: LabelScheme): Record<string, unknown> {
+  const labels = optionLabels(
+    scheme,
+    situation.options.map((o) => o.move),
+  );
+  return {
+    state: { body: [INTRO, `${capitalise(situation.closeness)}.`, POSITIVE_RULE, 'Choose the direction most likely to lead to the cheese.'].join('\n') },
+    questions: {
+      move: {
+        type: 'choice',
+        instructions: `${POSITIVE_RULE} ${LAYA_INSTRUCTIONS}`,
+        criteria: Object.fromEntries(situation.options.map((o, i) => [labels[i], o.warmer ? WARMER_TEXT : COLDER_TEXT])),
+      },
+    },
+  };
+}
+/** Maps Laya's answer back to a move: an exact label match, else the one offered label it contains. */
+export function labelToMove(scheme: LabelScheme, order: Move[], answer: string | null): Move | null {
+  if (answer === null) return null;
+  const labels = optionLabels(scheme, order);
+  const text = answer.trim().toUpperCase();
+  const exact = labels.indexOf(text);
+  if (exact >= 0) return order[exact];
+  const contained = labels.map((label, i) => (new RegExp(`\\b${label}\\b`).test(text) ? i : -1)).filter((i) => i >= 0);
+  return contained.length === 1 ? order[contained[0]] : null;
+}
+
+export type EnumeratedRequest = { key: string; open: Move[]; warmer: Move[]; closeness: string; orderKind: 'canonical' | 'shuffled'; order: Move[] };
+const subsets = (values: Move[]) => Array.from({ length: (1 << values.length) - 1 }, (_, mask) => values.filter((_, i) => ((mask + 1) >> i) & 1));
+/**
+ * Every laya-best situation: each non-empty set of open directions (canonical up, down, left, right order), each
+ * non-empty warmer subset (every cell has a warmer neighbour under BFS smell), each closeness phrase; in canonical
+ * order and one seeded shuffled order that differs from it (none for a single option).
+ */
+export function enumerateSituations(seed: number): EnumeratedRequest[] {
+  const out: EnumeratedRequest[] = [];
+  for (const open of subsets(MOVES4))
+    for (const warmer of subsets(open))
+      for (const closeness of CLOSENESS_PHRASES) {
+        const key = `${open.join('+')}|warm:${warmer.join('+')}|${closeness}`;
+        out.push({ key, open, warmer, closeness, orderKind: 'canonical', order: open });
+        if (open.length < 2) continue;
+        let shuffled = seededShuffle(open, rng(runSeed(seed, key)));
+        if (shuffled.join() === open.join()) shuffled = [...open].reverse();
+        out.push({ key, open, warmer, closeness, orderKind: 'shuffled', order: shuffled });
+      }
+  return out;
+}
+export const situationFor = (request: EnumeratedRequest): Situation => ({
+  closeness: request.closeness,
+  options: request.order.map((move) => ({ move, warmer: request.warmer.includes(move) })),
+});
