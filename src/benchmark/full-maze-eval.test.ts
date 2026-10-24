@@ -9,7 +9,7 @@ import type { Move } from '@/execution/execution';
 import {
   TRANSFORMS, bfsShortestPath, resolveLayaKey, layaBody as buildLayaBody, ollamaRequestBody, rawNoSmellPrompt, seedCount, stuckWindowFor, buildSuiteEntry, createPolicies, layaBody, rng, runEpisode, runsCsv, runsJson, seededShuffle, stepCapFor, transformLayout, transformPosition, wilson,
   type DecisionState, type Policy,
-} from './full-maze-eval';
+} from '@/benchmark/full-maze-eval-lib';
 
 const LAYOUT = ['#######', '#S#   #', '# # # #', '#   #G#', '#######'];
 const CORRIDOR = ['#####', '#S G#', '#####'];

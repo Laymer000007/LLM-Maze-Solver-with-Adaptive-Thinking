@@ -4,17 +4,18 @@ import path from 'path';
 import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
 
-// Must stay the first project imports: they stop the imported experiment modules from running their own main().
-import '@/benchmark/as-library';
-import '@/benchmark/word-prompts-as-library';
 import {
+  type DecisionState,
+  type Policy,
+  type PolicyId,
+  type RunRecord,
   SLEEP_MS,
+  type SuiteEntry,
   TIMEOUT_MS,
   aggregate,
   buildSuiteEntry,
   callLaya,
   callOllama,
-  ollamaRequestBody,
   redactSecrets,
   resolveLayaKey,
   rng,
@@ -23,153 +24,56 @@ import {
   runsJson,
   seededShuffle,
   stuckWindowFor,
-  type Decision,
-  type DecisionState,
-  type Policy,
-  type PolicyId,
-  type RunRecord,
-  type SuiteEntry,
-} from '@/benchmark/full-maze-eval';
+} from '@/benchmark/full-maze-eval-lib';
 import {
+  ABLATION_VARIANTS,
+  type Arm,
+  type CapturedRequest,
+  type ColderStep,
   INTRO,
-  baselinePolicy,
-  createWordPolicy,
   LAYA_INSTRUCTIONS,
   MAZES,
+  MAZE_CHECK_ARMS,
+  type Model,
   OLLAMA_RETURN,
   ORIENTATIONS,
-  capitalise,
-  closenessWords,
-  lookaheadLine,
+  PLACEMENT_VARIANTS,
+  POSITIVE_RULE,
+  POSITIVE_VARIANTS,
+  RULE,
+  RULE_PLACEMENT_ONLY,
+  type Row,
+  TUNING_VARIANTS,
+  type TuningVariant,
+  allColder,
+  armId,
+  armPolicy,
+  armRequest,
+  ask,
+  baselinePolicy,
+  bestArm,
+  createWordPolicy,
   stepCapFor,
+  strongerMoves,
+  summarise,
   towardStrongerSmell,
-  wordRequest,
-  type CapturedRequest,
-  type Model,
-} from '@/benchmark/word-prompts';
-import type { Move } from '@/execution/execution';
+} from '@/benchmark/word-prompt-builders';
+import { type Move } from '@/execution/execution';
 import { Maze } from '@/maze/maze';
 
-// Prompt-tuning round: single-step "toward stronger smell" on the 100 frozen states, then the best variant per model
-// through the 4 maze entries of the word-prompt experiment. Words only; production prompts are untouched.
+// Prompt-tuning rounds (tuning, ablations, maze check). Builders are in word-prompt-builders.ts; production prompts
+// are untouched.
 
-export type TuningVariant =
-  | 'lookahead'
-  | 'lookahead-rule'
-  | 'warmer-only'
-  | 'smell-only'
-  | 'warmer-only-positive'
-  | 'smell-only-positive'
-  | 'rule-instructions-only'
-  | 'rule-state-only';
-/** Variants of the main tuning round; smell-only is used only by --mode ablation. */
-export const TUNING_VARIANTS: TuningVariant[] = ['lookahead', 'lookahead-rule', 'warmer-only'];
-export const ABLATION_VARIANTS: TuningVariant[] = ['warmer-only', 'smell-only'];
-/** --mode ablation-positive: the same two arms with the positive-only rule. */
-export const POSITIVE_VARIANTS: TuningVariant[] = ['warmer-only-positive', 'smell-only-positive'];
-/** --mode ablation-placement, Laya only: warmer/colder + positive rule, with the rule in both places, instructions only, or state.body only. */
-export const PLACEMENT_VARIANTS: TuningVariant[] = ['warmer-only-positive', 'rule-instructions-only', 'rule-state-only'];
-const RULE_PLACEMENT_ONLY: TuningVariant[] = ['rule-instructions-only', 'rule-state-only'];
-export const RULE =
-  'The cheese is where the smell is strongest. Always move in a direction where the smell grows stronger. Never choose a direction where it grows weaker.';
-export const POSITIVE_RULE = 'The cheese is where the smell is strongest. Always move in the direction where the smell grows stronger.';
-export type Arm = { model: Model; variant: TuningVariant; think: boolean };
 type Config = { budgetMs: number; seed: number; outputDir: string; layaUrl: string; ollamaUrl: string; ollamaModel: string };
-type Row = {
-  arm: string;
-  stateId: string;
-  choice: Move | null;
-  legal: boolean;
-  toward: boolean;
-  latencyMs: number;
-  failure: string | null;
-  order: Move[];
-  /** Laya's usage.input_tokens, when returned. */
-  inputTokens?: number | null;
-};
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const THINK_CAP = 50;
 const THINK_PROBE = 10;
 const MAZE_RESERVE_MS = 4 * 60_000;
-export const armId = (arm: Arm) => `${arm.model}-${arm.variant}${arm.think ? '-think' : ''}`;
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 const pct = (value: number) => `${(value * 100).toFixed(0)}%`;
 class BudgetReached extends Error {}
 class ArmDropped extends Error {}
-
-export function warmerLine(state: DecisionState, move: Move): string {
-  return state.perception.directionSmell[move] > state.perception.smell ? 'warmer, the smell grows stronger' : 'colder, the smell grows weaker';
-}
-/** warmerLine() without the "warmer, " / "colder, " prefix. */
-export function smellOnlyLine(state: DecisionState, move: Move): string {
-  return state.perception.directionSmell[move] > state.perception.smell ? 'the smell grows stronger' : 'the smell grows weaker';
-}
-/** Legal directions whose neighbour cell smells stronger than the current one. */
-export function strongerMoves(state: DecisionState): Move[] {
-  return state.validActions.filter((move) => state.perception.directionSmell[move] > state.perception.smell);
-}
-
-/** The request body for an arm, before the Ollama envelope; for Ollama it is { prompt }. */
-export function tunedRequest(model: Model, variant: TuningVariant, state: DecisionState, order: Move[]): Record<string, unknown> {
-  if (variant === 'lookahead') return wordRequest(model, 'words-lookahead', state, order, '');
-  const line = variant === 'lookahead-rule' ? lookaheadLine : variant.startsWith('smell-only') ? smellOnlyLine : warmerLine;
-  const placementOnly = RULE_PLACEMENT_ONLY.includes(variant);
-  if (placementOnly && model !== 'laya') throw new Error(`${variant} is a Laya-only variant.`);
-  const rule = variant.endsWith('-positive') || placementOnly ? POSITIVE_RULE : RULE;
-  const closeness = `${capitalise(closenessWords(state.perception.smell))}.`;
-  if (model === 'laya')
-    return {
-      state: {
-        body: [INTRO, closeness, ...(variant === 'rule-instructions-only' ? [] : [rule]), 'Choose the direction most likely to lead to the cheese.'].join('\n'),
-      },
-      questions: {
-        move: {
-          type: 'choice',
-          instructions: variant === 'rule-state-only' ? LAYA_INSTRUCTIONS : `${rule} ${LAYA_INSTRUCTIONS}`,
-          criteria: Object.fromEntries(order.map((move) => [move.toUpperCase(), line(state, move)])),
-        },
-      },
-    };
-  return {
-    prompt: [
-      INTRO,
-      closeness,
-      rule,
-      'You can go:',
-      ...order.map((move) => `${move.toUpperCase()}: ${line(state, move)}.`),
-      'Choose one direction.',
-      OLLAMA_RETURN,
-    ].join('\n'),
-  };
-}
-/** What is actually sent: the Laya body, or the full Ollama /api/chat body. */
-export function armRequest(arm: Arm, state: DecisionState, order: Move[], ollamaModel: string): CapturedRequest['body'] {
-  const body = tunedRequest(arm.model, arm.variant, state, order);
-  return arm.model === 'laya' ? body : ollamaRequestBody(ollamaModel, body.prompt as string, arm.think);
-}
-async function ask(arm: Arm, state: DecisionState, order: Move[], config: Config): Promise<Decision> {
-  const body = tunedRequest(arm.model, arm.variant, state, order);
-  return arm.model === 'laya'
-    ? callLaya(config.layaUrl, body, TIMEOUT_MS)
-    : callOllama(config.ollamaUrl, config.ollamaModel, body.prompt as string, arm.think, TIMEOUT_MS);
-}
-
-export function summarise(rows: Row[]) {
-  const answered = rows.length;
-  const latencies = rows.map((r) => r.latencyMs);
-  return {
-    states: answered,
-    towardRate: answered ? rows.filter((r) => r.toward).length / answered : 0,
-    legalRate: answered ? rows.filter((r) => r.legal).length / answered : 0,
-    failures: rows.filter((r) => r.failure).length,
-    meanLatencyMs: latencies.length ? latencies.reduce((a, b) => a + b, 0) / latencies.length : 0,
-  };
-}
-/** Best = highest toward-stronger rate, then legal rate, then lower latency. */
-export function bestArm<T extends { towardRate: number; legalRate: number; meanLatencyMs: number }>(candidates: [string, T][]): string {
-  return [...candidates].sort(([, a], [, b]) => b.towardRate - a.towardRate || b.legalRate - a.legalRate || a.meanLatencyMs - b.meanLatencyMs)[0][0];
-}
 
 function git(command: string): string {
   try {
@@ -273,51 +177,12 @@ async function writeAblationReport(
 
 // ---------- Maze check ----------
 
-export const MAZE_CHECK_ARMS: Record<'laya-best' | 'ollama-best', Arm> = {
-  'laya-best': { model: 'laya', variant: 'warmer-only-positive', think: false },
-  'ollama-best': { model: 'ollama', variant: 'warmer-only', think: false },
-};
 const FIRST_ENTRIES = ['7x7_corridor_branch', '7x7_open_detour'];
 const EXTRA_ENTRIES = ['11x11_corridor_dead-end', '15x15_corridor_spiral'];
 /** An arm averaging more than this per request after 10 requests is dropped. */
 export const SLOW_ARM_MS = 3000;
 /** Assumed latency before an arm has its own measurements (the last single-step runs). */
 const PRIOR_LATENCY_MS: Record<string, number> = { 'laya-best': 290, 'ollama-best': 530, 'laya-numbers-baseline': 360, 'ollama-numbers-baseline': 460 };
-export type ColderStep = { policy: string; entry: string; step: number; position: string; options: Move[]; choice: Move | null; legal: boolean };
-/** Every legal direction smells weaker than the current cell: every option is "colder". */
-export function allColder(state: DecisionState): boolean {
-  return state.validActions.length > 0 && strongerMoves(state).length === 0;
-}
-export function armPolicy(
-  id: string,
-  arm: Arm,
-  config: Pick<Config, 'layaUrl' | 'ollamaUrl' | 'ollamaModel'>,
-  capture?: (request: CapturedRequest) => void,
-): Policy {
-  return {
-    id: id as PolicyId, // experiment-only id
-    kind: arm.model,
-    deterministic: true,
-    config: {
-      payloadBuilder: `${armId(arm)} words`,
-      endpoint: arm.model === 'laya' ? `${config.layaUrl}/v1/systemone` : `${config.ollamaUrl}/api/chat`,
-      model: arm.model === 'laya' ? null : config.ollamaModel,
-      think: arm.model === 'laya' ? null : arm.think,
-      temperature: arm.model === 'laya' ? null : 0.2,
-      format: arm.model === 'laya' ? 'systemone choice question' : 'json',
-      optionOrdering: 'legal moves, seeded shuffle per request',
-      sees: 'warmer/colder per direction (words)',
-    },
-    decide: async (state, random) => {
-      const order = seededShuffle(state.validActions, random);
-      capture?.({
-        endpoint: arm.model === 'laya' ? `${config.layaUrl}/v1/systemone` : `${config.ollamaUrl}/api/chat`,
-        body: armRequest(arm, state, order, config.ollamaModel),
-      });
-      return { ...(await ask(arm, state, order, config as Config)), presented: order };
-    },
-  };
-}
 
 async function mazeCheck(config: Config): Promise<void> {
   const started = performance.now();
@@ -1001,8 +866,8 @@ async function main(): Promise<void> {
   await fs.writeFile(path.join(runDir, 'report.md'), redactSecrets(lines.join('\n') + '\n'));
   console.log(`Done in ${seconds(performance.now() - started)}. Report: ${path.join(runDir, 'report.md')}`);
 }
-if (!process.env.VITEST && !process.env.WORD_PROMPTS_TUNING_AS_LIBRARY)
-  main().catch((error) => {
-    console.error(redactSecrets(error instanceof Error ? error.message : String(error)));
-    process.exitCode = 1;
-  });
+// Entry point: run with vite-node. Never import this file; shared code lives in full-maze-eval-lib.ts and word-prompt-builders.ts.
+main().catch((error) => {
+  console.error(redactSecrets(error instanceof Error ? error.message : String(error)));
+  process.exitCode = 1;
+});

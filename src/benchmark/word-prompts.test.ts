@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { Move } from '@/execution/execution';
 
-import { buildSuiteEntry, runEpisode, type DecisionState } from './full-maze-eval';
+import { buildSuiteEntry, runEpisode, type DecisionState } from '@/benchmark/full-maze-eval-lib';
 import {
   MODELS,
   VARIANTS,
@@ -13,7 +13,7 @@ import {
   towardStrongerSmell,
   visitWords,
   type CapturedRequest,
-} from './word-prompts';
+} from '@/benchmark/word-prompt-builders';
 
 const NETWORK = { layaUrl: 'http://laya.invalid', ollamaUrl: 'http://ollama.invalid', ollamaModel: 'qwen3:1.7b' };
 const LAYOUT = ['#######', '#S#   #', '# # # #', '# #G# #', '# ### #', '#     #', '#######'];

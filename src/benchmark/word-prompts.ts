@@ -4,214 +4,47 @@ import path from 'path';
 import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
 
-// Must stay the first project import: stops full-maze-eval from running its own main() when imported.
-import '@/benchmark/as-library';
 import {
+  type Policy,
+  type RunRecord,
   SLEEP_MS,
+  type SuiteEntry,
   TIMEOUT_MS,
   aggregate,
   buildSuiteEntry,
   callLaya,
   callOllama,
-  constrainedPrompt,
-  layaBody,
-  ollamaRequestBody,
   redactSecrets,
   resolveLayaKey,
   runEpisode,
   runSeed,
   runsCsv,
   runsJson,
-  seededShuffle,
-  scorerOptimal,
   stuckWindowFor,
-  type Decision,
-  type DecisionState,
-  type Policy,
-  type PolicyId,
-  type RunRecord,
-  type SuiteEntry,
-  type Transform,
-} from '@/benchmark/full-maze-eval';
-import { MOVES, type Move } from '@/execution/execution';
-import { Maze, type Position } from '@/maze/maze';
+} from '@/benchmark/full-maze-eval-lib';
+import {
+  type CapturedRequest,
+  INTRO,
+  LAYA_INSTRUCTIONS,
+  MAZES,
+  MODELS,
+  OLLAMA_RETURN,
+  ORIENTATIONS,
+  VARIANTS,
+  baselinePolicy,
+  createWordPolicy,
+  stepCapFor,
+  towardStrongerSmell,
+} from '@/benchmark/word-prompt-builders';
+import { Maze } from '@/maze/maze';
 
-// Experiment: "hotter/colder" word prompts vs the numeric constrained payload, for Laya and Ollama. Reuses the
-// full-maze-eval run loop, stuck rule and criteria check; production prompts are untouched.
+// Experiment: "hotter/colder" word prompts vs the numeric constrained payload, for Laya and Ollama. Builders are in
+// word-prompt-builders.ts; production prompts are untouched.
 
-export type Variant = 'numbers-baseline' | 'words-lookahead' | 'words-feedback';
-export type Model = 'laya' | 'ollama';
-export const VARIANTS: Variant[] = ['numbers-baseline', 'words-lookahead', 'words-feedback'];
-export const MODELS: Model[] = ['laya', 'ollama'];
-/** A request as sent, minus the auth header. For Ollama the prompt itself is messages[0].content. */
-export type CapturedRequest = { endpoint: string; body: Record<string, unknown> };
 type Config = { budgetMs: number; seed: number; outputDir: string; layaUrl: string; ollamaUrl: string; ollamaModel: string };
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const MOVES4 = [...MOVES] as Move[];
-export const MAZES = ['mazes/7x7_corridor_branch.txt', 'mazes/7x7_open_detour.txt'];
-export const ORIENTATIONS: Transform[] = ['original', 'rotate-180'];
-export const INTRO = 'You are a mouse in a dark maze, searching for cheese by smell.';
-export const LAYA_INSTRUCTIONS = 'Choose exactly one movement direction. Return the direction label.';
-export const OLLAMA_RETURN = 'Return only JSON: {"move":"up|down|left|right"}.';
-export const stepCapFor = (optimalSteps: number) => Math.max(3 * optimalSteps, 60);
-const key = (p: Position) => `${p.x},${p.y}`;
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-export const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
-function nextPosition(p: Position, move: Move): Position {
-  return { x: p.x + (move === 'left' ? -1 : move === 'right' ? 1 : 0), y: p.y + (move === 'up' ? -1 : move === 'down' ? 1 : 0) };
-}
-
-// ---------- Words ----------
-
-/** distance = 101 − smell (smell is 101 − BFS distance to the goal). */
-export function closenessWords(smell: number): string {
-  const distance = 101 - smell;
-  if (distance <= 2) return 'the cheese smell is overwhelming, it must be right here';
-  if (distance <= 5) return 'the smell is strong';
-  if (distance <= 10) return 'the smell is noticeable';
-  return 'the smell is faint';
-}
-export function visitWords(visits: number): string {
-  return visits === 0 ? "you haven't been there" : visits >= 3 ? "you've been there many times" : "you've been there before";
-}
-export function smellTrendWords(state: DecisionState, move: Move): string {
-  return state.perception.directionSmell[move] > state.perception.smell ? 'the smell grows stronger that way' : 'the smell grows weaker that way';
-}
-const visitsTo = (state: DecisionState, move: Move) => state.memory.visitCounts[key(nextPosition(state.position, move))] ?? 0;
-export function lookaheadLine(state: DecisionState, move: Move): string {
-  return `an open passage; ${smellTrendWords(state, move)}; ${visitWords(visitsTo(state, move))}`;
-}
-export function feedbackLine(state: DecisionState, move: Move): string {
-  return `an open passage; ${visitWords(visitsTo(state, move))}`;
-}
-export type LastStep = { position: Position; smell: number; choice: Move | null; blocked: boolean } | null;
-/** How the previous decision went, judged only from the position and smell before and after it. */
-export function feedbackWords(state: DecisionState, last: LastStep): string {
-  if (!last) return 'You have just started.';
-  if (key(last.position) === key(state.position)) return last.choice && last.blocked ? 'You bumped into a wall.' : 'You did not move on your last turn.';
-  return state.perception.smell > last.smell ? 'That step took you closer: the smell got stronger.' : 'That step took you further: the smell got weaker.';
-}
-
-// ---------- Requests ----------
-
-export function wordRequest(
-  model: Model,
-  variant: Exclude<Variant, 'numbers-baseline'>,
-  state: DecisionState,
-  order: Move[],
-  feedback: string,
-): CapturedRequest['body'] {
-  const closeness = `${capitalise(closenessWords(state.perception.smell))}.`;
-  const line = variant === 'words-lookahead' ? lookaheadLine : feedbackLine;
-  const context = variant === 'words-lookahead' ? [INTRO, closeness] : [INTRO, feedback, closeness];
-  if (model === 'laya')
-    return {
-      state: { body: [...context, 'Choose the direction most likely to lead to the cheese.'].join('\n') },
-      questions: {
-        move: { type: 'choice', instructions: LAYA_INSTRUCTIONS, criteria: Object.fromEntries(order.map((move) => [move.toUpperCase(), line(state, move)])) },
-      },
-    };
-  const directions = order.map((move) => `${move.toUpperCase()}: ${line(state, move)}.`);
-  return { prompt: [...context, 'You can go:', ...directions, 'Choose one direction.', OLLAMA_RETURN].join('\n') };
-}
-
-export function createWordPolicy(
-  model: Model,
-  variant: Variant,
-  config: Pick<Config, 'layaUrl' | 'ollamaUrl' | 'ollamaModel'>,
-  capture?: (request: CapturedRequest) => void,
-): Policy {
-  let last: LastStep = null;
-  const id = `${model}-${variant}` as PolicyId; // experiment-only ids, outside the harness's PolicyId union
-  const decide = async (state: DecisionState, random: () => number): Promise<Decision> => {
-    const order = seededShuffle(state.validActions, random);
-    const feedback = feedbackWords(state, last);
-    let decision: Decision;
-    if (model === 'laya') {
-      const body = variant === 'numbers-baseline' ? layaBody(state, 'B-constrained', order) : wordRequest('laya', variant, state, order, feedback);
-      capture?.({ endpoint: `${config.layaUrl}/v1/systemone`, body });
-      decision = { ...(await callLaya(config.layaUrl, body, TIMEOUT_MS)), presented: order };
-      if (variant === 'numbers-baseline') decision.criteria = (body as { questions: { move: { criteria: Record<string, string> } } }).questions.move.criteria;
-    } else {
-      const prompt =
-        variant === 'numbers-baseline' ? constrainedPrompt(state, order) : (wordRequest('ollama', variant, state, order, feedback).prompt as string);
-      capture?.({ endpoint: `${config.ollamaUrl}/api/chat`, body: ollamaRequestBody(config.ollamaModel, prompt, false) });
-      decision = { ...(await callOllama(config.ollamaUrl, config.ollamaModel, prompt, false, TIMEOUT_MS)), presented: order };
-    }
-    last = {
-      position: state.position,
-      smell: state.perception.smell,
-      choice: decision.choice,
-      blocked: decision.choice !== null && state.perception.directions[decision.choice] === 'wall',
-    };
-    return decision;
-  };
-  const payload =
-    variant === 'numbers-baseline' ? (model === 'laya' ? 'layaBody(B-constrained), shuffled' : 'constrainedPrompt(), shuffled') : `${variant} words`;
-  return {
-    id,
-    kind: model,
-    deterministic: true,
-    config: {
-      payloadBuilder: payload,
-      endpoint: model === 'laya' ? `${config.layaUrl}/v1/systemone` : `${config.ollamaUrl}/api/chat`,
-      model: model === 'laya' ? null : config.ollamaModel,
-      think: model === 'laya' ? null : false,
-      temperature: model === 'laya' ? null : 0.2,
-      format: model === 'laya' ? 'systemone choice question' : 'json',
-      optionOrdering: 'legal moves, seeded shuffle per request',
-      sees:
-        variant === 'numbers-baseline'
-          ? 'scores, visits, smell (numbers)'
-          : variant === 'words-lookahead'
-            ? 'per-direction smell trend (words), visits (words)'
-            : 'last-step smell feedback (words), visits (words)',
-    },
-    decide,
-  };
-}
-export function baselinePolicy(id: 'scorer' | 'random-legal'): Policy {
-  const choose = <T>(random: () => number, values: T[]) => values[Math.floor(random() * values.length) % values.length];
-  return {
-    id,
-    kind: 'baseline',
-    deterministic: true,
-    config: {
-      payloadBuilder: 'none',
-      endpoint: null,
-      model: null,
-      think: null,
-      temperature: null,
-      format: null,
-      optionOrdering: 'n/a',
-      sees: id === 'scorer' ? 'scores' : 'walls only',
-    },
-    decide: async (state, random) => ({
-      choice: choose(random, id === 'scorer' ? scorerOptimal(state) : state.validActions.length ? state.validActions : MOVES4),
-      latencyMs: null,
-    }),
-  };
-}
-
-// ---------- Metrics ----------
-
-/** Replays a run's moves and returns the share of chosen moves (walls included) whose target cell smells stronger. */
-export function towardStrongerSmell(entry: SuiteEntry, moves: string[]): { toward: number; chosen: number } {
-  const maze = new Maze(entry.layout);
-  let position = { ...maze.startPosition };
-  let toward = 0;
-  let chosen = 0;
-  for (const step of moves) {
-    if (step.startsWith('!')) continue;
-    const move = step.replace('#wall', '') as Move;
-    const target = nextPosition(position, move);
-    chosen++;
-    if (maze.isWalkable(target) && maze.smellAt(target) > maze.smellAt(position)) toward++;
-    if (!step.endsWith('#wall')) position = target;
-  }
-  return { toward, chosen };
-}
 
 // ---------- Report ----------
 
@@ -430,8 +263,8 @@ async function main(): Promise<void> {
   await fs.writeFile(path.join(runDir, 'report.md'), report(meta, entries, policiesForReport, runs, skipped, examples));
   console.log(`Done in ${seconds(performance.now() - started)}. Report: ${path.join(runDir, 'report.md')}`);
 }
-if (!process.env.VITEST && !process.env.WORD_PROMPTS_AS_LIBRARY)
-  main().catch((error) => {
-    console.error(redactSecrets(error instanceof Error ? error.message : String(error)));
-    process.exitCode = 1;
-  });
+// Entry point: run with vite-node. Never import this file; shared code lives in full-maze-eval-lib.ts and word-prompt-builders.ts.
+main().catch((error) => {
+  console.error(redactSecrets(error instanceof Error ? error.message : String(error)));
+  process.exitCode = 1;
+});

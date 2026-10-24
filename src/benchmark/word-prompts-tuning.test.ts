@@ -3,8 +3,8 @@ import path from 'path';
 
 import { describe, expect, it, vi } from 'vitest';
 
-import { callLaya, rng, seededShuffle, type DecisionState } from '@/benchmark/full-maze-eval';
-import { LAYA_INSTRUCTIONS } from '@/benchmark/word-prompts';
+import { callLaya, rng, seededShuffle, type DecisionState } from '@/benchmark/full-maze-eval-lib';
+import { LAYA_INSTRUCTIONS } from '@/benchmark/word-prompt-builders';
 import {
   ABLATION_VARIANTS,
   MAZE_CHECK_ARMS,
@@ -22,7 +22,7 @@ import {
   summarise,
   warmerLine,
   type Arm,
-} from '@/benchmark/word-prompts-tuning';
+} from '@/benchmark/word-prompt-builders';
 
 const loadStates = async () =>
   (JSON.parse(await fs.readFile(path.resolve(__dirname, '../../benchmark-results/frozen-dataset.json'), 'utf-8')) as { states: (DecisionState & { id: string })[] }).states;
