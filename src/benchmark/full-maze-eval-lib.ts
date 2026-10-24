@@ -496,6 +496,21 @@ export async function callLayaRaw(
 export function ollamaRequestBody(model: string, prompt: string, think: boolean): Record<string, unknown> {
   return { model, messages: [{ role: 'user', content: prompt }], stream: false, format: 'json', think, options: { temperature: OLLAMA_TEMPERATURE } };
 }
+/** Like callOllama, but returns message.content unparsed, for answer formats that are not direction words. */
+export async function callOllamaRaw(
+  ollamaUrl: string,
+  model: string,
+  prompt: string,
+  timeoutMs: number,
+): Promise<{ content: string | null; latencyMs: number; failure?: FailureKind; error?: string; promptTokens: number | null }> {
+  const result = await postJson(`${ollamaUrl}/api/chat`, {}, ollamaRequestBody(model, prompt, false), timeoutMs);
+  if (result.failure) return { content: null, latencyMs: result.latencyMs ?? 0, failure: result.failure, error: result.error, promptTokens: null };
+  const content = result.json?.message?.content;
+  const promptTokens = typeof result.json?.prompt_eval_count === 'number' ? result.json.prompt_eval_count : null;
+  return typeof content === 'string'
+    ? { content, latencyMs: result.latencyMs ?? 0, promptTokens }
+    : { content: null, latencyMs: result.latencyMs ?? 0, failure: 'parse', error: 'No message.content.', promptTokens };
+}
 export async function callOllama(ollamaUrl: string, model: string, prompt: string, think: boolean, timeoutMs: number): Promise<Decision> {
   const result = await postJson(`${ollamaUrl}/api/chat`, {}, ollamaRequestBody(model, prompt, think), timeoutMs);
   if (result.failure) return result;

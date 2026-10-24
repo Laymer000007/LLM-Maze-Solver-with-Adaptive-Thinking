@@ -11,6 +11,7 @@ import {
   constrainedPrompt,
   layaBody,
   ollamaRequestBody,
+  parseMove,
   scorerOptimal,
   rng,
   runSeed,
@@ -412,3 +413,45 @@ export const situationFor = (request: EnumeratedRequest): Situation => ({
   closeness: request.closeness,
   options: request.order.map((move) => ({ move, warmer: request.warmer.includes(move) })),
 });
+
+// ---------- ollama-best with direction or compass labels ----------
+
+export type OllamaLabels = 'moves' | 'compass';
+export const OLLAMA_COMPASS_RETURN = 'Return only JSON: {"move":"north|south|east|west"}.';
+/**
+ * ollama-best (warmer/colder options, full rule) from a situation. 'moves' is byte-identical to the ollama-best prompt;
+ * 'compass' labels the options NORTH/SOUTH/EAST/WEST and asks for {"move":"north|south|east|west"}.
+ */
+export function ollamaBestPrompt(situation: Situation, labels: OllamaLabels): string {
+  const names = optionLabels(
+    labels,
+    situation.options.map((o) => o.move),
+  );
+  return [
+    INTRO,
+    `${capitalise(situation.closeness)}.`,
+    RULE,
+    'You can go:',
+    ...situation.options.map((o, i) => `${names[i]}: ${o.warmer ? WARMER_TEXT : COLDER_TEXT}.`),
+    'Choose one direction.',
+    labels === 'compass' ? OLLAMA_COMPASS_RETURN : OLLAMA_RETURN,
+  ].join('\n');
+}
+const FROM_COMPASS: Record<string, Move> = { north: 'up', south: 'down', east: 'right', west: 'left' };
+/**
+ * Maps Ollama's message.content back to a move. Any direction in the scheme counts, offered or not, so an unoffered one
+ * is an illegal choice (a wall collision in a maze) rather than a failure, for both label schemes alike.
+ */
+export function ollamaAnswerToMove(labels: OllamaLabels, content: string | null): Move | null {
+  if (content === null) return null;
+  let value: unknown;
+  try {
+    value = (JSON.parse(content) as { move?: unknown })?.move;
+  } catch {
+    return null;
+  }
+  // Same rule for both: a direction word anywhere in the value (parseMove, as ollama-best always used).
+  if (labels === 'moves') return parseMove(value);
+  const match = (typeof value === 'string' ? value : (JSON.stringify(value) ?? '')).match(/\b(north|south|east|west)\b/i);
+  return match ? FROM_COMPASS[match[1].toLowerCase()] : null;
+}
