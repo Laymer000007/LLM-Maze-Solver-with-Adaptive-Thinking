@@ -25,6 +25,20 @@ export class OllamaClient implements LLMClient {
     return { parsed: parseAction(content), raw: { ...body, content, additional_kwargs: { reasoning_content: body.message?.thinking ?? '' }, response_metadata: body } };
   }
 
+  /** Posts a ready-made /api/chat body unchanged (word-prompt style) and returns message.content as text. */
+  async sendRequest(body: Record<string, unknown>, signal?: AbortSignal): Promise<{ text: string; raw: Record<string, unknown> }> {
+    const response = await fetch(`${this.config.baseUrl}/api/chat`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+      signal,
+    });
+    if (!response.ok) throw new Error(`Ollama request failed (${response.status}).`);
+    const raw = (await response.json()) as { message?: { content?: string; thinking?: string }; [key: string]: unknown };
+    const content = raw.message?.content ?? '';
+    return { text: content, raw: { ...raw, content, additional_kwargs: { reasoning_content: raw.message?.thinking ?? '' }, response_metadata: raw } };
+  }
+
   async testConnection(): Promise<{ modelAvailable?: boolean; message: string }> {
     const response = await fetch(`${this.config.baseUrl}/api/tags`);
     if (!response.ok) throw new Error(`Could not connect to Ollama at ${this.config.baseUrl}`);

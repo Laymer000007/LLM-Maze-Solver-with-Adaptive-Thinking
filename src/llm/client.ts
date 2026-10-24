@@ -11,6 +11,8 @@ export type LLMResponse = {
 export interface LLMClient {
   chooseMove(prompt: string, thinking: boolean, signal?: AbortSignal, context?: DecisionRequestContext): Promise<LLMResponse>;
   testConnection(): Promise<{ modelAvailable?: boolean; message: string }>;
+  /** Sends a complete, ready-made request body unchanged; used by the word-prompt style. */
+  sendRequest(body: Record<string, unknown>, signal?: AbortSignal): Promise<{ text: string; raw: Record<string, unknown> }>;
 }
 
 export function createLLMClient(config: LLMConfig): LLMClient {

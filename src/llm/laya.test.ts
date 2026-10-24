@@ -31,3 +31,59 @@ describe('Laya client', () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe('Laya API key resolution', () => {
+  const FAKE_KEY = 'fake-gui-laya-key-0123456789';
+  const tempKeyFile = async (content: string) => {
+    const fs = await import('fs/promises');
+    const os = await import('os');
+    const path = await import('path');
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'laya-key-'));
+    const file = path.join(dir, 'api_key');
+    await fs.writeFile(file, content, { mode: 0o600 });
+    return { file, cleanup: () => fs.rm(dir, { recursive: true, force: true }) };
+  };
+
+  it('reads and trims the key from LAYA_API_KEY_FILE when LAYA_API_KEY is unset, and never returns it', async () => {
+    const { resolveLayaApiKey } = await import('@/llm/laya');
+    const { publicLLMConfig } = await import('@/llm/config');
+    const { file, cleanup } = await tempKeyFile(`\n  ${FAKE_KEY}  \n`);
+    vi.stubEnv('LAYA_API_KEY', '');
+    vi.stubEnv('LAYA_API_KEY_FILE', file);
+    expect(resolveLayaApiKey()).toBe(FAKE_KEY);
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ answers: { move: { choice: 'EAST' } } }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const config = sanitizeLLMConfig({ provider: 'laya' });
+    const result = await new LayaClient(config).sendRequest({ state: { body: 'x' } });
+    expect(fetchMock.mock.calls[0][1].headers.authorization).toBe(`Bearer ${FAKE_KEY}`);
+    expect(JSON.stringify(result)).not.toContain(FAKE_KEY);
+    expect(JSON.stringify(publicLLMConfig(config))).not.toContain(FAKE_KEY);
+    expect(String(fetchMock.mock.calls[0][1].body)).not.toContain(FAKE_KEY);
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+    await cleanup();
+  });
+
+  it('prefers LAYA_API_KEY over the key file', async () => {
+    const { resolveLayaApiKey } = await import('@/llm/laya');
+    const { file, cleanup } = await tempKeyFile('file-key-should-not-win');
+    vi.stubEnv('LAYA_API_KEY', FAKE_KEY);
+    vi.stubEnv('LAYA_API_KEY_FILE', file);
+    expect(resolveLayaApiKey()).toBe(FAKE_KEY);
+    vi.unstubAllEnvs();
+    await cleanup();
+  });
+
+  it('fails clearly, without a request, when neither is available', async () => {
+    vi.stubEnv('LAYA_API_KEY', '');
+    vi.stubEnv('LAYA_API_KEY_FILE', '/nonexistent/laya/api_key');
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const client = new LayaClient(sanitizeLLMConfig({ provider: 'laya' }));
+    await expect(client.sendRequest({})).rejects.toThrow(/no key is configured on the backend: set LAYA_API_KEY or put the key in \/nonexistent\/laya\/api_key/);
+    await expect(client.testConnection()).rejects.toThrow(/no key is configured/);
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+});

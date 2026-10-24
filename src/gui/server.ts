@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Maze } from '@/maze/maze';
 import { Mazes } from '@/maze/mazes';
+import { settingsChangeError } from '@/gui/settings-guard';
 import { ObservableMazeSolver, type SolverState } from '@/gui/solver';
 import { createLLMClient } from '@/llm/client';
 import { DEFAULT_LLM_CONFIG, publicLLMConfig, sanitizeLLMConfig, type LLMConfig } from '@/llm/config';
@@ -38,7 +39,8 @@ async function serve(req: http.IncomingMessage, res: http.ServerResponse): Promi
   if (url.pathname === '/api/settings' && req.method === 'GET') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ configured, config: publicLLMConfig(llmConfig) })); return; }
   if (url.pathname === '/api/settings' && req.method === 'POST') {
     const data = await body(req);
-    if (state.status === 'THINKING' || state.status === 'MOVING') { res.writeHead(409, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ ok: false, error: 'Stop or reset the active maze before switching AI providers.' })); return; }
+    const refusal = settingsChangeError(state, llmConfig, data);
+    if (refusal) { res.writeHead(409, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ ok: false, error: refusal })); return; }
     if ((data.provider !== 'laya' && (typeof data.baseUrl !== 'string' || !data.baseUrl.trim() || typeof data.model !== 'string' || !data.model.trim())) || (data.provider === 'laya' && (typeof data.layaUrl !== 'string' || !data.layaUrl.trim() || typeof data.layaModel !== 'string' || !data.layaModel.trim()))) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: false, error: data.provider === 'laya' ? 'Enter a Laya server URL and model before saving.' : 'Enter an Ollama server URL and model before saving.' }));

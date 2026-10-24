@@ -2,6 +2,8 @@ import type { Move } from '@/execution/execution';
 
 export type AIProvider = 'ollama' | 'laya';
 export type LayaDecisionMode = 'raw' | 'constrained';
+/** numbers: the existing prompts. words: the warmer/colder word prompts from the benchmark (src/llm/word-prompt-requests.ts). */
+export type PromptStyle = 'numbers' | 'words';
 export type LLMConfig = {
   provider: AIProvider;
   baseUrl: string;
@@ -10,6 +12,7 @@ export type LLMConfig = {
   layaUrl: string;
   layaModel: string;
   layaMode: LayaDecisionMode;
+  promptStyle: PromptStyle;
 };
 
 export type DecisionRequestContext = { choices: Move[]; mode: LayaDecisionMode };
@@ -22,6 +25,7 @@ export const DEFAULT_LLM_CONFIG: LLMConfig = {
   layaUrl: 'http://192.168.88.100:8000',
   layaModel: 'english',
   layaMode: 'raw',
+  promptStyle: 'numbers',
 };
 
 export function sanitizeLLMConfig(input: Partial<LLMConfig>): LLMConfig {
@@ -35,6 +39,7 @@ export function sanitizeLLMConfig(input: Partial<LLMConfig>): LLMConfig {
     layaUrl: String(input.layaUrl ?? DEFAULT_LLM_CONFIG.layaUrl).replace(/\/$/, ''),
     layaModel: String(input.layaModel ?? DEFAULT_LLM_CONFIG.layaModel),
     layaMode: input.layaMode === 'constrained' ? 'constrained' : DEFAULT_LLM_CONFIG.layaMode,
+    promptStyle: input.promptStyle === 'words' ? 'words' : DEFAULT_LLM_CONFIG.promptStyle,
   };
 }
 
