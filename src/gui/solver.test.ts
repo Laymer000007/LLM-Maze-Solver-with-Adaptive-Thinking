@@ -11,7 +11,6 @@ const optimal = bfsShortestPath(LAYOUT, { x: 1, y: 1 }, { x: 5, y: 3 })!;
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  vi.unstubAllEnvs();
 });
 
 /** Runs the real GUI loop with zero delay until it finishes. */
@@ -29,33 +28,6 @@ function solve(config: LLMConfig): Promise<{ state: SolverState; solver: Observa
 }
 
 describe('GUI solver, Words prompt style', () => {
-  it('Laya: sends laya-best-compass requests, one decision per step, and follows the warmer label to the goal', async () => {
-    vi.stubEnv('LAYA_API_KEY', 'fake-laya-key-123456789');
-    const bodies: any[] = [];
-    vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => {
-      const body = JSON.parse(String(init.body));
-      bodies.push(body);
-      const warmer = Object.entries(body.questions.move.criteria as Record<string, string>).find(([, text]) => text.startsWith('warmer'))![0];
-      return new Response(JSON.stringify({ answers: { move: { choice: warmer } } }), { status: 200 });
-    }));
-    const { state } = await solve(sanitizeLLMConfig({ provider: 'laya', layaUrl: 'http://laya.test', promptStyle: 'words' }));
-    expect(state.status).toBe('SOLVED');
-    expect(state.step).toBe(optimal);
-    expect(bodies).toHaveLength(optimal);
-    expect(state.llmCalls).toBe(optimal);
-    for (const body of bodies) {
-      expect(Object.keys(body.questions.move.criteria).every((label) => ['NORTH', 'SOUTH', 'EAST', 'WEST'].includes(label))).toBe(true);
-      expect(body).not.toHaveProperty('model');
-      expect(JSON.stringify(body)).not.toMatch(/cheese"|CHEESE|\d/);
-    }
-    expect(state.thinking).toBe(false);
-    expect(state.promptStyle).toBe('words');
-    expect(state.prompt).toMatch(/^POST http:\/\/laya\.test\/v1\/systemone\n\{/);
-    expect(state.llmLog.join('\n')).toContain('style=words');
-    expect(state.moveLog.join('\n')).toContain('PROMPT STYLE: Words: warmer/colder (compass labels)');
-    expect(state.moveLog.join('\n')).not.toContain('CHEESE DIRECT TRAVEL');
-  });
-
   it('Ollama: sends ollama-best requests with think off and temperature 0.2, even after a wall collision', async () => {
     const bodies: any[] = [];
     let first = true;
@@ -68,7 +40,7 @@ describe('GUI solver, Words prompt style', () => {
       first = false;
       return new Response(JSON.stringify({ message: { content: JSON.stringify({ move }) } }), { status: 200 });
     }));
-    const { state } = await solve(sanitizeLLMConfig({ provider: 'ollama', baseUrl: 'http://ollama.test', model: 'qwen3:1.7b', temperature: 0.9, promptStyle: 'words' }));
+    const { state } = await solve(sanitizeLLMConfig({ baseUrl: 'http://ollama.test', model: 'qwen3:1.7b', temperature: 0.9, promptStyle: 'words' }));
     expect(state.status).toBe('SOLVED');
     expect(state.invalidMoves).toBe(1);
     expect(bodies).toHaveLength(optimal + 1);
@@ -80,29 +52,21 @@ describe('GUI solver, Words prompt style', () => {
     expect(state.llmLog.join('\n')).toContain('style=words think=false');
   });
 
-  it('stops with a clear error, without guessing, when Laya answers an unoffered label', async () => {
-    vi.stubEnv('LAYA_API_KEY', 'fake-laya-key-123456789');
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ answers: { move: { choice: 'UP' } } }), { status: 200 })));
-    const { state } = await solve(sanitizeLLMConfig({ provider: 'laya', layaUrl: 'http://laya.test', promptStyle: 'words' }));
-    expect(state.status).toBe('FAILED');
-    expect(state.error).toMatch(/Laya answered "UP", which is not one of the offered options \(SOUTH\)/);
-    expect(state.step).toBe(0);
-  });
-
-  it('leaves the Numbers style unchanged', async () => {
-    vi.stubEnv('LAYA_API_KEY', 'fake-laya-key-123456789');
+  it('leaves the Numbers style unchanged: the existing prompt with adaptive thinking off at the start', async () => {
     const bodies: any[] = [];
     let solverRef: ObservableMazeSolver | null = null;
     vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => {
       bodies.push(JSON.parse(String(init.body)));
       solverRef?.stop();
-      return new Response(JSON.stringify({ answers: { move: { choice: 'DOWN' } } }), { status: 200 });
+      return new Response(JSON.stringify({ message: { content: '{"move":"down"}' } }), { status: 200 });
     }));
-    const solver = new ObservableMazeSolver(maze(), 'test.txt', sanitizeLLMConfig({ provider: 'laya', layaUrl: 'http://laya.test', layaMode: 'constrained' }), () => 0, () => {});
+    const solver = new ObservableMazeSolver(maze(), 'test.txt', sanitizeLLMConfig({ baseUrl: 'http://ollama.test' }), () => 0, () => {});
     solverRef = solver;
     solver.start();
     await vi.waitFor(() => expect(bodies.length).toBeGreaterThan(0));
     expect(solver.state.promptStyle).toBe('numbers');
-    expect(bodies[0]).toMatchObject({ model: 'english', questions: { move: { criteria: { DOWN: 'down movement' } } } });
+    expect(bodies[0]).toMatchObject({ model: 'qwen3:1.7b', think: false, options: { temperature: 0.2 } });
+    expect(bodies[0].messages[0].content).toContain('You are a mouse inside a maze and need to reach the cheese to win.');
   });
+
 });

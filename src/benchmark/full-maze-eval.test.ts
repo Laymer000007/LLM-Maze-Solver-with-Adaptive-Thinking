@@ -1,19 +1,16 @@
 import fs from 'fs/promises';
-import os from 'os';
 import path from 'path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { Maze, type LocalPerception, type Position } from '@/maze/maze';
-import { MOVES } from '@/execution/execution';
-import type { AgentMemoryState } from '@/agent/memory';
+import { Maze } from '@/maze/maze';
 import type { Move } from '@/execution/execution';
 import {
-  TRANSFORMS, bfsShortestPath, resolveLayaKey, layaBody as buildLayaBody, ollamaRequestBody, rawNoSmellPrompt, seedCount, stuckWindowFor, buildSuiteEntry, createPolicies, layaBody, rng, runEpisode, runsCsv, runsJson, seededShuffle, stepCapFor, transformLayout, transformPosition, wilson,
+  TRANSFORMS, bfsShortestPath, ollamaRequestBody, rawNoSmellPrompt, seedCount, stuckWindowFor, buildSuiteEntry, createPolicies, rng, runEpisode, runsCsv, runsJson, seededShuffle, stepCapFor, transformLayout, transformPosition, wilson,
   type DecisionState, type Policy,
 } from '@/benchmark/full-maze-eval-lib';
 
 const LAYOUT = ['#######', '#S#   #', '# # # #', '#   #G#', '#######'];
 const CORRIDOR = ['#####', '#S G#', '#####'];
-const NETWORK = { timeoutMs: 1000, ollamaUrl: 'http://ollama.invalid', ollamaModel: 'qwen3:1.7b', layaUrl: 'http://laya.invalid' };
+const NETWORK = { timeoutMs: 1000, ollamaUrl: 'http://ollama.invalid', ollamaModel: 'qwen3:1.7b' };
 const fixed = (choose: (state: DecisionState) => Move | null, failure?: 'timeout' | 'http' | 'parse'): Policy => ({ id: 'fixed-rd', kind: 'baseline', deterministic: true, config: { payloadBuilder: 'test', endpoint: null, model: null, think: null, temperature: null, format: null, optionOrdering: 'test', sees: 'test' }, decide: async (state) => ({ choice: choose(state), latencyMs: failure ? 5 : null, failure }) });
 
 afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
@@ -176,7 +173,7 @@ describe('smell-free payloads', () => {
     const scores = Object.values(snapshot.actionEffects).map((e) => e!.totalExpectedEiLDelta);
     expect(smells.every((v) => v > 9)).toBe(true);
     const allowed = new Set([0, position.x, position.y, maze.goalPosition.x, maze.goalPosition.y, ...Object.values(snapshot.visitCounts)].map(String));
-    for (const text of [JSON.stringify(buildLayaBody(state, 'A-raw-nosmell')), rawNoSmellPrompt(state), JSON.stringify((ollamaRequestBody('m', rawNoSmellPrompt(state), false) as any).messages)]) {
+    for (const text of [rawNoSmellPrompt(state), JSON.stringify((ollamaRequestBody('m', rawNoSmellPrompt(state), false) as any).messages)]) {
       expect(text).not.toMatch(/smell|score/i);
       for (const number of text.match(/-?\d+/g) ?? []) expect(allowed.has(number)).toBe(true);
       for (const value of [...smells, ...scores.filter((v) => !allowed.has(String(v)))]) expect(text).not.toMatch(new RegExp(`(^|\\D)${value}(\\D|$)`));
@@ -184,7 +181,6 @@ describe('smell-free payloads', () => {
       expect(text).toMatch(/visits=2|visits=1/);
       expect(text.includes(`(${position.x},${position.y})`) || text.includes(`(${position.x},${position.y})`.replace(/"/g, ''))).toBe(true);
     }
-    expect(Object.keys((buildLayaBody(state, 'A-raw-nosmell') as any).questions.move.criteria)).toEqual(['UP', 'DOWN', 'LEFT', 'RIGHT']);
   });
 });
 
@@ -206,136 +202,12 @@ describe('statistics and randomness', () => {
     const orders = new Set(Array.from({ length: 20 }, (_, seed) => seededShuffle(moves, rng(seed + 1)).join()));
     expect(orders.size).toBeGreaterThan(1);
   });
-
-  it('puts shuffled options into the Laya criteria in the shuffled order', async () => {
-    const maze = new Maze(['#####', '#   #', '# S #', '#  G#', '#####']);
-    const { AgentMemory } = await import('@/agent/memory');
-    const memory = new AgentMemory(); const perception = maze.perceive(maze.startPosition); memory.rememberPerception(perception, true);
-    const state: DecisionState = { position: maze.startPosition, goal: maze.goalPosition, perception, memory: memory.snapshot(), validActions: ['up', 'down', 'left', 'right'] };
-    const body = layaBody(state, 'B-constrained', ['left', 'up', 'right', 'down']) as any;
-    expect(Object.keys(body.questions.move.criteria)).toEqual(['LEFT', 'UP', 'RIGHT', 'DOWN']);
-  });
 });
 
 describe('seed counts', () => {
-  it('runs Laya once only when the determinism check passed, random-legal three times and Ollama once', () => {
-    const [scorer, random, laya, ollama] = createPolicies(['scorer', 'random-legal', 'laya-constrained-shuffled', 'ollama-raw-nosmell'], NETWORK);
-    expect([scorer, random, laya, ollama].map((p) => seedCount(p, 'tier-a', true))).toEqual([1, 3, 1, 1]);
-    expect(seedCount(laya, 'tier-a', false)).toBe(3);
-    expect(seedCount(random, 'smoke', true)).toBe(1);
-  });
-});
-
-describe('criteria check', () => {
-  const maze = ['#######', '#S    #', '# ### #', '#    G#', '#######'];
-  it('finds no mismatches in the real laya-constrained payload and flags a tampered one', async () => {
-    vi.stubEnv('LAYA_API_KEY', 'fake-laya-key-123456789');
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ answers: { move: { choice: 'RIGHT' } } }), { status: 200 })));
-    const entry = buildSuiteEntry(maze, 'm.txt', 'original');
-    const [policy] = createPolicies(['laya-constrained'], NETWORK);
-    const run = await runEpisode(entry, policy, 1, { sleepMs: 0, stepCap: 20 });
-    expect(run.criteriaChecked).toBeGreaterThan(5);
-    expect(run.criteriaMismatches).toBe(0);
-    const tampered: Policy = { ...policy, decide: async (state, random) => { const d = await policy.decide(state, random); return { ...d, criteria: Object.fromEntries(Object.entries(d.criteria!).map(([k, v]) => [k, v.replace(/visited (\d+)$/, (_, n) => `visited ${Number(n) + 1}`)])) }; } };
-    const bad = await runEpisode(entry, tampered, 1, { sleepMs: 0, stepCap: 3 });
-    expect(bad.criteriaMismatches).toBe(bad.criteriaChecked);
-    expect(bad.errors[0]).toMatch(/criteria mismatch/);
-  });
-});
-
-describe('credentials', () => {
-  const FAKE_KEY = 'fake-laya-key-123456789';
-  const entry = buildSuiteEntry(CORRIDOR, 'corridor.txt', 'original');
-
-  const tempDir = async () => fs.mkdtemp(path.join(os.tmpdir(), 'full-maze-eval-'));
-
-  it('fails clearly when neither LAYA_API_KEY nor the key file is available', async () => {
-    vi.stubEnv('LAYA_API_KEY', '');
-    vi.stubEnv('LAYA_API_KEY_FILE', path.join(await tempDir(), 'missing'));
-    vi.stubGlobal('fetch', vi.fn());
-    const [policy] = createPolicies(['laya-constrained'], NETWORK);
-    await expect(runEpisode(entry, policy, 1, { sleepMs: 0 })).rejects.toThrow(/No Laya key: LAYA_API_KEY is not set and .*missing/);
-    expect(fetch).not.toHaveBeenCalled();
-  });
-
-  it('reads and trims the key from LAYA_API_KEY_FILE when LAYA_API_KEY is unset', async () => {
-    const dir = await tempDir(); const file = path.join(dir, 'api_key');
-    await fs.writeFile(file, `  ${FAKE_KEY}\n`, { mode: 0o600 });
-    vi.stubEnv('LAYA_API_KEY', '');
-    vi.stubEnv('LAYA_API_KEY_FILE', file);
-    expect(resolveLayaKey()).toBe(FAKE_KEY);
-    const authorization: string[] = [];
-    vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => {
-      authorization.push((init.headers as Record<string, string>).authorization);
-      return new Response(JSON.stringify({ answers: { move: { choice: 'RIGHT' } } }), { status: 200 });
-    }));
-    const [policy] = createPolicies(['laya-constrained'], NETWORK);
-    const run = await runEpisode(entry, { ...policy, decide: async (state, random) => { const d = await policy.decide(state, random); return { ...d, error: `echo ${FAKE_KEY}` }; } }, 1, { sleepMs: 0 });
-    expect(authorization).toEqual([`Bearer ${FAKE_KEY}`, `Bearer ${FAKE_KEY}`]);
-    expect(run.completed).toBe(true);
-    const output = runsJson({}, [run]) + runsCsv([run]);
-    expect(output).not.toContain(FAKE_KEY);
-    await fs.rm(dir, { recursive: true, force: true });
-  });
-
-  it('prefers LAYA_API_KEY over the key file', async () => {
-    const dir = await tempDir(); const file = path.join(dir, 'api_key');
-    await fs.writeFile(file, 'file-key-should-not-win', { mode: 0o600 });
-    vi.stubEnv('LAYA_API_KEY', FAKE_KEY);
-    vi.stubEnv('LAYA_API_KEY_FILE', file);
-    expect(resolveLayaKey()).toBe(FAKE_KEY);
-    await fs.rm(dir, { recursive: true, force: true });
-  });
-
-  it('never writes the key into serialised output, even when an error echoes it', async () => {
-    vi.stubEnv('LAYA_API_KEY', FAKE_KEY);
-    let call = 0;
-    vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => {
-      expect((init.headers as Record<string, string>).authorization).toBe(`Bearer ${FAKE_KEY}`);
-      if (++call === 1) throw new Error(`connection reset; sent ${(init.headers as Record<string, string>).authorization}`);
-      return new Response(JSON.stringify({ answers: { move: { choice: 'RIGHT' } } }), { status: 200 });
-    }));
-    const policies = createPolicies(['laya-constrained', 'laya-raw'], NETWORK);
-    const runs = [];
-    for (const policy of policies) runs.push(await runEpisode(entry, policy, 1, { sleepMs: 0 }));
-    expect(runs[0].httpFailures).toBe(1);
-    expect(runs.every((run) => run.completed)).toBe(true);
-    const output = runsJson({ layaUrl: NETWORK.layaUrl }, runs) + runsCsv(runs);
-    expect(output).not.toContain(FAKE_KEY);
-    expect(output).toContain('[REDACTED]');
-  });
-});
-
-// Verbatim copy of the benchmark.ts builders (importing benchmark.ts would run its main()).
-namespace reference {
-  type FrozenState = { position: Position; goal: Position; perception: LocalPerception; memory: AgentMemoryState; validActions: Move[] };
-  type Experiment = 'A-raw' | 'B-constrained' | 'C-repeated';
-  const MOVES4 = [...MOVES] as Move[];
-  const key = (p: Position) => `${p.x},${p.y}`;
-  function nextPosition(position: Position, move: Move): Position { return move === 'up' ? { x: position.x, y: position.y - 1 } : move === 'down' ? { x: position.x, y: position.y + 1 } : move === 'left' ? { x: position.x - 1, y: position.y } : { x: position.x + 1, y: position.y }; }
-  function rawPrompt(state: FrozenState): string {
-    const p = state.perception; const directions = MOVES4.map((move) => `${move.toUpperCase()}: ${p.directions[move]}; smell=${p.directionSmell[move]}; ${p.directions[move] === 'wall' ? 'blocked' : 'open'}; visits=${state.memory.visitCounts[key(nextPosition(state.position, move))] ?? 0}`).join('\n');
-    return ['You control a mouse navigating a maze.', `Current position: (${state.position.x},${state.position.y})`, `Goal position: (${state.goal.x},${state.goal.y})`, `Current smell: ${p.smell}`, 'Choose exactly one movement label: UP, DOWN, LEFT, RIGHT.', directions, 'Return only JSON: {"move":"up|down|left|right"}.'].join('\n');
-  }
-  function constrainedPrompt(state: FrozenState): string {
-    const choices = state.validActions.map((move) => `${move.toUpperCase()}: score=${state.memory.actionEffects[move]?.totalExpectedEiLDelta ?? 'n/a'}; visits=${state.memory.visitCounts[key(nextPosition(state.position, move))] ?? 0}; smell=${state.perception.directionSmell[move]}`).join('\n');
-    return ['Choose the best legal movement for a maze mouse.', `Current position: (${state.position.x},${state.position.y})`, `Goal position: (${state.goal.x},${state.goal.y})`, 'Only these legal choices are available:', choices, 'Return only JSON: {"move":"up|down|left|right"}.'].join('\n');
-  }
-  export function layaBody(state: FrozenState, experiment: Experiment): Record<string, unknown> {
-    const legal = experiment === 'A-raw' ? MOVES4 : state.validActions; const descriptions = Object.fromEntries(legal.map((move) => [move.toUpperCase(), experiment === 'A-raw' ? `${move} movement; local state ${state.perception.directions[move]}, smell ${state.perception.directionSmell[move]}` : `${move} movement; existing expected sensor score ${state.memory.actionEffects[move]?.totalExpectedEiLDelta}; visited ${state.memory.visitCounts[key(nextPosition(state.position, move))] ?? 0}`]));
-    const prompt = experiment === 'A-raw' ? rawPrompt(state) : constrainedPrompt(state);
-    return { state: { body: prompt }, questions: { move: { type: 'choice', instructions: 'Choose exactly one movement direction. Return the direction label.', criteria: descriptions } } };
-  }
-}
-
-describe('Laya payload parity with benchmark.ts', () => {
-  it('builds byte-identical bodies for the frozen dataset states', async () => {
-    const file = path.resolve(__dirname, '../../benchmark-results/frozen-dataset.json');
-    const { states } = JSON.parse(await fs.readFile(file, 'utf-8')) as { states: DecisionState[] };
-    expect(states.length).toBeGreaterThanOrEqual(10);
-    for (const state of states) {
-      expect(JSON.stringify(layaBody(state, 'B-constrained'))).toBe(JSON.stringify(reference.layaBody(state, 'B-constrained')));
-      expect(JSON.stringify(layaBody(state, 'A-raw'))).toBe(JSON.stringify(reference.layaBody(state, 'A-raw')));
-    }
+  it('runs scorer once, random-legal three times and Ollama once in a tier, and everything once in smoke', () => {
+    const [scorer, random, ollama] = createPolicies(['scorer', 'random-legal', 'ollama-raw-nosmell'], NETWORK);
+    expect([scorer, random, ollama].map((p) => seedCount(p, 'tier-a'))).toEqual([1, 3, 1]);
+    expect(seedCount(random, 'smoke')).toBe(1);
   });
 });

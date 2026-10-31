@@ -12,10 +12,7 @@ import {
   TIMEOUT_MS,
   aggregate,
   buildSuiteEntry,
-  callLaya,
   callOllama,
-  redactSecrets,
-  resolveLayaKey,
   runEpisode,
   runSeed,
   runsCsv,
@@ -25,9 +22,7 @@ import {
 import {
   type CapturedRequest,
   INTRO,
-  LAYA_INSTRUCTIONS,
   MAZES,
-  MODELS,
   OLLAMA_RETURN,
   ORIENTATIONS,
   VARIANTS,
@@ -38,10 +33,10 @@ import {
 } from '@/benchmark/word-prompt-builders';
 import { Maze } from '@/maze/maze';
 
-// Experiment: "hotter/colder" word prompts vs the numeric constrained payload, for Laya and Ollama. Builders are in
+// Experiment: "hotter/colder" word prompts vs the numeric constrained prompt, for Ollama. Builders are in
 // word-prompt-builders.ts; production prompts are untouched.
 
-type Config = { budgetMs: number; seed: number; outputDir: string; layaUrl: string; ollamaUrl: string; ollamaModel: string };
+type Config = { budgetMs: number; seed: number; outputDir: string; ollamaUrl: string; ollamaModel: string };
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -60,12 +55,12 @@ function report(
 ): string {
   const byId = (id: string) => runs.filter((run) => run.policy === id);
   const lines = [
-    '# Word prompts vs numbers: Laya and Ollama',
+    '# Word prompts vs numbers: Ollama',
     '',
     `- Timestamp: ${meta.timestamp} · commit ${meta.gitCommit}${meta.gitDirty ? ' (dirty)' : ''} · seed ${meta.seed}`,
     `- Entries: ${entries.map((e) => `${e.id} (optimal ${e.optimalSteps})`).join(', ')}`,
     `- Step cap max(3 × optimal, 60); stuck when no new cell for max(50, 2 × optimal) steps; ${TIMEOUT_MS / 1000} s timeout; abort after 3 failed requests in a row; ${SLEEP_MS} ms between requests`,
-    `- Option order shuffled per request with a seeded RNG for every model variant. Ollama ${meta.ollamaModel}, think=false, temperature 0.2. Laya ${meta.layaUrl}.`,
+    `- Option order shuffled per request with a seeded RNG for every model variant. Ollama ${meta.ollamaModel}, think=false, temperature 0.2.`,
     `- Time budget ${meta.budgetMin} min; used ${seconds(meta.elapsedMs)}. ${skipped.length ? `Not run (budget reached): ${skipped.join(', ')}.` : 'Every planned run finished.'}`,
     '- Smell = 101 − BFS distance to the goal, so "stronger that way" is the shortest-path direction. "Toward stronger smell" = chosen moves whose target cell smells stronger than the current one, walls counted as not toward.',
     '',
@@ -101,15 +96,11 @@ function report(
         .join(' | ')} |`,
     );
   }
-  const mismatches = runs.reduce((t, run) => t + run.criteriaMismatches, 0);
-  const checked = runs.reduce((t, run) => t + run.criteriaChecked, 0);
   lines.push(
-    '',
-    `Criteria check on the numeric Laya baseline: ${checked} criteria, ${mismatches} mismatches.`,
     '',
     '## Example requests',
     '',
-    "The second request of each policy's first run (so the feedback variant shows a step result), exactly as sent. The Laya API key travels only in the Authorization header, which is not shown.",
+    "The second request of each policy's first run (so the feedback variant shows a step result), exactly as sent.",
     '',
   );
   for (const policy of policies) {
@@ -119,7 +110,7 @@ function report(
     const prompt = (example.body.messages as { content: string }[] | undefined)?.[0]?.content;
     if (prompt) lines.push('Prompt text as the model reads it:', '', '```text', prompt, '```', '');
   }
-  return redactSecrets(lines.join('\n') + '\n');
+  return lines.join('\n') + '\n';
 }
 
 // ---------- CLI ----------
@@ -145,7 +136,6 @@ function parseArgs(argv: string[]): Config {
     budgetMs: budgetMin * 60_000,
     seed: Number(get('--seed') ?? '20261023'),
     outputDir: path.resolve(get('--output-dir') ?? path.join(ROOT, 'benchmark-results', 'word-prompts')),
-    layaUrl: process.env.LAYA_URL ?? 'http://192.168.88.100:8000',
     ollamaUrl: process.env.OLLAMA_URL ?? 'http://192.168.88.100:11434',
     ollamaModel: process.env.OLLAMA_MODEL ?? 'qwen3:1.7b',
   };
@@ -153,7 +143,6 @@ function parseArgs(argv: string[]): Config {
 
 async function main(): Promise<void> {
   const config = parseArgs(process.argv.slice(2));
-  if (!resolveLayaKey()) throw new Error('No Laya key: set LAYA_API_KEY or LAYA_API_KEY_FILE (default ~/.config/laya/api_key).');
   const started = performance.now();
   const overBudget = () => performance.now() - started > config.budgetMs;
   const entries: SuiteEntry[] = [];
@@ -161,44 +150,27 @@ async function main(): Promise<void> {
     const maze = await Maze.fromFile(path.join(ROOT, file));
     for (const transform of ORIENTATIONS) entries.push(buildSuiteEntry(maze.layout, file, transform));
   }
-  const modelPolicies = MODELS.flatMap((model) => VARIANTS.map((variant) => ({ model, variant })));
-  const policyIds = ['scorer', 'random-legal', ...modelPolicies.map((p) => `${p.model}-${p.variant}`)];
-  const minRequests = modelPolicies.length * entries.reduce((t, e) => t + e.optimalSteps, 0);
-  const maxRequests = modelPolicies.length * entries.reduce((t, e) => t + stepCapFor(e.optimalSteps), 0);
-  // Smoke latencies: Laya ~0.35–0.45 s, Ollama ~0.5–0.65 s per request.
-  const maxMinutes = (entries.reduce((t, e) => t + stepCapFor(e.optimalSteps), 0) * VARIANTS.length * (0.45 + 0.65 + (2 * SLEEP_MS) / 1000)) / 60;
+  const policyIds = ['scorer', 'random-legal', ...VARIANTS.map((variant) => `ollama-${variant}`)];
+  const minRequests = VARIANTS.length * entries.reduce((t, e) => t + e.optimalSteps, 0);
+  const maxRequests = VARIANTS.length * entries.reduce((t, e) => t + stepCapFor(e.optimalSteps), 0);
+  // Smoke latency: Ollama ~0.5–0.65 s per request.
+  const maxMinutes = (maxRequests * (0.65 + SLEEP_MS / 1000)) / 60;
   console.log(
     `Plan: ${entries.length} entries × ${policyIds.length} policies = ${entries.length * policyIds.length} runs. Model requests: ${minRequests} minimum (all optimal) to ${maxRequests} maximum (all hit the cap), about ${maxMinutes.toFixed(1)} min at the cap. Budget ${config.budgetMs / 60_000} min.`,
   );
   const timestamp = new Date().toISOString();
   const runDir = path.join(config.outputDir, timestamp.replace(/[:.]/g, '-'));
   await fs.mkdir(runDir, { recursive: true });
-  for (const [label, call] of [
-    [
-      'laya',
-      () =>
-        callLaya(
-          config.layaUrl,
-          {
-            state: { body: INTRO },
-            questions: { move: { type: 'choice', instructions: LAYA_INSTRUCTIONS, criteria: { UP: 'an open passage', DOWN: 'an open passage' } } },
-          },
-          TIMEOUT_MS,
-        ),
-    ],
-    ['ollama', () => callOllama(config.ollamaUrl, config.ollamaModel, `${INTRO}\n${OLLAMA_RETURN}`, false, TIMEOUT_MS)],
-  ] as const) {
-    const r = await call();
-    console.log(`warm-up ${label}: ${r.failure ?? r.choice} ${Math.round(r.latencyMs ?? 0)} ms`);
-    if (r.failure === 'http') throw new Error(`${label} warm-up failed: ${r.error}`);
-  }
+  const warm = await callOllama(config.ollamaUrl, config.ollamaModel, `${INTRO}\n${OLLAMA_RETURN}`, false, TIMEOUT_MS);
+  console.log(`warm-up ollama: ${warm.failure ?? warm.choice} ${Math.round(warm.latencyMs ?? 0)} ms`);
+  if (warm.failure === 'http') throw new Error(`Ollama warm-up failed: ${warm.error}`);
   const runs: RunRecord[] = [];
   const skipped: string[] = [];
   const examples = new Map<string, CapturedRequest>();
   const policiesForReport: Policy[] = [
     baselinePolicy('scorer'),
     baselinePolicy('random-legal'),
-    ...modelPolicies.map((p) => createWordPolicy(p.model, p.variant, config)),
+    ...VARIANTS.map((variant) => createWordPolicy(variant, config)),
   ];
   for (const entry of entries) {
     for (const id of policyIds) {
@@ -207,10 +179,10 @@ async function main(): Promise<void> {
         skipped.push(label);
         continue;
       }
-      const spec = modelPolicies.find((p) => `${p.model}-${p.variant}` === id);
+      const spec = VARIANTS.find((variant) => `ollama-${variant}` === id);
       let count = 0;
       const policy = spec
-        ? createWordPolicy(spec.model, spec.variant, config, (request) => {
+        ? createWordPolicy(spec, config, (request) => {
             if (++count === 2 && !examples.has(id)) examples.set(id, request);
           })
         : baselinePolicy(id as 'scorer' | 'random-legal');
@@ -228,7 +200,7 @@ async function main(): Promise<void> {
           rngSeed: runSeed(config.seed, entry.id, id),
         });
         runs.push(run);
-        await fs.appendFile(path.join(runDir, 'runs.jsonl'), redactSecrets(JSON.stringify(run)) + '\n');
+        await fs.appendFile(path.join(runDir, 'runs.jsonl'), JSON.stringify(run) + '\n');
         console.log(
           `${label} → ${run.status} in ${run.steps}/${run.stepCap} (optimal ${run.optimalSteps}), walls ${run.illegalMoves}, ${seconds(run.wallClockMs)} · elapsed ${seconds(performance.now() - started)}`,
         );
@@ -247,7 +219,6 @@ async function main(): Promise<void> {
     seed: config.seed,
     budgetMin: config.budgetMs / 60_000,
     elapsedMs: Math.round(performance.now() - started),
-    layaUrl: `${config.layaUrl}/v1/systemone`,
     ollamaModel: config.ollamaModel,
     ollamaUrl: config.ollamaUrl,
     entries: entries.map((e) => e.id),
@@ -259,12 +230,12 @@ async function main(): Promise<void> {
   };
   await fs.writeFile(path.join(runDir, 'runs.json'), runsJson(meta, runs));
   await fs.writeFile(path.join(runDir, 'runs.csv'), runsCsv(runs));
-  await fs.writeFile(path.join(runDir, 'examples.json'), redactSecrets(JSON.stringify(Object.fromEntries(examples), null, 2)));
+  await fs.writeFile(path.join(runDir, 'examples.json'), JSON.stringify(Object.fromEntries(examples), null, 2));
   await fs.writeFile(path.join(runDir, 'report.md'), report(meta, entries, policiesForReport, runs, skipped, examples));
   console.log(`Done in ${seconds(performance.now() - started)}. Report: ${path.join(runDir, 'report.md')}`);
 }
 // Entry point: run with vite-node. Never import this file; shared code lives in full-maze-eval-lib.ts and word-prompt-builders.ts.
 main().catch((error) => {
-  console.error(redactSecrets(error instanceof Error ? error.message : String(error)));
+  console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

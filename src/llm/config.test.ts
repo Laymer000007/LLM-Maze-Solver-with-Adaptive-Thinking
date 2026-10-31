@@ -1,19 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_LLM_CONFIG, sanitizeLLMConfig } from '@/llm/config';
 
-describe('AI provider configuration', () => {
-  it('preserves legacy Ollama settings while adding provider defaults', () => {
+describe('AI configuration', () => {
+  it('sanitizes Ollama settings and defaults the prompt style to numbers', () => {
     const config = sanitizeLLMConfig({ model: 'qwen3:1.7b', baseUrl: 'http://ollama/' });
-    expect(config.provider).toBe('ollama');
     expect(config.model).toBe('qwen3:1.7b');
     expect(config.baseUrl).toBe('http://ollama');
-    expect(config.layaMode).toBe(DEFAULT_LLM_CONFIG.layaMode);
+    expect(config.promptStyle).toBe(DEFAULT_LLM_CONFIG.promptStyle);
+    expect(config.promptStyle).toBe('numbers');
   });
 
-  it('sanitizes an explicitly selected constrained Laya provider', () => {
-    const config = sanitizeLLMConfig({ provider: 'laya', layaUrl: 'http://laya/', layaModel: 'english', layaMode: 'constrained' });
-    expect(config.provider).toBe('laya');
-    expect(config.layaUrl).toBe('http://laya');
-    expect(config.layaMode).toBe('constrained');
+  it('keeps only the known settings', () => {
+    const config = sanitizeLLMConfig({ promptStyle: 'words', staleField: 'x' } as never);
+    expect(config).toEqual({ baseUrl: DEFAULT_LLM_CONFIG.baseUrl, model: DEFAULT_LLM_CONFIG.model, temperature: DEFAULT_LLM_CONFIG.temperature, promptStyle: 'words' });
   });
 });

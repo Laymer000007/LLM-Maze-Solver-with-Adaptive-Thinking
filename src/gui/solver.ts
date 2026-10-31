@@ -9,7 +9,7 @@ import {
 import { AgentMemory } from '@/agent/memory';
 import { buildLocalAgentPrompt, formatScoreChoiceDiagnostic, getDirectionChoices } from '@/agent/prompt';
 import { MOVES, type AgentAction, type Move } from '@/execution/execution';
-import { buildWordsRequest, createWordsRandom, wordsAnswerToMove, wordsStyleLabel, type WordsRequest } from '@/llm/word-prompt-requests';
+import { WORDS_STYLE_LABEL, buildWordsRequest, createWordsRandom, wordsAnswerToMove, type WordsRequest } from '@/llm/word-prompt-requests';
 import { createLogger } from '@/logger/logger';
 import { Maze, type Position } from '@/maze/maze';
 import { createLLMClient, type LLMClient } from '@/llm/client';
@@ -17,9 +17,6 @@ import type { LLMConfig, PromptStyle } from '@/llm/config';
 
 export type SolverStatus = 'WAITING' | 'THINKING' | 'MOVING' | 'BLOCKED' | 'SOLVED' | 'FAILED';
 export type SolverState = {
-  provider: LLMConfig['provider'];
-  providerModel: string;
-  providerMode: LLMConfig['layaMode'] | null;
   promptStyle: PromptStyle;
   status: SolverStatus;
   mazeFile: string;
@@ -66,25 +63,7 @@ export type SolverState = {
   currentSmell: number;
 };
 
-function buildRawLayaPrompt(perception: ReturnType<Maze['perceive']>, memory: ReturnType<AgentMemory['snapshot']>, position: Position, goal: Position): string {
-  const directions = (['up', 'down', 'left', 'right'] as Move[]).map((move) => {
-    const target = nextPosition(position, move);
-    return `${move.toUpperCase()}: ${perception.directions[move]}; smell=${perception.directionSmell[move]}; visits=${memory.visitCounts[positionKey(target)] ?? 0}`;
-  }).join('\n');
-  return ['You control a mouse navigating a maze.', `Current position: (${position.x},${position.y})`, `Goal position: (${goal.x},${goal.y})`, `Current smell: ${perception.smell}`, 'Choose exactly one movement label: UP, DOWN, LEFT, RIGHT.', directions, 'Return only JSON: {"move":"up|down|left|right"}.'].join('\n');
-}
-function buildConstrainedLayaPrompt(perception: ReturnType<Maze['perceive']>, memory: ReturnType<AgentMemory['snapshot']>, position: Position, goal: Position, legalMoves: Move[]): string {
-  const directions = legalMoves.map((move) => {
-    const target = nextPosition(position, move);
-    return `${move.toUpperCase()}: score=${memory.actionEffects[move]?.totalExpectedEiLDelta ?? 'n/a'}; visits=${memory.visitCounts[positionKey(target)] ?? 0}; smell=${perception.directionSmell[move]}`;
-  }).join('\n');
-  return ['You control a mouse navigating a maze.', `Current position: (${position.x},${position.y})`, `Goal position: (${goal.x},${goal.y})`, 'Only the following legal movements are available:', directions, 'Choose the best movement using the supplied scores.', 'Return only JSON: {"move":"up|down|left|right"}.'].join('\n');
-}
-
 const emptyState = (maze: Maze, mazeFile: string): SolverState => ({
-  provider: 'ollama',
-  providerModel: '',
-  providerMode: null,
   promptStyle: 'numbers',
   status: 'WAITING',
   mazeFile,
@@ -200,9 +179,6 @@ export class ObservableMazeSolver {
     this.delayMs = delayMs;
     this.onChange = onChange;
     this.state = emptyState(maze, mazeFile);
-    this.state.provider = config.provider;
-    this.state.providerModel = config.provider === 'laya' ? config.layaModel : config.model;
-    this.state.providerMode = config.provider === 'laya' ? config.layaMode : null;
     this.state.promptStyle = config.promptStyle;
     this.llm = createLLMClient(config);
     this.wordsRandom = createWordsRandom(mazeFile);
@@ -253,9 +229,6 @@ export class ObservableMazeSolver {
     this.adaptive = createAdaptiveState();
     this.recentPositions = [];
     this.state = emptyState(this.maze, this.state.mazeFile);
-    this.state.provider = this.config.provider;
-    this.state.providerModel = this.config.provider === 'laya' ? this.config.layaModel : this.config.model;
-    this.state.providerMode = this.config.provider === 'laya' ? this.config.layaMode : null;
     this.state.promptStyle = this.config.promptStyle;
     this.wordsRandom = createWordsRandom(this.state.mazeFile);
     this.emit();
@@ -264,11 +237,8 @@ export class ObservableMazeSolver {
   /** Words style: one ready-made benchmark request, sent unchanged; an answer that maps to no move is an error, never corrected. */
   private async decideWords(request: WordsRequest, signal: AbortSignal): Promise<{ raw: Record<string, unknown>; parsed: AgentAction }> {
     const { text, raw } = await this.llm.sendRequest(request.body, signal);
-    const move = wordsAnswerToMove(request, text);
-    if (!move) {
-      const provider = this.config.provider === 'laya' ? 'Laya' : 'Ollama';
-      throw new Error(`${provider} answered ${JSON.stringify(text)}, which is not one of the offered options (${request.labels.join(', ')}).`);
-    }
+    const move = wordsAnswerToMove(text);
+    if (!move) throw new Error(`Ollama answered ${JSON.stringify(text)}, which names no direction (offered: ${request.labels.join(', ')}).`);
     return { raw, parsed: { move } };
   }
 
@@ -319,7 +289,6 @@ export class ObservableMazeSolver {
         });
         const memoryState = this.memory.snapshot();
         const choices = getDirectionChoices(perception, memoryState);
-        const legalMoves = choices.filter((choice) => !choice.blocked).map((choice) => choice.direction);
         // Words style: the benchmark's word request, no cheese option and no adaptive thinking; one decision per step.
         const words = this.config.promptStyle === 'words';
         const validActions = MOVES.filter((move) => perception.directions[move] !== 'wall');
@@ -327,10 +296,6 @@ export class ObservableMazeSolver {
         const wordsRequest = words ? buildWordsRequest(this.config, decisionState, this.wordsRandom) : null;
         const prompt = wordsRequest
           ? `POST ${wordsRequest.endpoint}\n${JSON.stringify(wordsRequest.body, null, 2)}`
-          : this.config.provider === 'laya' && this.config.layaMode === 'raw'
-          ? buildRawLayaPrompt(perception, memoryState, this.state.current, this.state.goal)
-          : this.config.provider === 'laya' && this.config.layaMode === 'constrained'
-            ? buildConstrainedLayaPrompt(perception, memoryState, this.state.current, this.state.goal, legalMoves)
           : buildLocalAgentPrompt(perception, memoryState);
         this.state.prompt = prompt;
         const requestAt = Date.now();
@@ -343,7 +308,7 @@ export class ObservableMazeSolver {
         try {
           const response = wordsRequest
             ? await this.decideWords(wordsRequest, controller.signal)
-            : await this.llm.chooseMove(prompt, this.adaptive.thinking, controller.signal, { choices: this.config.provider === 'laya' && this.config.layaMode === 'constrained' ? legalMoves : (['up', 'down', 'left', 'right'] as Move[]), mode: this.config.provider === 'laya' ? this.config.layaMode : 'raw' });
+            : await this.llm.chooseMove(prompt, this.adaptive.thinking, controller.signal);
           if (token !== this.runId) return;
           decisionResult = response as unknown as { raw?: Record<string, unknown>; parsed: AgentAction };
           action = decisionResult.parsed;
@@ -373,7 +338,7 @@ export class ObservableMazeSolver {
         this.state.llmCalls++;
         this.state.averageResponseMs = Math.round((this.state.averageResponseMs * (this.state.llmCalls - 1) + duration) / this.state.llmCalls);
         this.state.llmLog.unshift(
-          `${new Date().toLocaleTimeString()} AI=${this.config.provider} ${words ? `style=words${this.config.provider === 'ollama' ? ' think=false' : ''}` : `${this.state.providerModel}${this.config.provider === 'laya' ? ` mode=${this.config.layaMode}` : ` think=${this.adaptive.thinking}`}`} ${duration}ms tokens=${this.state.tokenCount ?? 'n/a'} → ${this.state.response}`,
+          `${new Date().toLocaleTimeString()} AI=ollama ${this.config.model} ${words ? 'style=words think=false' : `think=${this.adaptive.thinking}`} ${duration}ms tokens=${this.state.tokenCount ?? 'n/a'} → ${this.state.response}`,
         );
         const visibleCheese = perception.visibleCells.find((cell) => cell.cell === 'goal');
         const requestedCheese = action.move === 'cheese';
@@ -405,7 +370,7 @@ export class ObservableMazeSolver {
           continue;
         }
         this.state.moveLog.unshift(
-          `AI PROVIDER: ${this.config.provider}${this.config.provider === 'laya' ? (words ? '' : ` / ${this.config.layaModel} / ${this.config.layaMode}`) : ` / ${this.config.model}`}\nPROMPT STYLE: ${words ? wordsStyleLabel(this.config.provider) : 'Numbers (current)'}${wordsRequest ? `\nOPTIONS SHOWN: ${wordsRequest.labels.map((label, i) => `${label}=${wordsRequest.order[i]}`).join(', ')}` : ''}\nAI ACTION ${this.state.step + 1}\n${formatScoreChoiceDiagnostic(perception.position, memoryState.eil, choices, selectedMove)}${requestedCheese ? '\nCHEESE DIRECT TRAVEL' : ''}`,
+          `AI: Ollama / ${this.config.model}\nPROMPT STYLE: ${words ? WORDS_STYLE_LABEL : 'Numbers (current)'}${wordsRequest ? `\nOPTIONS SHOWN: ${wordsRequest.labels.map((label, i) => `${label}=${wordsRequest.order[i]}`).join(', ')}` : ''}\nAI ACTION ${this.state.step + 1}\n${formatScoreChoiceDiagnostic(perception.position, memoryState.eil, choices, selectedMove)}${requestedCheese ? '\nCHEESE DIRECT TRAVEL' : ''}`,
         );
         const selectedChoice = choices.find((choice) => choice.direction === selectedMove);
         const expectedScores = choices.map((choice) => choice.totalExpectedEiLDelta).filter((score): score is number => score !== undefined);
@@ -442,7 +407,7 @@ export class ObservableMazeSolver {
             if (!wasThinking && this.adaptive.thinking) this.state.diagnosticLog.unshift(`${formatThinkingTransition(false, true, this.adaptive.lastTrigger)} after wall collision`);
             this.state.invalidMoves++;
             this.state.status = 'BLOCKED';
-            this.state.moveLog.unshift(`AI PROVIDER: ${this.config.provider}\nDECISION: ${this.state.lastMove.toUpperCase()}\nLEGAL: NO\nREASON: Wall detected.`);
+            this.state.moveLog.unshift(`AI: Ollama / ${this.config.model}\nDECISION: ${this.state.lastMove.toUpperCase()}\nLEGAL: NO\nREASON: Wall detected.`);
             this.logger.warn(`Blocked move at (${from.x},${from.y}): ${this.state.lastMove}`);
             if (this.memory.snapshot().health <= 0) this.state.status = 'FAILED';
             break;

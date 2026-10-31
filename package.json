@@ -12,12 +12,9 @@
     "agent-execute": "vite-node src/cli/agent-execute.ts",
     "gui": "vite-node src/gui/server.ts",
     "benchmark:ai": "vite-node src/benchmark/benchmark.ts",
-    "benchmark:laya-prompts": "vite-node src/benchmark/laya-prompt-accuracy.ts",
-    "benchmark:laya-numerical": "vite-node src/benchmark/laya-numerical-investigation.ts",
     "benchmark:full-maze": "vite-node src/benchmark/full-maze-eval.ts",
     "benchmark:word-prompts": "vite-node src/benchmark/word-prompts.ts",
     "benchmark:word-prompts-tuning": "vite-node src/benchmark/word-prompts-tuning.ts",
-    "benchmark:laya-exhaustive": "vite-node src/benchmark/laya-exhaustive.ts",
     "benchmark:ollama-compass": "vite-node src/benchmark/ollama-compass.ts"
   },
   "dependencies": {

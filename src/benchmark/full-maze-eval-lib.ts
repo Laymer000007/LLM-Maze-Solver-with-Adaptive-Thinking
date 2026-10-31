@@ -1,6 +1,4 @@
-import { readFileSync } from 'fs';
 import fs from 'fs/promises';
-import os from 'os';
 import path from 'path';
 import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
@@ -26,40 +24,10 @@ export type SuiteEntry = {
   goal: Position;
   optimalSteps: number;
 };
-export type PolicyId =
-  | 'scorer'
-  | 'fixed-rd'
-  | 'random-legal'
-  | 'laya-constrained'
-  | 'laya-constrained-shuffled'
-  | 'laya-raw'
-  | 'laya-raw-nosmell'
-  | 'ollama-constrained'
-  | 'ollama-raw'
-  | 'ollama-raw-nosmell'
-  | 'ollama-constrained-think';
-export const DEFAULT_POLICIES: PolicyId[] = [
-  'scorer',
-  'fixed-rd',
-  'random-legal',
-  'laya-constrained',
-  'laya-constrained-shuffled',
-  'laya-raw',
-  'laya-raw-nosmell',
-  'ollama-constrained',
-  'ollama-raw',
-  'ollama-raw-nosmell',
-];
+export type PolicyId = 'scorer' | 'fixed-rd' | 'random-legal' | 'ollama-constrained' | 'ollama-raw' | 'ollama-raw-nosmell' | 'ollama-constrained-think';
+export const DEFAULT_POLICIES: PolicyId[] = ['scorer', 'fixed-rd', 'random-legal', 'ollama-constrained', 'ollama-raw', 'ollama-raw-nosmell'];
 export const ALL_POLICIES: PolicyId[] = [...DEFAULT_POLICIES, 'ollama-constrained-think'];
-export const TIER_A_POLICIES: PolicyId[] = [
-  'scorer',
-  'fixed-rd',
-  'random-legal',
-  'laya-constrained',
-  'laya-constrained-shuffled',
-  'laya-raw',
-  'laya-raw-nosmell',
-];
+export const TIER_A_POLICIES: PolicyId[] = ['scorer', 'fixed-rd', 'random-legal'];
 export const TIER_B_POLICIES: PolicyId[] = ['ollama-constrained', 'ollama-raw', 'ollama-raw-nosmell'];
 /** Stratified Tier B subset: sizes 5–50, both open_detour sizes, both spiral sizes, plus dead-end, loop and the 50×50. */
 export const TIER_B_MAZES = [
@@ -72,27 +40,15 @@ export const TIER_B_MAZES = [
   'mazes/15x15_open_detour.txt',
   'mazes/50x50_exploration.txt',
 ];
-export const DETERMINISM_ENTRIES = [
-  '7x7_open_detour@original',
-  '11x11_corridor_loop@mirror-h',
-  '15x15_corridor_spiral@mirror-v',
-  'v212_open_goal_8_2@rotate-180',
-];
 export type FailureKind = 'timeout' | 'http' | 'parse';
 export type DecisionState = { position: Position; goal: Position; perception: LocalPerception; memory: AgentMemoryState; validActions: Move[] };
-/**
- * latencyMs is null for policies that make no request. presented is the option order shown to a model.
- * criteria is the score-bearing Laya criteria actually sent, checked against the maze by runEpisode.
- */
+/** latencyMs is null for policies that make no request. presented is the option order shown to a model. */
 export type Decision = {
   choice: Move | null;
   latencyMs: number | null;
   failure?: FailureKind;
   error?: string;
   presented?: Move[];
-  criteria?: Record<string, string>;
-  /** Laya's response `usage` object, passed through for reporting; nothing in the run loop reads it. */
-  usage?: Record<string, unknown>;
 };
 export type PolicyConfig = {
   payloadBuilder: string;
@@ -106,8 +62,8 @@ export type PolicyConfig = {
   sees: string;
   notes?: string;
 };
-export type PolicyKind = 'baseline' | 'laya' | 'ollama';
-/** deterministic: run with one seed regardless of mode (Laya's seed count is decided by the determinism check). */
+export type PolicyKind = 'baseline' | 'ollama';
+/** deterministic: run with one seed regardless of mode. */
 export type Policy = {
   id: PolicyId;
   kind: PolicyKind;
@@ -158,8 +114,6 @@ export type RunRecord = {
   multiOptionDecisions: number;
   firstOptionChosen: number;
   scorerAgreement: number;
-  criteriaChecked: number;
-  criteriaMismatches: number;
   healthDepletedAtStep: number | null;
   finalHealth: number;
   finalEiL: number;
@@ -167,7 +121,7 @@ export type RunRecord = {
   moves: string[];
 };
 export type EpisodeOptions = { sleepMs?: number; maxConsecutiveFailures?: number; stepCap?: number; stuckWindow?: number; rngSeed?: number };
-export type Mode = 'smoke' | 'tier-a' | 'tier-b' | 'validate-frozen' | 'determinism';
+export type Mode = 'smoke' | 'tier-a' | 'tier-b';
 export type HarnessConfig = {
   mode: Mode;
   policies: PolicyId[];
@@ -178,7 +132,6 @@ export type HarnessConfig = {
   timeoutMs: number;
   ollamaUrl: string;
   ollamaModel: string;
-  layaUrl: string;
 };
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -198,7 +151,6 @@ export const now = () => new Date().toISOString();
 export const stepCapFor = (optimalSteps: number) => Math.max(4 * optimalSteps, 200);
 /** A run is stuck when no new cell has been visited in this many steps. Applied identically to every policy. */
 export const stuckWindowFor = (optimalSteps: number) => Math.max(50, 2 * optimalSteps);
-export const EXPERIENCE_BY_VISITS = [2, 0, -2, -4, -8, -16, -32, -64, -128];
 
 // ---------- Maze suite ----------
 
@@ -382,55 +334,10 @@ export function rawNoSmellPrompt(state: DecisionState): string {
     'Return only JSON: {"move":"up|down|left|right"}.',
   ].join('\n');
 }
-export type LayaExperiment = 'A-raw' | 'A-raw-nosmell' | 'B-constrained';
-export function layaBody(state: DecisionState, experiment: LayaExperiment, order?: Move[]): Record<string, unknown> {
-  const raw = experiment !== 'B-constrained';
-  const legal = raw ? MOVES4 : (order ?? state.validActions);
-  const descriptions = Object.fromEntries(
-    legal.map((move) => [
-      move.toUpperCase(),
-      experiment === 'A-raw'
-        ? `${move} movement; local state ${state.perception.directions[move]}, smell ${state.perception.directionSmell[move]}`
-        : experiment === 'A-raw-nosmell'
-          ? `${move} movement; local state ${state.perception.directions[move]}`
-          : `${move} movement; existing expected sensor score ${state.memory.actionEffects[move]?.totalExpectedEiLDelta}; visited ${state.memory.visitCounts[key(nextPosition(state.position, move))] ?? 0}`,
-    ]),
-  );
-  const prompt = experiment === 'A-raw' ? rawPrompt(state) : experiment === 'A-raw-nosmell' ? rawNoSmellPrompt(state) : constrainedPrompt(state, legal);
-  return {
-    state: { body: prompt },
-    questions: { move: { type: 'choice', instructions: 'Choose exactly one movement direction. Return the direction label.', criteria: descriptions } },
-  };
-}
 export function parseMove(value: unknown): Move | null {
   const text = typeof value === 'string' ? value : JSON.stringify(value);
   const match = text?.match(/\b(up|down|left|right)\b/i);
   return match ? (match[1].toLowerCase() as Move) : null;
-}
-
-// ---------- Secrets ----------
-
-export const layaKeyFile = () => process.env.LAYA_API_KEY_FILE || path.join(os.homedir(), '.config', 'laya', 'api_key');
-/** LAYA_API_KEY, else the trimmed contents of LAYA_API_KEY_FILE (default ~/.config/laya/api_key). Never logged or serialised. */
-export function resolveLayaKey(): string | null {
-  if (process.env.LAYA_API_KEY) return process.env.LAYA_API_KEY;
-  try {
-    return readFileSync(layaKeyFile(), 'utf-8').trim() || null;
-  } catch {
-    return null;
-  }
-}
-export function redactSecrets(text: string): string {
-  const secret = resolveLayaKey();
-  return secret && secret.length >= 4 ? text.split(secret).join('[REDACTED]') : text;
-}
-export function requireLayaKey(): string {
-  const value = resolveLayaKey();
-  if (!value)
-    throw new Error(
-      `No Laya key: LAYA_API_KEY is not set and ${layaKeyFile()} is missing, unreadable or empty. Set one before running Laya policies; there is no fallback.`,
-    );
-  return value;
 }
 
 // ---------- Model calls ----------
@@ -448,7 +355,7 @@ export async function postJson(url: string, headers: Record<string, string>, bod
     });
     const text = await response.text();
     const latencyMs = performance.now() - started;
-    if (!response.ok) return { choice: null, latencyMs, failure: 'http', error: redactSecrets(`HTTP ${response.status}`) };
+    if (!response.ok) return { choice: null, latencyMs, failure: 'http', error: `HTTP ${response.status}` };
     let json: any = null;
     try {
       json = JSON.parse(text);
@@ -462,36 +369,11 @@ export async function postJson(url: string, headers: Record<string, string>, bod
       choice: null,
       latencyMs: timeout ? timeoutMs : performance.now() - started,
       failure: timeout ? 'timeout' : 'http',
-      error: redactSecrets(error instanceof Error ? `${error.message}${error.cause ? ` (${String(error.cause)})` : ''}` : String(error)),
+      error: error instanceof Error ? `${error.message}${error.cause ? ` (${String(error.cause)})` : ''}` : String(error),
     };
   } finally {
     clearTimeout(timer);
   }
-}
-export async function callLaya(layaUrl: string, body: Record<string, unknown>, timeoutMs: number): Promise<Decision> {
-  const secret = requireLayaKey();
-  const result = await postJson(`${layaUrl}/v1/systemone`, { authorization: `Bearer ${secret}` }, body, timeoutMs);
-  if (result.failure) return result;
-  const choice = parseMove(result.json?.answers?.move?.choice);
-  const usage = result.json?.usage && typeof result.json.usage === 'object' ? { usage: result.json.usage as Record<string, unknown> } : {};
-  return choice
-    ? { choice, latencyMs: result.latencyMs, ...usage }
-    : { choice: null, latencyMs: result.latencyMs, failure: 'parse', error: 'No movement in answers.move.choice.', ...usage };
-}
-/** Like callLaya, but returns Laya's answer text unparsed, for requests whose labels are not direction words. */
-export async function callLayaRaw(
-  layaUrl: string,
-  body: Record<string, unknown>,
-  timeoutMs: number,
-): Promise<{ answer: string | null; latencyMs: number; failure?: FailureKind; error?: string; usage?: Record<string, unknown> }> {
-  const secret = requireLayaKey();
-  const result = await postJson(`${layaUrl}/v1/systemone`, { authorization: `Bearer ${secret}` }, body, timeoutMs);
-  if (result.failure) return { answer: null, latencyMs: result.latencyMs ?? 0, failure: result.failure, error: result.error };
-  const raw = result.json?.answers?.move?.choice;
-  const usage = result.json?.usage && typeof result.json.usage === 'object' ? { usage: result.json.usage as Record<string, unknown> } : {};
-  return typeof raw === 'string'
-    ? { answer: raw, latencyMs: result.latencyMs ?? 0, ...usage }
-    : { answer: null, latencyMs: result.latencyMs ?? 0, failure: 'parse', error: 'No string in answers.move.choice.', ...usage };
 }
 export function ollamaRequestBody(model: string, prompt: string, think: boolean): Record<string, unknown> {
   return { model, messages: [{ role: 'user', content: prompt }], stream: false, format: 'json', think, options: { temperature: OLLAMA_TEMPERATURE } };
@@ -533,8 +415,7 @@ export function scorerOptimal(state: DecisionState): Move[] {
   const best = Math.max(...state.validActions.map(score));
   return state.validActions.filter((move) => score(move) === best);
 }
-export function createPolicies(ids: PolicyId[], config: Pick<HarnessConfig, 'timeoutMs' | 'ollamaUrl' | 'ollamaModel' | 'layaUrl'>): Policy[] {
-  const laya = `${config.layaUrl}/v1/systemone`;
+export function createPolicies(ids: PolicyId[], config: Pick<HarnessConfig, 'timeoutMs' | 'ollamaUrl' | 'ollamaModel'>): Policy[] {
   const ollama = `${config.ollamaUrl}/api/chat`;
   const baseline = (optionOrdering: string, sees: string, notes?: string): PolicyConfig => ({
     payloadBuilder: 'none',
@@ -547,16 +428,6 @@ export function createPolicies(ids: PolicyId[], config: Pick<HarnessConfig, 'tim
     sees,
     notes,
   });
-  const layaConfig = (payloadBuilder: string, optionOrdering: string, sees: string): PolicyConfig => ({
-    payloadBuilder,
-    endpoint: laya,
-    model: null,
-    think: null,
-    temperature: null,
-    format: 'systemone choice question',
-    optionOrdering,
-    sees,
-  });
   const ollamaConfig = (payloadBuilder: string, think: boolean, optionOrdering: string, sees: string): PolicyConfig => ({
     payloadBuilder,
     endpoint: ollama,
@@ -566,11 +437,6 @@ export function createPolicies(ids: PolicyId[], config: Pick<HarnessConfig, 'tim
     format: 'json',
     optionOrdering,
     sees,
-  });
-  const askLaya = async (body: Record<string, unknown>, presented: Move[], checkCriteria: boolean): Promise<Decision> => ({
-    ...(await callLaya(config.layaUrl, body, config.timeoutMs)),
-    presented,
-    ...(checkCriteria ? { criteria: (body as { questions: { move: { criteria: Record<string, string> } } }).questions.move.criteria } : {}),
   });
   const askOllama = async (prompt: string, think: boolean, presented: Move[]): Promise<Decision> => ({
     ...(await callOllama(config.ollamaUrl, config.ollamaModel, prompt, think, config.timeoutMs)),
@@ -602,37 +468,6 @@ export function createPolicies(ids: PolicyId[], config: Pick<HarnessConfig, 'tim
       deterministic: false,
       config: baseline('uniform over legal moves, seeded', 'walls only'),
       decide: async (state, random) => ({ choice: choose(random, state.validActions.length ? state.validActions : MOVES4), latencyMs: null }),
-    },
-    'laya-constrained': {
-      kind: 'laya',
-      deterministic: false,
-      config: layaConfig('benchmark.ts layaBody(B-constrained)', LEGAL, SCORES),
-      decide: async (state) => askLaya(layaBody(state, 'B-constrained'), state.validActions, true),
-    },
-    'laya-constrained-shuffled': {
-      kind: 'laya',
-      deterministic: false,
-      config: layaConfig(
-        'benchmark.ts layaBody(B-constrained) with shuffled order',
-        'legal moves, seeded shuffle per request (criteria keys and prompt-body list use the same order)',
-        SCORES,
-      ),
-      decide: async (state, random) => {
-        const order = seededShuffle(state.validActions, random);
-        return askLaya(layaBody(state, 'B-constrained', order), order, true);
-      },
-    },
-    'laya-raw': {
-      kind: 'laya',
-      deterministic: false,
-      config: layaConfig('benchmark.ts layaBody(A-raw)', ALL4, SMELL),
-      decide: async (state) => askLaya(layaBody(state, 'A-raw'), MOVES4, false),
-    },
-    'laya-raw-nosmell': {
-      kind: 'laya',
-      deterministic: false,
-      config: layaConfig('layaBody(A-raw) with smell removed from body and criteria', ALL4, NO_SMELL),
-      decide: async (state) => askLaya(layaBody(state, 'A-raw-nosmell'), MOVES4, false),
     },
     'ollama-constrained': {
       kind: 'ollama',
@@ -706,11 +541,6 @@ export async function runEpisode(entry: SuiteEntry, policy: Policy, seed: number
   let agreement = 0;
   let healthDepletedAtStep: number | null = null;
   let lastNewCellStep = 0;
-  let criteriaChecked = 0;
-  let criteriaMismatches = 0;
-  // Tracked here independently of AgentMemory so the scores sent to Laya can be checked against the maze.
-  const seen = new Set<string>();
-  const freshSinceAction = new Set<string>();
   const checkHealth = () => {
     if (healthDepletedAtStep === null && memory.snapshot().health <= 0) healthDepletedAtStep = steps;
   };
@@ -720,10 +550,6 @@ export async function runEpisode(entry: SuiteEntry, policy: Policy, seed: number
       break;
     }
     const perception = maze.perceive(position);
-    for (const cell of [perception.position, ...perception.visibleCells.map((visible) => visible.position)]) {
-      if (!seen.has(key(cell))) freshSinceAction.add(key(cell));
-      seen.add(key(cell));
-    }
     memory.rememberPerception(perception, physicalAttempts === 0);
     const snapshot = memory.snapshot();
     const state: DecisionState = {
@@ -735,21 +561,6 @@ export async function runEpisode(entry: SuiteEntry, policy: Policy, seed: number
     };
     const decision = await policy.decide(state, random);
     steps++;
-    for (const [label, text] of Object.entries(decision.criteria ?? {})) {
-      criteriaChecked++;
-      const destination = nextPosition(position, label.toLowerCase() as Move);
-      const destinationVisits = visits.get(key(destination)) ?? 0;
-      const expectedScore =
-        Math.sign(maze.smellAt(destination) - maze.smellAt(position)) * 10 +
-        EXPERIENCE_BY_VISITS[Math.min(8, destinationVisits)] +
-        (freshSinceAction.has(key(destination)) ? 10 : 0);
-      const sent = text.match(/score (-?\d+); visited (\d+)$/);
-      if (!sent || !maze.isWalkable(destination) || Number(sent[1]) !== expectedScore || Number(sent[2]) !== destinationVisits) {
-        criteriaMismatches++;
-        if (errors.length < 10)
-          errors.push(`criteria mismatch at step ${steps}: ${label} "${text}"; expected score ${expectedScore}, visited ${destinationVisits}`);
-      }
-    }
     if (decision.latencyMs !== null) {
       latencies.push(decision.latencyMs);
       if (sleepMs) await sleep(sleepMs);
@@ -758,9 +569,8 @@ export async function runEpisode(entry: SuiteEntry, policy: Policy, seed: number
       const kind = decision.failure ?? 'parse';
       failures[kind]++;
       moves.push(`!${kind}`);
-      if (decision.error && errors.length < 10) errors.push(redactSecrets(decision.error));
+      if (decision.error && errors.length < 10) errors.push(decision.error);
       // The GUI records an unparseable answer as an invalid action; transport failures have no GUI equivalent (it stops).
-      if (kind === 'parse') freshSinceAction.clear();
       if (kind === 'parse')
         memory.rememberAction({
           from: { ...position },
@@ -794,7 +604,6 @@ export async function runEpisode(entry: SuiteEntry, policy: Policy, seed: number
       // Never corrected: the wall attempt is recorded, the mouse stays, the step counts.
       illegal++;
       moves.push(`${move}#wall`);
-      freshSinceAction.clear();
       memory.rememberAction({ from, move, succeeded: false, to: from, message: `WALL COLLISION: You attempted ${move} but hit a wall.`, effects });
       checkHealth();
       continue;
@@ -813,7 +622,6 @@ export async function runEpisode(entry: SuiteEntry, policy: Policy, seed: number
         ? `You moved ${move} and returned to a previously visited location.`
         : `You moved ${move} successfully.`;
     memory.rememberAction({ from, move, succeeded: true, to: target, message, goalReached, effects });
-    freshSinceAction.clear();
     position = target;
     successful++;
     moves.push(move);
@@ -871,8 +679,6 @@ export async function runEpisode(entry: SuiteEntry, policy: Policy, seed: number
     multiOptionDecisions: multiOption,
     firstOptionChosen: firstChosen,
     scorerAgreement: agreement,
-    criteriaChecked,
-    criteriaMismatches,
     healthDepletedAtStep,
     finalHealth: final.health,
     finalEiL: final.eil.score,
@@ -914,8 +720,6 @@ export function aggregate(runs: RunRecord[]) {
     aborted: runs.filter((run) => run.aborted).length,
     stuck: runs.filter((run) => run.stuck).length,
     stepCapped: runs.filter((run) => run.status === 'step-cap').length,
-    criteriaChecked: sum(runs, (run) => run.criteriaChecked),
-    criteriaMismatches: sum(runs, (run) => run.criteriaMismatches),
     medianStepsCompleted: median(completed.map((run) => run.steps)),
     meanEfficiency: mean(completed.map((run) => run.efficiency ?? 0)),
     illegalRate: steps ? sum(runs, (run) => run.illegalMoves) / steps : 0,
@@ -988,19 +792,15 @@ export const CSV_HEADERS: (keyof RunRecord)[] = [
   'multiOptionDecisions',
   'firstOptionChosen',
   'scorerAgreement',
-  'criteriaChecked',
-  'criteriaMismatches',
   'healthDepletedAtStep',
   'finalHealth',
   'finalEiL',
 ];
 export function runsCsv(runs: RunRecord[]): string {
-  return redactSecrets(
-    [CSV_HEADERS.join(','), ...runs.map((run) => CSV_HEADERS.map((header) => JSON.stringify(run[header] ?? '')).join(','))].join('\n') + '\n',
-  );
+  return [CSV_HEADERS.join(','), ...runs.map((run) => CSV_HEADERS.map((header) => JSON.stringify(run[header] ?? '')).join(','))].join('\n') + '\n';
 }
 export function runsJson(metadata: Record<string, unknown>, runs: RunRecord[]): string {
-  return redactSecrets(JSON.stringify({ metadata, runs }, null, 2));
+  return JSON.stringify({ metadata, runs }, null, 2);
 }
 
 export const pct = (value: number | null | undefined, digits = 1) => (value === null || value === undefined ? 'n/a' : `${(value * 100).toFixed(digits)}%`);
@@ -1016,22 +816,11 @@ export const SOLVER_SHORTCUTS = [
   '**Health death** (`solver.ts:283, 418, 436, 456`): the GUI loop stops when health reaches 0 (−10 per wall hit or invalid answer, −5 per 20 moves, −33 at EiL thresholds). Here it is recorded as `healthDepletedAtStep` and the run continues to the step cap.',
   '**Request errors** (`solver.ts:328-341`): the GUI stops on the first HTTP error or timeout. Here a failed request counts as a step and the run aborts after 3 in a row.',
   '**Corridor auto-advance**: `isDecisionPoint()` is checked in the move loop (`solver.ts:451`), but `planned` holds a single cell unless cheese travel is active, so it never moves the mouse further. No effect.',
-  'The GUI\'s Laya prompts (`buildRawLayaPrompt`, `buildConstrainedLayaPrompt`) and `LayaClient` criteria (`"<move> movement"`) differ from the `benchmark.ts` payloads used here.',
 ];
 
-export type Validation = { dir: string; metadata: Record<string, any> } | null;
-export type Validations = { frozen: Validation; determinism: Validation };
-export async function latestValidation(outputDir: string, suffix: string): Promise<Validation> {
-  const root = path.join(outputDir, 'validation');
-  const dirs = (await fs.readdir(root).catch(() => [] as string[])).filter((d) => d.endsWith(suffix)).sort();
-  if (!dirs.length) return null;
-  const dir = path.join(root, dirs[dirs.length - 1]);
-  return { dir: path.relative(ROOT, dir), metadata: JSON.parse(await fs.readFile(path.join(dir, 'results.json'), 'utf-8')).metadata };
-}
-/** Seeds per policy: smoke 1; scorer/fixed-rd 1; random-legal 3; Laya 1 only if the determinism check passed; Ollama (Tier B) 1. */
-export function seedCount(policy: Policy, mode: Mode, layaDeterministic: boolean): number {
+/** Seeds per policy: smoke 1; scorer/fixed-rd 1; random-legal 3; Ollama (Tier B) 1. */
+export function seedCount(policy: Policy, mode: Mode): number {
   if (mode === 'smoke' || policy.deterministic || policy.kind === 'ollama') return 1;
-  if (policy.kind === 'laya') return layaDeterministic ? 1 : REPETITIONS;
   return REPETITIONS;
 }
 /** Smoke-based request estimate for one entry: each smoke run's steps, relative to its own outcome's reference, mapped onto the entry. */
@@ -1048,7 +837,7 @@ export function expectedSteps(smokeRuns: RunRecord[], entry: SuiteEntry): number
   });
   return scaled.reduce((a, b) => a + b, 0) / scaled.length;
 }
-export function tierEstimate(title: string, tierEntries: SuiteEntry[], tierPolicies: Policy[], runs: RunRecord[], layaDeterministic: boolean): string[] {
+export function tierEstimate(title: string, tierEntries: SuiteEntry[], tierPolicies: Policy[], runs: RunRecord[]): string[] {
   const lines = [
     `### ${title}: ${tierEntries.length} entries`,
     '',
@@ -1061,7 +850,7 @@ export function tierEstimate(title: string, tierEntries: SuiteEntry[], tierPolic
   let maximumMs = 0;
   let runCount = 0;
   for (const policy of tierPolicies) {
-    const seeds = seedCount(policy, 'tier-a', layaDeterministic);
+    const seeds = seedCount(policy, 'tier-a');
     const smoke = runs.filter((run) => run.policy === policy.id);
     const model = policy.kind !== 'baseline';
     const perRequest = (aggregate(smoke).meanLatencyMs ?? 0) + SLEEP_MS;
@@ -1080,40 +869,19 @@ export function tierEstimate(title: string, tierEntries: SuiteEntry[], tierPolic
   lines.push(`| **total** | | **${runCount}** | | **${Math.round(point)}** | **${maximum}** | **${duration(pointMs)}** | **${duration(maximumMs)}** |`, '');
   return lines;
 }
-export function tierEstimates(suite: SuiteEntry[], runs: RunRecord[], config: HarnessConfig, validations: Validations): string[] {
-  const layaDeterministic = validations.determinism?.metadata.identical === true;
+export function tierEstimates(suite: SuiteEntry[], runs: RunRecord[], config: HarnessConfig): string[] {
   return [
     '## Tier estimates (from this smoke run)',
     '',
-    `Point estimate: each smoke run's length relative to its outcome (optimal steps if completed, stuck window if stuck, cap otherwise), averaged per policy and mapped onto every entry; capped at the step cap. Time = requests × (smoke mean latency + ${SLEEP_MS} ms), sequential. Laya seeds: ${layaDeterministic ? '1 (determinism check passed)' : `${REPETITIONS} (no passing determinism check found)`}. The smoke maze is small, so the point estimate is rough.`,
+    `Point estimate: each smoke run's length relative to its outcome (optimal steps if completed, stuck window if stuck, cap otherwise), averaged per policy and mapped onto every entry; capped at the step cap. Time = requests × (smoke mean latency + ${SLEEP_MS} ms), sequential. The smoke maze is small, so the point estimate is rough.`,
     '',
-    ...tierEstimate('Tier A', suite, createPolicies(TIER_A_POLICIES, config), runs, layaDeterministic),
+    ...tierEstimate('Tier A', suite, createPolicies(TIER_A_POLICIES, config), runs),
     ...tierEstimate(
       'Tier B',
       tierBEntries(suite),
       createPolicies([...TIER_B_POLICIES, ...(config.withThinking ? (['ollama-constrained-think'] as PolicyId[]) : [])], config),
       runs,
-      layaDeterministic,
     ),
-  ];
-}
-
-export function validationSection(runs: RunRecord[], validations: Validations): string[] {
-  const live = aggregate(runs);
-  const frozen = validations.frozen?.metadata;
-  const det = validations.determinism?.metadata;
-  return [
-    '## Harness validation',
-    '',
-    '- **Payload identity:** the test `Laya payload parity with benchmark.ts` (`src/benchmark/full-maze-eval.test.ts`) asserts that the B-constrained and A-raw Laya bodies built here are byte-identical to a verbatim copy of the `benchmark.ts` builders, for all 100 states in `benchmark-results/frozen-dataset.json`.',
-    frozen
-      ? `- **Frozen-state reproduction:** one laya-constrained request per frozen state (${frozen.timestamp}): ${num(frozen.optimalPct)}% optimal vs ${num(frozen.historicalOptimalPct)}% historically; ${num(frozen.sameAsHistoricalPct)}% of choices identical to the historical run; ${num(frozen.legalPct)}% legal; ${frozen.failures} failed requests. Results: \`${validations.frozen!.dir}\`.`
-      : '- **Frozen-state reproduction:** not run (`--mode validate-frozen`).',
-    `- **Criteria check:** every score-bearing Laya request in this run was checked against the maze (visits counted by the harness, score recomputed from smell, visit and new-sight terms): ${live.criteriaChecked} criteria, ${live.criteriaMismatches} mismatches. An offline replay of the first smoke run (commit a6474c8) checked 996 criteria with 0 mismatches.`,
-    det
-      ? `- **Laya determinism:** laya-constrained run twice on ${det.entries.length} entries (${det.entries.join(', ')}): ${det.identical ? 'all move sequences identical, so every Laya policy runs with 1 seed' : 'sequences differ, so Laya policies keep 3 seeds'}. Results: \`${validations.determinism!.dir}\`.`
-      : '- **Laya determinism:** not checked (`--mode determinism`).',
-    '',
   ];
 }
 
@@ -1124,7 +892,6 @@ export function markdown(
   entries: SuiteEntry[],
   policies: Policy[],
   runs: RunRecord[],
-  validations: Validations,
 ): string {
   const byPolicy = groupBy(runs, (run) => run.policy);
   const ordered = policies.filter((policy) => byPolicy.has(policy.id));
@@ -1148,7 +915,7 @@ export function markdown(
     `- Runs: ${runs.length}`,
     `- Stop rules, in order: goal reached → completed; ${MAX_CONSECUTIVE_FAILURES} consecutive failed requests → aborted; no new cell visited in the last ${metadata.stuckRule} steps → stuck; ${metadata.stepCapRule} steps → step-cap. The same rules apply to every policy.`,
     `- Request timeout ${config.timeoutMs / 1000} s; ${SLEEP_MS} ms sleep after each request; sequential`,
-    `- Laya: ${config.layaUrl}/v1/systemone · Ollama: ${config.ollamaModel} at ${config.ollamaUrl}`,
+    `- Ollama: ${config.ollamaModel} at ${config.ollamaUrl}`,
     '- A step is one policy decision. Wall choices are never corrected: the attempt is recorded, the mouse stays, the step counts. A failed request (timeout, HTTP, unparseable answer) also counts as a step with the mouse staying put; an unparseable answer is fed to memory as an invalid action like the GUI does.',
     '- Memory sequence follows `ObservableMazeSolver.run()`: perceive → rememberPerception → decide → evaluate(from) → rememberAction → rememberPerception(entered).',
     '- Revisit rate = successful moves landing on an already-visited cell / successful moves. Illegal rate = wall choices / steps. Loop = any cell entered ≥5 times. Scorer agreement = decisions that picked an argmax-score legal move.',
@@ -1157,10 +924,9 @@ export function markdown(
     '|---|---|---|---|---|---|---:|',
     ...ordered.map(
       (p) =>
-        `| ${p.id} | ${p.config.payloadBuilder}${p.config.notes ? ` (${p.config.notes})` : ''} | ${p.config.model ?? (p.config.endpoint ? 'Laya router' : '—')} | ${p.config.think ?? '—'} | ${p.config.temperature ?? '—'} | ${p.config.optionOrdering} | ${new Set(byPolicy.get(p.id)!.map((run) => run.seed)).size} |`,
+        `| ${p.id} | ${p.config.payloadBuilder}${p.config.notes ? ` (${p.config.notes})` : ''} | ${p.config.model ?? '—'} | ${p.config.think ?? '—'} | ${p.config.temperature ?? '—'} | ${p.config.optionOrdering} | ${new Set(byPolicy.get(p.id)!.map((run) => run.seed)).size} |`,
     ),
     '',
-    ...validationSection(runs, validations),
     '## Per-policy results',
     '',
     '| Policy | Completed (95% CI) | Stuck | Step-cap | Aborted | Median steps (completed) | Mean efficiency | Illegal % | Revisit % | Reversals/run | Scorer agreement % | Requests | Failed req. | Mean latency ms | Total time |',
@@ -1201,19 +967,6 @@ export function markdown(
     lines.push(`| ${policy.id} | ${share(d.up)} | ${share(d.down)} | ${share(d.left)} | ${share(d.right)} | ${total} | ${pct(a.firstOptionRate, 0)} |`);
   }
   lines.push('', 'First-listed = the first option in the order shown to the model, counted only when ≥2 options were shown.', '');
-  const plain = byPolicy.get('laya-constrained');
-  const shuffled = byPolicy.get('laya-constrained-shuffled');
-  lines.push('## laya-constrained vs laya-constrained-shuffled', '');
-  if (plain && shuffled) {
-    const a = aggregate(plain);
-    const b = aggregate(shuffled);
-    const overlap = a.ciLow <= b.ciHigh && b.ciLow <= a.ciHigh;
-    lines.push(
-      `- Completion: fixed order ${completionCell(a)} vs shuffled ${completionCell(b)}. ${overlap ? 'The 95% intervals overlap, so no completion difference is detectable at this sample size.' : 'The 95% intervals do not overlap.'}`,
-      `- First-listed option chosen: fixed ${pct(a.firstOptionRate, 0)} vs shuffled ${pct(b.firstOptionRate, 0)}. Scorer agreement: ${pct(a.scorerAgreement)} vs ${pct(b.scorerAgreement)}. Illegal: ${pct(a.illegalRate)} vs ${pct(b.illegalRate)}.`,
-      `- If the fixed-order first-listed rate is high but falls under shuffling while agreement holds, Laya follows the scores; if agreement falls with the order, it follows position.`,
-    );
-  } else lines.push('- Not run (both policies are needed).');
   lines.push(
     '',
     '## Shortcuts in `src/gui/solver.ts` (none applied here)',
@@ -1223,12 +976,12 @@ export function markdown(
     '## Limitations',
     '',
     '- See "Read this first": smell-aware results are gradient following. Only the `*-nosmell` policies and the walls-only baselines are free of the BFS gradient.',
-    '- Laya is run with one seed when the determinism check passes; Ollama is not seeded (the payload matches `benchmark.ts`, which sends no seed) and Tier B runs it once per entry, so Ollama results carry sampling noise at temperature 0.2.',
+    '- Ollama is not seeded (the payload matches `benchmark.ts`, which sends no seed) and Tier B runs it once per entry, so Ollama results carry sampling noise at temperature 0.2.',
     '- Latency is client-observed HTTP time on a shared CPU-only server, not internal inference time. A warm-up request per model is sent before runs and not recorded.',
     '- Health reaching 0 does not end a run here, unlike the GUI; see `healthDepletedAtStep` in runs.csv.',
     '- The 32 source mazes are small and hand-built; orientations reuse them, so runs on one maze are not independent. Wilson intervals treat runs as independent and are therefore optimistic.',
     '',
   );
-  if (config.mode === 'smoke') lines.push(...tierEstimates(suite, runs, config, validations));
-  return redactSecrets(lines.join('\n') + '\n');
+  if (config.mode === 'smoke') lines.push(...tierEstimates(suite, runs, config));
+  return lines.join('\n') + '\n';
 }

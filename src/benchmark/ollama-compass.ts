@@ -10,7 +10,6 @@ import {
   aggregate,
   buildSuiteEntry,
   callOllamaRaw,
-  redactSecrets,
   rng,
   runEpisode,
   runSeed,
@@ -39,7 +38,7 @@ import {
 import type { Move } from '@/execution/execution';
 import { Maze } from '@/maze/maze';
 
-// Qwen3 only: ollama-best with direction labels vs compass labels. Single step on 200 sampled laya-exhaustive
+// Qwen3 only: ollama-best with direction labels vs compass labels. Single step on 200 sampled word-prompt
 // situations, then the 8-entry maze check. Builders are in word-prompt-builders.ts.
 
 type Config = { budgetMs: number; seed: number; outputDir: string; ollamaUrl: string; ollamaModel: string };
@@ -131,7 +130,7 @@ async function main(): Promise<void> {
   const mazeMax = entries.reduce((t, e) => t + stepCapFor(e.optimalSteps), 0);
   console.log(
     `Plan, budget ${config.budgetMs / 60_000} min, ${config.ollamaModel}, think:false, temperature 0.2:\n` +
-      `  1. ${SAMPLE_SIZE} situations (seeded sample of the 504 laya-exhaustive situations) × 2 arms = ${2 * SAMPLE_SIZE} requests (~${seconds(2 * SAMPLE_SIZE * (PRIOR_LATENCY_MS + SLEEP_MS))})\n` +
+      `  1. ${SAMPLE_SIZE} situations (seeded sample of the 504 enumerated situations) × 2 arms = ${2 * SAMPLE_SIZE} requests (~${seconds(2 * SAMPLE_SIZE * (PRIOR_LATENCY_MS + SLEEP_MS))})\n` +
       `  2. the better arm, then the other, on ${entries.length} maze entries: ≤${mazeMax} requests each (~${seconds(mazeMax * (PRIOR_LATENCY_MS + SLEEP_MS))} each at the cap; ollama-best took ~150 s last time); a run is skipped if its cap would not fit`,
   );
   const warm = await callOllamaRaw(config.ollamaUrl, config.ollamaModel, `${INTRO}\n${OLLAMA_RETURN}`, TIMEOUT_MS);
@@ -213,7 +212,7 @@ async function main(): Promise<void> {
     '',
     `- Timestamp: ${timestamp} · commit ${git('git rev-parse HEAD')}${git('git status --porcelain') ? ' (dirty)' : ''} · seed ${config.seed} · ${config.ollamaModel} at ${config.ollamaUrl}, think:false, temperature 0.2`,
     '- ollama-best: warmer/colder options, full rule, options labelled UP/DOWN/LEFT/RIGHT, answer {"move":"up|down|left|right"}. ollama-best-compass: the same prompt with NORTH/SOUTH/EAST/WEST labels and answer {"move":"north|south|east|west"}, mapped back to moves in code. A test checks that only the option labels and the answer-format line differ.',
-    `- Single step: the same ${SAMPLE_SIZE} situations for both arms, a seeded sample of the 504 laya-exhaustive situations (each with its canonical or shuffled option order), 1 request each. Toward = the answer is a warmer direction; legal = an offered direction; failed = no direction word in the answer.`,
+    `- Single step: the same ${SAMPLE_SIZE} situations for both arms, a seeded sample of the 504 enumerated word-prompt situations (each with its canonical or shuffled option order), 1 request each. Toward = the answer is a warmer direction; legal = an offered direction; failed = no direction word in the answer.`,
     `- Time budget ${config.budgetMs / 60_000} min; used ${seconds(performance.now() - started)}.`,
     ...notes.map((n) => `- ${n}`),
     '',
@@ -321,14 +320,14 @@ async function main(): Promise<void> {
   );
   for (const arm of ['moves', 'compass'] as OllamaLabels[])
     lines.push(`### ${ARM_ID[arm]}`, '', '```text', ollamaBestPrompt(situationFor(example), arm), '```', '');
-  await fs.writeFile(path.join(runDir, 'results.json'), redactSecrets(JSON.stringify({ timestamp, seed: config.seed, notes, better, rows }, null, 2)));
+  await fs.writeFile(path.join(runDir, 'results.json'), JSON.stringify({ timestamp, seed: config.seed, notes, better, rows }, null, 2));
   await fs.writeFile(path.join(runDir, 'maze-runs.json'), runsJson({ timestamp, better }, mazeRuns));
-  await fs.writeFile(path.join(runDir, 'report.md'), redactSecrets(lines.join('\n') + '\n'));
+  await fs.writeFile(path.join(runDir, 'report.md'), lines.join('\n') + '\n');
   console.log(`Done in ${seconds(performance.now() - started)}. Report: ${path.join(runDir, 'report.md')}`);
 }
 
 // Entry point: run with vite-node. Never import this file; shared code lives in full-maze-eval-lib.ts and word-prompt-builders.ts.
 main().catch((error) => {
-  console.error(redactSecrets(error instanceof Error ? error.message : String(error)));
+  console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

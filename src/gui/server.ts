@@ -41,9 +41,9 @@ async function serve(req: http.IncomingMessage, res: http.ServerResponse): Promi
     const data = await body(req);
     const refusal = settingsChangeError(state, llmConfig, data);
     if (refusal) { res.writeHead(409, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ ok: false, error: refusal })); return; }
-    if ((data.provider !== 'laya' && (typeof data.baseUrl !== 'string' || !data.baseUrl.trim() || typeof data.model !== 'string' || !data.model.trim())) || (data.provider === 'laya' && (typeof data.layaUrl !== 'string' || !data.layaUrl.trim() || typeof data.layaModel !== 'string' || !data.layaModel.trim()))) {
+    if (typeof data.baseUrl !== 'string' || !data.baseUrl.trim() || typeof data.model !== 'string' || !data.model.trim()) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: false, error: data.provider === 'laya' ? 'Enter a Laya server URL and model before saving.' : 'Enter an Ollama server URL and model before saving.' }));
+      res.end(JSON.stringify({ ok: false, error: 'Enter an Ollama server URL and model before saving.' }));
       return;
     }
     llmConfig = sanitizeLLMConfig(data);
