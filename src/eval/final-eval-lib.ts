@@ -72,14 +72,13 @@ type Answer = {
   failure: string | null;
 };
 
-/** One Ollama request for one situation. A transport failure is reported, never retried or corrected. */
-export async function askOllama(client: OllamaClient, model: string, situation: Situation, variant: Variant): Promise<Answer> {
+/** One timed /api/chat request. A transport failure is reported, never retried or corrected. */
+export async function timedChat(client: OllamaClient, body: Record<string, unknown>, timeoutMs = TIMEOUT_MS): Promise<Omit<Answer, 'answer'>> {
   const started = performance.now();
   try {
-    const { text, raw } = await client.chat(buildRequest(model, situation, variant), AbortSignal.timeout(TIMEOUT_MS));
+    const { text, raw } = await client.chat(body, AbortSignal.timeout(timeoutMs));
     const count = (key: string) => (typeof raw[key] === 'number' ? (raw[key] as number) : null);
     return {
-      answer: parseAnswer(text),
       text,
       latencyMs: performance.now() - started,
       promptTokens: count('prompt_eval_count'),
@@ -87,8 +86,14 @@ export async function askOllama(client: OllamaClient, model: string, situation: 
       failure: null,
     };
   } catch (error) {
-    return { answer: null, text: '', latencyMs: null, promptTokens: null, cachedTokens: null, failure: error instanceof Error ? error.message : String(error) };
+    return { text: '', latencyMs: null, promptTokens: null, cachedTokens: null, failure: error instanceof Error ? error.message : String(error) };
   }
+}
+
+/** One Ollama request for one situation. */
+export async function askOllama(client: OllamaClient, model: string, situation: Situation, variant: Variant): Promise<Answer> {
+  const reply = await timedChat(client, buildRequest(model, situation, variant));
+  return { ...reply, answer: reply.failure ? null : parseAnswer(reply.text) };
 }
 
 // ---------- Single step ----------

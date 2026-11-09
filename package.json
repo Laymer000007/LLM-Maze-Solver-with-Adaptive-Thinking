@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "gui": "vite-node src/gui/server.ts",
-    "eval:final": "vite-node src/eval/final-eval.ts"
+    "eval:final": "vite-node src/eval/final-eval.ts",
+    "eval:level2": "vite-node src/eval/level2-eval.ts"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
