@@ -79,8 +79,11 @@ export function parseAnswer(text: string): Direction | null {
 
 // ---------- Level 2: the patrolling cat ----------
 
-/** cat-history: the cat line only. cat-facts: also each option's walking distance to the cat's current cell. */
-export type Level2Variant = 'cat-history' | 'cat-facts';
+/**
+ * cat-history: the cat line only. cat-facts: also each option's walking distance to the cat's current cell.
+ * cat-position: like cat-history, without the sentence about the cat's recent moves.
+ */
+export type Level2Variant = 'cat-history' | 'cat-facts' | 'cat-position';
 
 const LEVEL2_RULES = [
   'You are a mouse in a maze, looking for the cheese. A cat patrols the maze: it walks in a straight line, one block per move, and turns around when it hits a wall. If the cat catches you, you fail.',
@@ -97,9 +100,10 @@ export function catHistorySentence(history: CatMove[]): string {
   return `Its last ${last.length === 2 ? 'two' : 'three'} moves were ${last.join(', ')}.`;
 }
 
-export function catLine(sensed: CatSense | null): string {
+export function catLine(sensed: CatSense | null, withHistory = true): string {
   if (!sensed) return "You can't sense the cat.";
-  return `You sense the cat ${BLOCKS[sensed.distance]} ${sensed.direction} of you. ${catHistorySentence(sensed.history)}`;
+  const position = `You sense the cat ${BLOCKS[sensed.distance]} ${sensed.direction} of you.`;
+  return withHistory ? `${position} ${catHistorySentence(sensed.history)}` : position;
 }
 
 function catPart(catDistance: number, sensed: boolean, variant: Level2Variant): string {
@@ -116,7 +120,7 @@ export function buildLevel2Prompt(situation: Level2Situation, variant: Level2Var
     'Right now:',
     closenessSentence(situation.distance),
     `Your mood is ${moodWord(situation.mood)}.`,
-    catLine(situation.sensed),
+    catLine(situation.sensed, variant !== 'cat-position'),
     '',
     'You can go:',
     ...situation.options.map(

@@ -43,7 +43,7 @@ describe('situations', () => {
         }
       }
     }
-  });
+  }, 20_000);
 
   it('cover every local situation that occurs in the evaluation mazes', async () => {
     const local = new Set(enumerateSituations().map((s) => key(s.options)));

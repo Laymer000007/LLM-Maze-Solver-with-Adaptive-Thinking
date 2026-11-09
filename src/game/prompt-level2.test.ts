@@ -10,7 +10,7 @@ import { buildLevel2Prompt, buildLevel2Request, buildRequest, catHistorySentence
 import { rng } from '@/game/random';
 import { Maze } from '@/maze/maze';
 
-const VARIANTS: Level2Variant[] = ['cat-history', 'cat-facts'];
+const VARIANTS: Level2Variant[] = ['cat-history', 'cat-facts', 'cat-position'];
 const OPEN = new Maze(['#########', '#S      #', '#       #', '#       #', '#      G#', '#########']);
 
 /** Plays random legal moves and collects every situation, sensed or not. */
@@ -131,6 +131,22 @@ Return only JSON: {"move":"down|stay|up-right|right|left"}.`);
       const facts = buildLevel2Prompt(situation, 'cat-facts');
       expect(facts.replace(/, (where the cat is now|(one block|two blocks|three blocks|far) from where the cat is now)\./g, '.')).toBe(buildLevel2Prompt(situation, 'cat-history'));
     }
+  });
+
+  it('cat-position differs from cat-history only by the history sentence', () => {
+    let sensed = 0;
+    for (const situation of situations()) {
+      const history = buildLevel2Prompt(situation, 'cat-history');
+      const position = buildLevel2Prompt(situation, 'cat-position');
+      if (!situation.sensed) {
+        expect(position).toBe(history);
+        continue;
+      }
+      sensed++;
+      expect(position).not.toMatch(/Its last|hasn't moved/);
+      expect(history.replace(` ${catHistorySentence(situation.sensed.history)}`, '')).toBe(position);
+    }
+    expect(sensed).toBeGreaterThan(50);
   });
 
   it('can switch thinking on for a single request', () => {
