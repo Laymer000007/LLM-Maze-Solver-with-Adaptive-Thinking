@@ -6,7 +6,7 @@ import { Maze, type Position } from '@/maze/maze';
 export const DIRECTIONS = ['up', 'down', 'left', 'right', 'up-left', 'up-right', 'down-left', 'down-right'] as const;
 export type Direction = (typeof DIRECTIONS)[number];
 
-const OFFSETS: Record<Direction, { dx: number; dy: number }> = {
+export const OFFSETS: Record<Direction, { dx: number; dy: number }> = {
   up: { dx: 0, dy: -1 },
   down: { dx: 0, dy: 1 },
   left: { dx: -1, dy: 0 },
@@ -49,13 +49,13 @@ export function closenessSentence(distance: number): string {
   return 'The cheese smell is faint.';
 }
 
-const MOOD_START = 500;
+export const MOOD_START = 500;
 const MOOD_MAX = 1000;
-const MOOD_CHANGE: Record<Level, number> = { 'much warmer': 20, warmer: 10, 'no change': 0, colder: -10, 'much colder': -20 };
+export const MOOD_CHANGE: Record<Level, number> = { 'much warmer': 20, warmer: 10, 'no change': 0, colder: -10, 'much colder': -20 };
 /** An answer that is not an offered direction: the mouse stays put. */
 export const INVALID_MOOD_CHANGE = -30;
 
-const clampMood = (score: number) => Math.max(0, Math.min(MOOD_MAX, score));
+export const clampMood = (score: number) => Math.max(0, Math.min(MOOD_MAX, score));
 
 export function moodWord(score: number): string {
   if (score >= 800) return 'extremely happy';

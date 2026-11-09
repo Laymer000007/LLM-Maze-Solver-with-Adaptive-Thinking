@@ -1,4 +1,5 @@
 import { DIRECTIONS, closenessSentence, moodWord, type Direction, type Level, type Option } from '@/game/game';
+import type { CatMove, CatSense, Level2Situation, Move } from '@/game/level2';
 import { seededShuffle } from '@/game/random';
 
 // The one prompt builder, shared by the GUI and the evaluation. No side effects on import.
@@ -23,10 +24,10 @@ const PHRASES: Record<Level, { smell: string; mood: string }> = {
   'much colder': { smell: 'grows much weaker', mood: 'drops a lot' },
 };
 
-export const label = (direction: Direction) => direction.toUpperCase();
+export const label = (direction: Move) => direction.toUpperCase();
 
 /** The legal options in a seeded random order, so position in the list carries no hint. */
-export const shuffleOptions = (options: Option[], random: () => number) => seededShuffle(options, random);
+export const shuffleOptions = <T>(options: T[], random: () => number) => seededShuffle(options, random);
 
 export function buildPrompt(situation: Situation, variant: Variant): string {
   const full = variant === 'full';
@@ -71,6 +72,91 @@ export function parseAnswer(text: string): Direction | null {
       .trim()
       .toLowerCase();
     return (DIRECTIONS as readonly string[]).includes(move) ? (move as Direction) : null;
+  } catch {
+    return null;
+  }
+}
+
+// ---------- Level 2: the patrolling cat ----------
+
+/** cat-history: the cat line only. cat-facts: also each option's walking distance to the cat's current cell. */
+export type Level2Variant = 'cat-history' | 'cat-facts';
+
+const LEVEL2_RULES = [
+  'You are a mouse in a maze, looking for the cheese. A cat patrols the maze: it walks in a straight line, one block per move, and turns around when it hits a wall. If the cat catches you, you fail.',
+  'Stay away from the cat first: never move next to it. Then follow the smell: always move where the smell grows stronger, and prefer much warmer over warmer.',
+  'Being near the cat ruins your mood.',
+];
+const BLOCKS = ['', 'one block', 'two blocks', 'three blocks'];
+
+/** The cat's recent moves, oldest first, in words; "stayed" when it did not move. */
+export function catHistorySentence(history: CatMove[]): string {
+  const last = history.slice(-3);
+  if (!last.length) return "It hasn't moved yet.";
+  if (last.length === 1) return `Its last move was ${last[0]}.`;
+  return `Its last ${last.length === 2 ? 'two' : 'three'} moves were ${last.join(', ')}.`;
+}
+
+export function catLine(sensed: CatSense | null): string {
+  if (!sensed) return "You can't sense the cat.";
+  return `You sense the cat ${BLOCKS[sensed.distance]} ${sensed.direction} of you. ${catHistorySentence(sensed.history)}`;
+}
+
+function catPart(catDistance: number, sensed: boolean, variant: Level2Variant): string {
+  if (variant !== 'cat-facts' || !sensed) return '';
+  if (catDistance === 0) return ', where the cat is now';
+  return `, ${catDistance <= 3 ? BLOCKS[catDistance] : 'far'} from where the cat is now`;
+}
+
+export function buildLevel2Prompt(situation: Level2Situation, variant: Level2Variant): string {
+  const offered = situation.options.map((option) => option.direction);
+  return [
+    ...LEVEL2_RULES,
+    '',
+    'Right now:',
+    closenessSentence(situation.distance),
+    `Your mood is ${moodWord(situation.mood)}.`,
+    catLine(situation.sensed),
+    '',
+    'You can go:',
+    ...situation.options.map(
+      ({ direction, level, catDistance }) =>
+        `${label(direction)}: ${level}, the smell ${PHRASES[level].smell}${catPart(catDistance, Boolean(situation.sensed), variant)}.`,
+    ),
+    'Choose one direction.',
+    `Return only JSON: {"move":"${offered.join('|')}"}.`,
+  ].join('\n');
+}
+
+/** The level-2 /api/chat body: like level 1, with "stay" in the enum; think is on only when asked for. */
+export function buildLevel2Request(
+  model: string,
+  situation: Level2Situation,
+  variant: Level2Variant,
+  temperature = 0.2,
+  think = false,
+): Record<string, unknown> {
+  return {
+    model,
+    messages: [{ role: 'user', content: buildLevel2Prompt(situation, variant) }],
+    stream: false,
+    think,
+    format: {
+      type: 'object',
+      properties: { move: { type: 'string', enum: situation.options.map((option) => option.direction) } },
+      required: ['move'],
+    },
+    options: { temperature },
+  };
+}
+
+/** A level-2 answer: a direction or "stay" (case-insensitive), or null. */
+export function parseLevel2Answer(text: string): Move | null {
+  try {
+    const move = String((JSON.parse(text) as { move?: unknown })?.move ?? '')
+      .trim()
+      .toLowerCase();
+    return move === 'stay' ? 'stay' : parseAnswer(text);
   } catch {
     return null;
   }
