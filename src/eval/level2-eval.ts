@@ -19,7 +19,7 @@ import {
   type Level2Policy,
   type Level2Run,
 } from '@/eval/level2-eval-lib';
-import { catHistorySentence, catLine, label } from '@/game/prompt';
+import { catLine, label, type Level2Variant } from '@/game/prompt';
 import { DEFAULT_LLM_CONFIG } from '@/llm/config';
 import { OllamaClient } from '@/llm/ollama';
 
@@ -52,7 +52,8 @@ class BudgetReached extends Error {}
 type Examples = Map<string, Record<string, unknown>>;
 
 async function main(): Promise<void> {
-  if (args.includes('--compare-history')) return compareHistory();
+  if (args.includes('--compare-history')) return compareVariants(['cat-history', 'cat-position']);
+  if (args.includes('--compare')) return compareVariants(option('--compare', '').split(',') as Level2Variant[]);
   const client = new OllamaClient({ baseUrl: BASE_URL, model: MODEL, temperature: 0.2 });
   const entries: Level2Entry[] = await Promise.all((await level2Files(ROOT)).map((file) => level2Entry(ROOT, file)));
   const safeSum = entries.reduce((t, e) => t + e.newGame().shortestSafe, 0);
@@ -212,30 +213,30 @@ function report(meta: Record<string, any>, entries: Level2Entry[], order: Level2
   return lines.join('\n') + '\n';
 }
 
-/** A vs A0: cat-history against cat-position, on every level with two seeds (the same for both variants). */
-async function compareHistory(): Promise<void> {
+/** Level-2 prompt variants side by side, on every level with two seeds (the same seeds for every variant). */
+async function compareVariants(variants: Level2Variant[]): Promise<void> {
   const client = new OllamaClient({ baseUrl: BASE_URL, model: MODEL, temperature: 0.2 });
   const entries: Level2Entry[] = await Promise.all((await level2Files(ROOT)).map((file) => level2Entry(ROOT, file)));
   const seeds = [SEED, SEED + 1];
-  const variants = ['cat-history', 'cat-position'] as const;
+  const runsPlanned = variants.length * seeds.length;
   const safeSum = entries.reduce((t, e) => t + e.newGame().shortestSafe, 0);
   const capSum = entries.reduce((t, e) => t + e.newGame().stepCap, 0);
   console.log(
-    `Plan: ${variants.length} variants × ${entries.length} levels × ${seeds.length} seeds = ${variants.length * entries.length * seeds.length} runs, ${variants.length * seeds.length * safeSum}–${variants.length * seeds.length * capSum} requests; at ~0.9 s: ${((4 * safeSum * 0.9) / 60).toFixed(1)}–${((4 * capSum * 0.9) / 60).toFixed(1)} min. Budget ${BUDGET_MS / 60_000} min.`,
+    `Plan: ${variants.length} variants × ${entries.length} levels × ${seeds.length} seeds = ${runsPlanned * entries.length} runs, ${runsPlanned * safeSum}–${runsPlanned * capSum} requests; at ~0.9 s: ${((runsPlanned * safeSum * 0.9) / 60).toFixed(1)}–${((runsPlanned * capSum * 0.9) / 60).toFixed(1)} min. Budget ${BUDGET_MS / 60_000} min.`,
   );
   const timestamp = new Date().toISOString();
-  const runDir = path.join(ROOT, 'benchmark-results', 'level2', `${timestamp.replace(/[:.]/g, '-')}-a-vs-a0`);
+  const runDir = path.join(ROOT, 'benchmark-results', 'level2', `${timestamp.replace(/[:.]/g, '-')}-compare`);
   await fs.mkdir(runDir, { recursive: true });
   await client.chat({ model: MODEL, messages: [{ role: 'user', content: 'Return only JSON: {"move":"up"}.' }], stream: false, think: false, format: 'json' });
   const runs: (Level2Run & { seed: number })[] = [];
   const skipped: string[] = [];
-  // Seed by seed, both variants per level, so a budget stop leaves the comparison balanced.
+  // Seed by seed, every variant per level, so a budget stop leaves the comparison balanced.
   for (const seed of seeds)
     for (const entry of entries)
       for (const variant of variants) {
-        const label = `${entry.id}/${variant}/seed ${seed}`;
+        const name = `${entry.id}/${variant}/seed ${seed}`;
         if (remaining() <= 0) {
-          skipped.push(label);
+          skipped.push(name);
           continue;
         }
         const policy = ollamaPolicy(client, MODEL, variant);
@@ -250,22 +251,22 @@ async function compareHistory(): Promise<void> {
           const run = { ...(await runLevel2(entry, guarded, seed)), seed };
           runs.push(run);
           console.log(
-            `${label} → ${run.status}${run.catchCase ? ` (${run.catchCase}, step ${run.caughtOnStep})` : ''} in ${run.steps} (shortest safe ${run.shortestSafe}) · ${(elapsed() / 1000).toFixed(0)} s`,
+            `${name} → ${run.status}${run.catchCase ? ` (${run.catchCase}, step ${run.caughtOnStep})` : ''} in ${run.steps} (shortest safe ${run.shortestSafe}) · ${(elapsed() / 1000).toFixed(0)} s`,
           );
         } catch (error) {
           if (!(error instanceof BudgetReached)) throw error;
-          skipped.push(`${label} (stopped mid-run)`);
+          skipped.push(`${name} (stopped mid-run)`);
         }
       }
   await fs.writeFile(path.join(runDir, 'runs.json'), JSON.stringify(runs, null, 2));
   const lines = [
-    '# Level 2: cat-history (A) vs cat-position (A0)',
+    `# Level 2: ${variants.join(' vs ')}`,
     '',
-    `- ${timestamp} · commit ${git('git rev-parse --short HEAD')}${git('git status --porcelain') ? ' (uncommitted changes)' : ''} · seeds ${seeds.join(', ')} (the same for both variants) · Ollama ${MODEL} · think off, temperature 0.2`,
+    `- ${timestamp} · commit ${git('git rev-parse --short HEAD')}${git('git status --porcelain') ? ' (uncommitted changes)' : ''} · seeds ${seeds.join(', ')} (the same for every variant) · Ollama ${MODEL} · think off, temperature 0.2`,
     `- Time used: ${(elapsed() / 60_000).toFixed(1)} min of ${BUDGET_MS / 60_000}. ${skipped.length ? `Not run (budget): ${skipped.join(', ')}.` : 'Everything planned ran.'}`,
-    "- A0 is A without the sentence about the cat's last moves. A sensed choice is safe when the mouse is not caught and does not end one block from the cat.",
+    '- A sensed choice is safe when the mouse is not caught and does not end one block from the cat. "Sensed" uses each variant\'s own sensing range.',
     '',
-    '| Variant | Completed | Caught | Steps / shortest safe (completed) | Safe when sensed | Invalid | Latency mean |',
+    '| Variant | Completed | Caught | Steps / shortest safe (completed) | Safe when sensed | Invalid | Latency mean / p95 |',
     '|---|---:|---:|---|---:|---:|---:|',
   ];
   for (const variant of variants) {
@@ -277,7 +278,7 @@ async function compareHistory(): Promise<void> {
           .filter((r) => r.status === 'solved')
           .map((r) => `${r.steps}/${r.shortestSafe}`)
           .join(', ') || '—'
-      } | ${s.safeSensed}/${s.sensedSteps} (${pct(s.safeSensed, s.sensedSteps)}) | ${s.invalid} | ${ms(s.latency.mean)} |`,
+      } | ${s.safeSensed}/${s.sensedSteps} (${pct(s.safeSensed, s.sensedSteps)}) | ${s.invalid} | ${ms(s.latency.mean)} / ${ms(s.latency.p95)} |`,
     );
   }
   lines.push(
@@ -298,16 +299,17 @@ async function compareHistory(): Promise<void> {
         )
         .join(' | ')} |`,
     );
-  lines.push('', '## Catches', '', 'The cat line as shown to the mouse on the catching turn, and the move it chose.', '');
+  lines.push('', '## Catches', '', 'For each catch: whether the cat was sensed, its last moves, the options exactly as shown, and the move chosen.', '');
   const caught = runs.filter((r) => r.status === 'caught');
   if (!caught.length) lines.push('None.');
   for (const r of caught) {
     const last = r.records.at(-1)!;
-    const shown = last.sense ? catLine(last.sense, r.policy !== 'cat-position') : catLine(null);
+    const optionLines = (last.prompt ?? '').split('\n').filter((line) => /^[A-Z-]+: /.test(line));
     lines.push(
-      `- **${r.policy}**, ${r.entry}, seed ${r.seed}, turn ${r.caughtOnStep} (${r.catchCase}): "${shown}" Offered ${last.offered.map((o) => `${label(o.direction)} ${o.level}`).join(' · ')}; chose ${last.answer ? label(last.answer) : 'nothing valid'}.${
-        r.policy === 'cat-position' && last.sense ? ` (Not shown: ${catHistorySentence(last.sense.history)})` : ''
-      }`,
+      `- **${r.policy}**, ${r.entry}, seed ${r.seed}, turn ${r.caughtOnStep} (${r.catchCase}). ${last.sense ? `Sensed: ${last.sense.distance} block(s) ${last.sense.direction}` : 'Not sensed'}; the cat's last moves: ${last.catHistory.length ? last.catHistory.join(', ') : 'none'}; told: "${catLine(last.sense, r.policy !== 'cat-position')}" Chose **${last.answer ? label(last.answer) : 'nothing valid'}** from:`,
+      '',
+      ...optionLines.map((line) => `    ${line}`),
+      '',
     );
   }
   await fs.writeFile(path.join(runDir, 'report.md'), lines.join('\n') + '\n');

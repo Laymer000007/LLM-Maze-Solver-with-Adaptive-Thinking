@@ -100,6 +100,8 @@ export function directionTo(from: Position, to: Position): Direction {
 
 /** The mouse senses the cat within this walking distance. */
 export const SENSE_RANGE = 3;
+/** The sensing range of the cat-danger-range5 prompt variant. */
+export const WIDE_SENSE_RANGE = 5;
 
 /** Mood penalty after the cat's move; the two do not add up. */
 export function catPenalty(distance: number): number {
@@ -197,6 +199,8 @@ export class Level2Game {
   constructor(
     public readonly maze: Maze,
     cat: CatState,
+    /** How far (walking distance) the mouse senses the cat; mood penalties do not depend on it. */
+    public readonly senseRange = SENSE_RANGE,
   ) {
     this.position = { ...maze.startPosition };
     this.cat = { position: { ...cat.position }, direction: cat.direction };
@@ -220,7 +224,7 @@ export class Level2Game {
   /** What the mouse is told about the cat, or null when it is too far away to sense. */
   sense(): CatSense | null {
     const distance = this.catDistance;
-    if (distance > SENSE_RANGE) return null;
+    if (distance > this.senseRange) return null;
     return { distance, direction: directionTo(this.position, this.cat.position), history: this.catHistory.slice(-3) };
   }
 

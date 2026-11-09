@@ -6,20 +6,30 @@ import { describe, expect, it } from 'vitest';
 
 import { optionsAt } from '@/game/game';
 import { Level2Game, level2Situation, type CatState, type Level2Situation } from '@/game/level2';
-import { buildLevel2Prompt, buildLevel2Request, buildRequest, catHistorySentence, catLine, parseLevel2Answer, shuffleOptions, type Level2Variant } from '@/game/prompt';
+import {
+  buildLevel2Prompt,
+  buildLevel2Request,
+  buildRequest,
+  catHistorySentence,
+  catLine,
+  parseLevel2Answer,
+  senseRangeFor,
+  shuffleOptions,
+  type Level2Variant,
+} from '@/game/prompt';
 import { rng } from '@/game/random';
 import { Maze } from '@/maze/maze';
 
-const VARIANTS: Level2Variant[] = ['cat-history', 'cat-facts', 'cat-position'];
+const VARIANTS: Level2Variant[] = ['cat-history', 'cat-facts', 'cat-position', 'cat-rule', 'cat-danger', 'cat-danger-range5'];
 const OPEN = new Maze(['#########', '#S      #', '#       #', '#       #', '#      G#', '#########']);
 
 /** Plays random legal moves and collects every situation, sensed or not. */
-function situations(): Level2Situation[] {
+function situations(senseRange?: number): Level2Situation[] {
   const out: Level2Situation[] = [];
   const random = rng(3);
   for (const cat of [{ position: { x: 3, y: 2 }, direction: 'left' }, { position: { x: 2, y: 3 }, direction: 'up' }, { position: { x: 5, y: 1 }, direction: 'down' }] as CatState[])
     for (let run = 0; run < 20; run++) {
-      const game = new Level2Game(OPEN, cat);
+      const game = new Level2Game(OPEN, cat, senseRange);
       while (game.status === 'running' && game.steps < 30) {
         const offered = shuffleOptions(game.options(), random);
         out.push(level2Situation(game, offered));
@@ -147,6 +157,75 @@ Return only JSON: {"move":"down|stay|up-right|right|left"}.`);
       expect(history.replace(` ${catHistorySentence(situation.sensed.history)}`, '')).toBe(position);
     }
     expect(sensed).toBeGreaterThan(50);
+  });
+
+  const SAFETY_RULE = 'If you sense the cat, safety comes first. If an option says danger, never choose it, even if it is warmer. Follow the smell only among the other options.';
+  const OLD_RULE = 'Stay away from the cat first: never move next to it. Then follow the smell: always move where the smell grows stronger, and prefer much warmer over warmer.';
+  const DANGER = /^([A-Z-]+: )(danger, next to the cat; |closer to the cat; |further from the cat; )/gm;
+
+  it('cat-rule differs from cat-history only by the rule line', () => {
+    for (const situation of situations()) {
+      const rule = buildLevel2Prompt(situation, 'cat-rule');
+      expect(rule.split('\n')[1]).toBe(SAFETY_RULE);
+      expect(rule.replace(SAFETY_RULE, OLD_RULE)).toBe(buildLevel2Prompt(situation, 'cat-history'));
+    }
+  });
+
+  it('cat-danger differs from cat-rule only by a danger part first in each option, while the cat is sensed', () => {
+    let marked = 0;
+    for (const situation of [...situations(), ...situations(5)]) {
+      const danger = buildLevel2Prompt(situation, 'cat-danger');
+      expect(danger.replace(DANGER, '$1')).toBe(buildLevel2Prompt(situation, 'cat-rule'));
+      const lines = danger.split('\n').filter((l) => /^[A-Z-]+: /.test(l));
+      situation.options.forEach((option, i) => {
+        const part = lines[i].match(/^[A-Z-]+: (danger, next to the cat|closer to the cat|further from the cat); /)?.[1] ?? null;
+        if (!situation.sensed) return expect(part).toBeNull();
+        const expected =
+          option.catDistance <= 1 ? 'danger, next to the cat' : option.catDistance < situation.sensed.distance ? 'closer to the cat' : option.catDistance > situation.sensed.distance ? 'further from the cat' : null;
+        expect(part).toBe(expected);
+        if (part) marked++;
+      });
+    }
+    expect(marked).toBeGreaterThan(100);
+  });
+
+  it('renders a cat-danger option exactly', () => {
+    const situation: Level2Situation = {
+      distance: 8,
+      mood: 500,
+      sensed: { distance: 2, direction: 'up', history: ['up'] },
+      options: [
+        { direction: 'up', level: 'warmer', catDistance: 1 },
+        { direction: 'down', level: 'colder', catDistance: 3 },
+        { direction: 'left', level: 'colder', catDistance: 2 },
+        { direction: 'stay', level: 'no change', catDistance: 2 },
+      ],
+    };
+    const lines = buildLevel2Prompt(situation, 'cat-danger').split('\n');
+    expect(lines.slice(lines.indexOf('You can go:') + 1, -2)).toEqual([
+      'UP: danger, next to the cat; warmer, the smell grows stronger.',
+      'DOWN: further from the cat; colder, the smell grows weaker.',
+      'LEFT: colder, the smell grows weaker.',
+      'STAY: no change, the smell stays the same.',
+    ]);
+  });
+
+  it('cat-danger-range5 is cat-danger with the cat sensed within five blocks; the prompt text is otherwise the same', () => {
+    expect([senseRangeFor('cat-danger'), senseRangeFor('cat-danger-range5'), senseRangeFor('cat-history')]).toEqual([3, 5, 3]);
+    let wide = 0;
+    for (const situation of situations(5)) {
+      expect(buildLevel2Prompt(situation, 'cat-danger-range5')).toBe(buildLevel2Prompt(situation, 'cat-danger'));
+      if (situation.sensed && situation.sensed.distance > 3) wide++;
+    }
+    expect(wide).toBeGreaterThan(10);
+    expect(catLine({ distance: 5, direction: 'left', history: [] })).toBe("You sense the cat five blocks left of you. It hasn't moved yet.");
+    const game = new Level2Game(OPEN, { position: { x: 5, y: 1 }, direction: 'down' }, 5);
+    expect(game.sense()?.distance).toBe(4);
+    expect(new Level2Game(OPEN, { position: { x: 5, y: 1 }, direction: 'down' }).sense()).toBeNull();
+  });
+
+  it('contain no digits for any variant, including with the wider sensing range', () => {
+    for (const situation of situations(5)) for (const variant of VARIANTS) expect(buildLevel2Prompt(situation, variant)).not.toMatch(/\d/);
   });
 
   it('can switch thinking on for a single request', () => {

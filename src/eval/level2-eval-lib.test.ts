@@ -62,6 +62,7 @@ describe('level-2 scoring', () => {
     step: 1,
     sensed: true,
     sense: { distance: 2, direction: 'up', history: [] },
+    catHistory: [],
     offered: [],
     answer: 'up',
     valid: true,

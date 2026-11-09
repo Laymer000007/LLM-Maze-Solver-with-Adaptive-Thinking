@@ -8,13 +8,14 @@ import {
   level2Situation,
   loadLevel2,
   shortestSafePath,
+  type CatMove,
   type CatSense,
   type CatchCase,
   type Level2Status,
   type Move,
   type Option2,
 } from '@/game/level2';
-import { buildLevel2Request, parseLevel2Answer, shuffleOptions, type Level2Variant } from '@/game/prompt';
+import { buildLevel2Request, parseLevel2Answer, senseRangeFor, shuffleOptions, type Level2Variant } from '@/game/prompt';
 import { rng, runSeed } from '@/game/random';
 import { OllamaClient } from '@/llm/ollama';
 
@@ -33,11 +34,11 @@ export async function level2Files(root: string): Promise<string[]> {
     .map((file) => path.join(LEVEL2_DIR, file));
 }
 
-export type Level2Entry = { id: string; file: string; newGame: () => Level2Game };
+export type Level2Entry = { id: string; file: string; newGame: (senseRange?: number) => Level2Game };
 
 export async function level2Entry(root: string, file: string): Promise<Level2Entry> {
   const level = await loadLevel2(path.join(root, file));
-  return { id: path.basename(file, '.json'), file, newGame: () => new Level2Game(level.maze, level.cat) };
+  return { id: path.basename(file, '.json'), file, newGame: (senseRange?: number) => new Level2Game(level.maze, level.cat, senseRange) };
 }
 
 export type Decision = {
@@ -47,9 +48,17 @@ export type Decision = {
   failure: string | null;
   /** The request had think on. */
   thinking: boolean;
+  /** The prompt text sent, for Ollama policies. */
+  prompt?: string;
 };
 
-export type Level2Policy = { id: string; free: boolean; decide: (game: Level2Game, offered: Option2[], random: () => number) => Promise<Decision> };
+export type Level2Policy = {
+  id: string;
+  free: boolean;
+  /** The mouse's sensing range for this policy (default SENSE_RANGE). */
+  senseRange?: number;
+  decide: (game: Level2Game, offered: Option2[], random: () => number) => Promise<Decision>;
+};
 
 const instant = (answer: Move): Decision => ({ answer, text: '', latencyMs: null, failure: null, thinking: false });
 
@@ -89,13 +98,21 @@ export function ollamaPolicy(
   return {
     id: thinkWhenSensed ? `${variant}+think` : variant,
     free: false,
+    senseRange: senseRangeFor(variant),
     decide: async (game, offered) => {
       const situation = level2Situation(game, offered);
       const thinking = thinkWhenSensed && situation.sensed !== null;
       const body = buildLevel2Request(model, situation, variant, 0.2, thinking);
       capture?.(body, situation.sensed !== null);
       const reply = await timedChat(client, body, thinking ? THINK_TIMEOUT_MS : undefined);
-      return { answer: reply.failure ? null : parseLevel2Answer(reply.text), text: reply.text, latencyMs: reply.latencyMs, failure: reply.failure, thinking };
+      return {
+        answer: reply.failure ? null : parseLevel2Answer(reply.text),
+        text: reply.text,
+        latencyMs: reply.latencyMs,
+        failure: reply.failure,
+        thinking,
+        prompt: (body.messages as { content: string }[])[0].content,
+      };
     },
   };
 }
@@ -104,6 +121,8 @@ export type Level2StepRecord = {
   step: number;
   sensed: boolean;
   sense: CatSense | null;
+  /** The cat's last three moves before this step, whether or not the mouse was told. */
+  catHistory: CatMove[];
   offered: Option2[];
   answer: Move | null;
   valid: boolean;
@@ -113,6 +132,7 @@ export type Level2StepRecord = {
   latencyMs: number | null;
   thinking: boolean;
   failure: string | null;
+  prompt?: string;
 };
 
 export type Level2Run = {
@@ -131,19 +151,21 @@ export type Level2Run = {
 
 /** Plays one level to the end. Options are shuffled every step; three failed requests in a row abort the run. */
 export async function runLevel2(entry: Level2Entry, policy: Level2Policy, seed: number): Promise<Level2Run> {
-  const game = entry.newGame();
+  const game = entry.newGame(policy.senseRange);
   const random = rng(runSeed(seed, entry.id, policy.id));
   const records: Level2StepRecord[] = [];
   let failuresInARow = 0;
   let aborted = false;
   while (game.status === 'running') {
     const offered = shuffleOptions(game.options(), random);
+    const historyBefore = game.catHistory.slice(-3);
     const decision = await policy.decide(game, offered, random);
     const result = game.apply(decision.answer, offered);
     records.push({
       step: result.step,
       sensed: result.sensed !== null,
       sense: result.sensed,
+      catHistory: historyBefore,
       offered,
       answer: decision.answer,
       valid: result.valid,
@@ -153,6 +175,7 @@ export async function runLevel2(entry: Level2Entry, policy: Level2Policy, seed: 
       latencyMs: decision.latencyMs,
       thinking: decision.thinking,
       failure: decision.failure,
+      prompt: decision.prompt,
     });
     failuresInARow = decision.failure ? failuresInARow + 1 : 0;
     if (failuresInARow >= 3) {

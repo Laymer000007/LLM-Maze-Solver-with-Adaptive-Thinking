@@ -1,5 +1,5 @@
 import { DIRECTIONS, closenessSentence, moodWord, type Direction, type Level, type Option } from '@/game/game';
-import type { CatMove, CatSense, Level2Situation, Move } from '@/game/level2';
+import { SENSE_RANGE, WIDE_SENSE_RANGE, type CatMove, type CatSense, type Level2Situation, type Move } from '@/game/level2';
 import { seededShuffle } from '@/game/random';
 
 // The one prompt builder, shared by the GUI and the evaluation. No side effects on import.
@@ -82,15 +82,25 @@ export function parseAnswer(text: string): Direction | null {
 /**
  * cat-history: the cat line only. cat-facts: also each option's walking distance to the cat's current cell.
  * cat-position: like cat-history, without the sentence about the cat's recent moves.
+ * cat-rule: like cat-history, with a safety-first rule about options marked "danger".
+ * cat-danger: cat-rule, plus a danger part first in each option while the cat is sensed.
+ * cat-danger-range5: cat-danger with the cat sensed within five blocks instead of three.
  */
-export type Level2Variant = 'cat-history' | 'cat-facts' | 'cat-position';
+export type Level2Variant = 'cat-history' | 'cat-facts' | 'cat-position' | 'cat-rule' | 'cat-danger' | 'cat-danger-range5';
 
-const LEVEL2_RULES = [
-  'You are a mouse in a maze, looking for the cheese. A cat patrols the maze: it walks in a straight line, one block per move, and turns around when it hits a wall. If the cat catches you, you fail.',
-  'Stay away from the cat first: never move next to it. Then follow the smell: always move where the smell grows stronger, and prefer much warmer over warmer.',
-  'Being near the cat ruins your mood.',
-];
-const BLOCKS = ['', 'one block', 'two blocks', 'three blocks'];
+/** How far the mouse senses the cat with this variant. */
+export const senseRangeFor = (variant: Level2Variant) => (variant === 'cat-danger-range5' ? WIDE_SENSE_RANGE : SENSE_RANGE);
+const hasSafetyRule = (variant: Level2Variant) => variant === 'cat-rule' || variant === 'cat-danger' || variant === 'cat-danger-range5';
+const hasDangerParts = (variant: Level2Variant) => variant === 'cat-danger' || variant === 'cat-danger-range5';
+
+const LEVEL2_INTRO =
+  'You are a mouse in a maze, looking for the cheese. A cat patrols the maze: it walks in a straight line, one block per move, and turns around when it hits a wall. If the cat catches you, you fail.';
+const CAT_RULE =
+  'Stay away from the cat first: never move next to it. Then follow the smell: always move where the smell grows stronger, and prefer much warmer over warmer.';
+const SAFETY_RULE =
+  'If you sense the cat, safety comes first. If an option says danger, never choose it, even if it is warmer. Follow the smell only among the other options.';
+const MOOD_NOTE = 'Being near the cat ruins your mood.';
+const BLOCKS = ['', 'one block', 'two blocks', 'three blocks', 'four blocks', 'five blocks'];
 
 /** The cat's recent moves, oldest first, in words; "stayed" when it did not move. */
 export function catHistorySentence(history: CatMove[]): string {
@@ -106,6 +116,15 @@ export function catLine(sensed: CatSense | null, withHistory = true): string {
   return withHistory ? `${position} ${catHistorySentence(sensed.history)}` : position;
 }
 
+/** cat-danger: what moving there does relative to the cat's current cell; empty when nothing changes. */
+function dangerPart(catDistance: number, sensed: CatSense | null, variant: Level2Variant): string {
+  if (!hasDangerParts(variant) || !sensed) return '';
+  if (catDistance <= 1) return 'danger, next to the cat; ';
+  if (catDistance < sensed.distance) return 'closer to the cat; ';
+  if (catDistance > sensed.distance) return 'further from the cat; ';
+  return '';
+}
+
 function catPart(catDistance: number, sensed: boolean, variant: Level2Variant): string {
   if (variant !== 'cat-facts' || !sensed) return '';
   if (catDistance === 0) return ', where the cat is now';
@@ -115,7 +134,9 @@ function catPart(catDistance: number, sensed: boolean, variant: Level2Variant): 
 export function buildLevel2Prompt(situation: Level2Situation, variant: Level2Variant): string {
   const offered = situation.options.map((option) => option.direction);
   return [
-    ...LEVEL2_RULES,
+    LEVEL2_INTRO,
+    hasSafetyRule(variant) ? SAFETY_RULE : CAT_RULE,
+    MOOD_NOTE,
     '',
     'Right now:',
     closenessSentence(situation.distance),
@@ -125,7 +146,7 @@ export function buildLevel2Prompt(situation: Level2Situation, variant: Level2Var
     'You can go:',
     ...situation.options.map(
       ({ direction, level, catDistance }) =>
-        `${label(direction)}: ${level}, the smell ${PHRASES[level].smell}${catPart(catDistance, Boolean(situation.sensed), variant)}.`,
+        `${label(direction)}: ${dangerPart(catDistance, situation.sensed, variant)}${level}, the smell ${PHRASES[level].smell}${catPart(catDistance, Boolean(situation.sensed), variant)}.`,
     ),
     'Choose one direction.',
     `Return only JSON: {"move":"${offered.join('|')}"}.`,
