@@ -1,14 +1,123 @@
-const $=id=>document.getElementById(id);let latest=null;const canvas=$('maze'),ctx=canvas.getContext('2d');
-function post(action){fetch('/api/control',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action,delayMs:+$('delay').value})})}
-['start','pause','resume','step','reset'].forEach(id=>$(id).onclick=()=>post(id));$('quit').onclick=()=>window.close();$('delay').oninput=()=>{$('delayValue').value=$('delay').value+' ms';post('pause');post('resume')};
-async function loadMazes(){const files=await (await fetch('/api/mazes')).json();$('mazeSelect').innerHTML=files.map(file=>`<option value="${file}">${file}</option>`).join('');if(latest)$('mazeSelect').value=latest.mazeFile}async function loadMaze(){const file=$('mazeSelect').value;if(!file)return;await fetch('/api/new-maze',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({file})})}loadMazes();$('loadMaze').onclick=loadMaze;
-function fmt(ms){return (ms/1000).toFixed(1)+'s'}function render(s){latest=s;$('status').textContent=s.status;$('status').className='badge '+s.status.toLowerCase();$('mazeName').textContent=s.mazeFile;$('prompt').textContent=s.prompt||'—';$('response').textContent=s.response||'—';$('parsed').textContent=s.parsedAction||'—';$('error').textContent=s.error||s.parseError||'—';$('moves').textContent=s.moveLog.length?s.moveLog.join('\n'):'No moves yet.';$('llm').textContent=s.llmLog.length?s.llmLog.join('\n'):'No requests yet.';const e=s.eil||{score:500,label:'NEUTRAL',lastReward:0,trend:'stable'};$('eilScore').textContent=e.score+' / 1000';$('eilLabel').textContent=e.label;$('eilReward').textContent=e.lastReward>0?'+'+e.lastReward:e.lastReward;$('eilTrend').textContent=e.trend.toUpperCase();const vals=[['POSITION',`(${s.current.x}, ${s.current.y})`],['HEALTH',`${s.health}%`],['EiL',`${e.score} / 1000`],['SMELL',s.currentSmell],['PHYSICAL CELLS',s.physicalSteps],['POSITION BEFORE',s.previous?`(${s.previous.x}, ${s.previous.y})`:'—'],['STEP',s.step],['LAST MOVE',s.lastMove||'—'],['RESULT',s.lastMoveSucceeded===null?'—':s.lastMoveSucceeded?'SUCCESS':'BLOCKED'],['VISITED',s.visited.length],['INVALID MOVES',s.invalidMoves],['ELAPSED',fmt(s.elapsedMs)],['LLM CALLS',s.llmCalls],['AVG RESPONSE',s.averageResponseMs?s.averageResponseMs+' ms':'—']];$('stats').innerHTML=vals.map(([k,v])=>`<div class="stat"><small>${k}</small><b>${v}</b></div>`).join('');draw(s)}
-function draw(s){const rows=s.layout.length,cols=Math.max(...s.layout.map(r=>r.length));const box=canvas.getBoundingClientRect(),d=devicePixelRatio||1;canvas.width=box.width*d;canvas.height=box.height*d;ctx.setTransform(d,0,0,d,0,0);const cell=Math.min(box.width/cols,box.height/rows),ox=(box.width-cell*cols)/2,oy=(box.height-cell*rows)/2;ctx.fillStyle='#0d1521';ctx.fillRect(0,0,box.width,box.height);const key=p=>p.x+','+p.y;const visible=new Set((s.visible||[]).map(key)),visited=new Set(s.visited.map(key)),path=new Set(s.path.map(key));for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){const ch=s.layout[y][x]||'#',px=ox+x*cell,py=oy+y*cell;const k=x+','+y;ctx.fillStyle=ch==='#'?'#26364b':visible.has(k)?'#3d5060':path.has(k)?'#31566d':visited.has(k)?'#1d3445':'#152333';ctx.fillRect(px+1,py+1,cell-2,cell-2);if(ch!=='#'){if(x===s.start.x&&y===s.start.y)mark(px,py,cell,'#ffda79','S');if(x===s.goal.x&&y===s.goal.y)mark(px,py,cell,'#f37bff','G')}}if(s.status==='BLOCKED'&&s.previous)mark(ox+(s.previous.x)*cell,oy+(s.previous.y)*cell,cell,'#ff6b6b','!');mark(ox+s.current.x*cell,oy+s.current.y*cell,cell,'#5de4d1','A')}
-function mark(x,y,c,color,label){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x+c/2,y+c/2,c*.27,0,Math.PI*2);ctx.fill();ctx.fillStyle='#07121a';ctx.font=`bold ${Math.max(10,c*.28)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,x+c/2,y+c/2)}
-new EventSource('/api/events').onmessage=e=>render(JSON.parse(e.data));window.onresize=()=>latest&&draw(latest);
-$('stop').onclick=()=>post('stop');
-const adaptivePanel=document.createElement('section');adaptivePanel.className='card adaptive-panel';adaptivePanel.innerHTML='<div class="section-title">ADAPTIVE THINKING</div><div class="statgrid"><div class="stat"><small>THINKING MODE</small><b id="thinkingMode">OFF</b></div><div class="stat"><small>TRIGGER</small><b id="thinkingTrigger">none</b></div><div class="stat"><small>MOVES REMAINING</small><b id="thinkingDecisions">0</b></div><div class="stat"><small>EXPECTED DELTA</small><b id="scoreGap">—</b></div></div>';document.querySelector('aside').prepend(adaptivePanel);
-setInterval(()=>{if(!latest)return;$('thinkingMode').textContent=latest.thinking?'ON':'OFF';$('thinkingMode').style.color=latest.thinking?'#ffb86b':'#5de4d1';$('thinkingTrigger').textContent=latest.thinkingTrigger||'none';$('thinkingDecisions').textContent=latest.thinkingMovesRemaining||0;$('scoreGap').textContent=latest.scoreDifference===null||latest.scoreDifference===undefined?'—':latest.scoreDifference},100);
-const mouseSprite=new Image(),cheeseSprite=new Image();mouseSprite.src='/assets/mouse.png';cheeseSprite.src='/assets/cheese.png';const nativeFillText=CanvasRenderingContext2D.prototype.fillText;function drawSprite(context,image,centerX,centerY,cellSize){if(!image.complete||!image.naturalWidth)return false;const scale=Math.min(cellSize*.82/image.naturalWidth,cellSize*.82/image.naturalHeight),width=image.naturalWidth*scale,height=image.naturalHeight*scale;context.drawImage(image,centerX-width/2,centerY-height/2,width,height);return true}CanvasRenderingContext2D.prototype.fillText=function(text,x,y){const markerSize=Number.parseFloat(this.font)||16,cellSize=markerSize/.28;if(text==='A'&&drawSprite(this,mouseSprite,x,y,cellSize))return;if(text==='G'&&drawSprite(this,cheeseSprite,x,y,cellSize))return;nativeFillText.call(this,text,x,y)};mouseSprite.onload=()=>latest&&draw(latest);cheeseSprite.onload=()=>latest&&draw(latest);
-fetch('/api/settings').then(r=>r.json()).then(s=>{if(!s.configured){$('setupNotice').hidden=false;$('start').disabled=true;}}).catch(()=>{});
-fetch('/api/status').then(r=>r.json()).then(s=>{const c=s.config||{};$('aiIndicator').textContent=`AI: Ollama / ${c.model} · ${c.promptStyle==='words'?'Words: warmer/colder':'Numbers (current)'}`;}).catch(()=>{});
+const $ = (id) => document.getElementById(id);
+const canvas = $('maze');
+const ctx = canvas.getContext('2d');
+const mouseSprite = new Image();
+const cheeseSprite = new Image();
+mouseSprite.src = '/assets/mouse.png';
+cheeseSprite.src = '/assets/cheese.png';
+let latest = null;
+
+function post(action) {
+  fetch('/api/control', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action, delayMs: Number($('delay').value) }) });
+}
+['start', 'pause', 'resume', 'step', 'stop', 'reset'].forEach((id) => ($(id).onclick = () => post(id)));
+$('delay').oninput = () => {
+  $('delayValue').value = `${$('delay').value} ms`;
+  post('delay');
+};
+
+async function loadMazes() {
+  const files = await (await fetch('/api/mazes')).json();
+  $('mazeSelect').innerHTML = files.map((file) => `<option value="${file}">${file}</option>`).join('');
+  if (latest) $('mazeSelect').value = latest.mazeFile;
+}
+$('loadMaze').onclick = () => fetch('/api/new-maze', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ file: $('mazeSelect').value }) });
+loadMazes();
+
+const seconds = (ms) => `${(ms / 1000).toFixed(1)} s`;
+const label = (direction) => direction.toUpperCase();
+
+function render(s) {
+  latest = s;
+  $('status').textContent = s.status;
+  $('status').className = `badge ${s.status.toLowerCase()}`;
+  $('mazeName').textContent = s.mazeFile;
+  $('moodScore').textContent = `${s.mood} / 1000`;
+  $('moodWord').textContent = s.moodWord;
+  $('moodChange').textContent = s.lastMoodChange === null ? '—' : `${s.lastMoodChange > 0 ? '+' : ''}${s.lastMoodChange}`;
+  $('closeness').textContent = s.closeness.replace('The cheese smell is ', '').replace(/\.$/, '');
+  $('offered').textContent = s.offered.length ? s.offered.map((o) => `${label(o.direction)}: ${o.level}`).join('\n') : '—';
+  $('answer').textContent = s.lastAnswer ? label(s.lastAnswer) : '—';
+  $('error').textContent = s.error || '—';
+  $('prompt').textContent = s.prompt || '—';
+  $('response').textContent = s.response || '—';
+  $('moves').textContent = s.moveLog.length ? s.moveLog.join('\n') : 'No moves yet.';
+  const stats = [
+    ['POSITION', `(${s.current.x}, ${s.current.y})`],
+    ['STEP', `${s.step} / ${s.stepCap}`],
+    ['OPTIMAL', s.optimal],
+    ['CELLS VISITED', s.visited.length],
+    ['INVALID ANSWERS', s.invalidMoves],
+    ['ELAPSED', seconds(s.elapsedMs)],
+    ['AI CALLS', s.llmCalls],
+    ['AVG RESPONSE', s.averageResponseMs ? `${s.averageResponseMs} ms` : '—'],
+  ];
+  $('stats').innerHTML = stats.map(([k, v]) => `<div class="stat"><small>${k}</small><b>${v}</b></div>`).join('');
+  draw(s);
+}
+
+function draw(s) {
+  const rows = s.layout.length;
+  const cols = Math.max(...s.layout.map((r) => r.length));
+  const box = canvas.getBoundingClientRect();
+  const dpr = devicePixelRatio || 1;
+  canvas.width = box.width * dpr;
+  canvas.height = box.height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cell = Math.min(box.width / cols, box.height / rows);
+  const ox = (box.width - cell * cols) / 2;
+  const oy = (box.height - cell * rows) / 2;
+  const center = (p) => [ox + (p.x + 0.5) * cell, oy + (p.y + 0.5) * cell];
+  ctx.fillStyle = '#0d1521';
+  ctx.fillRect(0, 0, box.width, box.height);
+  const visited = new Set(s.visited.map((p) => `${p.x},${p.y}`));
+  for (let y = 0; y < rows; y++)
+    for (let x = 0; x < cols; x++) {
+      const ch = s.layout[y][x] || '#';
+      ctx.fillStyle = ch === '#' ? '#26364b' : visited.has(`${x},${y}`) ? '#1d3445' : '#152333';
+      ctx.fillRect(ox + x * cell + 1, oy + y * cell + 1, cell - 2, cell - 2);
+    }
+  // The path joins cell centres, so diagonal moves show as diagonal lines.
+  ctx.strokeStyle = '#4d7891';
+  ctx.lineWidth = Math.max(2, cell * 0.12);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  s.path.forEach((p, i) => (i ? ctx.lineTo(...center(p)) : ctx.moveTo(...center(p))));
+  ctx.stroke();
+  marker(center(s.start), cell, '#ffda79', 'S');
+  if (!drawSprite(cheeseSprite, center(s.goal), cell)) marker(center(s.goal), cell, '#f37bff', 'G');
+  if (s.status === 'BLOCKED') {
+    ctx.strokeStyle = '#ff6b6b';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(ox + s.current.x * cell + 2, oy + s.current.y * cell + 2, cell - 4, cell - 4);
+  }
+  if (!drawSprite(mouseSprite, center(s.current), cell)) marker(center(s.current), cell, '#5de4d1', 'M');
+}
+
+function marker([x, y], cell, color, text) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x, y, cell * 0.27, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#07121a';
+  ctx.font = `bold ${Math.max(10, cell * 0.28)}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y);
+}
+
+function drawSprite(image, [x, y], cell) {
+  if (!image.complete || !image.naturalWidth) return false;
+  const scale = Math.min((cell * 0.82) / image.naturalWidth, (cell * 0.82) / image.naturalHeight);
+  ctx.drawImage(image, x - (image.naturalWidth * scale) / 2, y - (image.naturalHeight * scale) / 2, image.naturalWidth * scale, image.naturalHeight * scale);
+  return true;
+}
+
+new EventSource('/api/events').onmessage = (e) => render(JSON.parse(e.data));
+window.onresize = () => latest && draw(latest);
+mouseSprite.onload = cheeseSprite.onload = () => latest && draw(latest);
+fetch('/api/settings')
+  .then((r) => r.json())
+  .then(({ config, variant }) => ($('aiIndicator').textContent = `AI: Ollama / ${config.model} · prompt: ${variant}`))
+  .catch(() => {});

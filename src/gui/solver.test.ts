@@ -1,72 +1,83 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { bfsShortestPath } from '@/benchmark/full-maze-eval-lib';
 import { ObservableMazeSolver, type SolverState } from '@/gui/solver';
-import { sanitizeLLMConfig, type LLMConfig } from '@/llm/config';
+import { sanitizeLLMConfig } from '@/llm/config';
 import { Maze } from '@/maze/maze';
 
 const LAYOUT = ['#######', '#S#   #', '# # # #', '#   #G#', '#######'];
-const maze = () => new Maze(LAYOUT);
-const optimal = bfsShortestPath(LAYOUT, { x: 1, y: 1 }, { x: 5, y: 3 })!;
+const config = sanitizeLLMConfig({ baseUrl: 'http://ollama.test', model: 'qwen3:1.7b' });
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-/** Runs the real GUI loop with zero delay until it finishes. */
-function solve(config: LLMConfig): Promise<{ state: SolverState; solver: ObservableMazeSolver }> {
+/** Answers with the warmest offered option, read from the prompt; the first answer names a direction that is not offered. */
+function stubOllama(bodies: any[]) {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (_url: string, init: RequestInit) => {
+      const body = JSON.parse(String(init.body));
+      bodies.push(body);
+      const lines = (body.messages[0].content as string).split('\n');
+      const pick = lines.find((l) => /: much warmer,/.test(l)) ?? lines.find((l) => /: warmer,/.test(l))!;
+      const move = bodies.length === 1 ? 'up' : pick.split(':')[0].toLowerCase();
+      return new Response(JSON.stringify({ message: { content: JSON.stringify({ move }) } }), { status: 200 });
+    }),
+  );
+}
+
+function solve(): Promise<SolverState> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('solver did not finish')), 5000);
-    const solver: ObservableMazeSolver = new ObservableMazeSolver(maze(), 'test.txt', config, () => 0, (state) => {
+    const solver = new ObservableMazeSolver(new Maze(LAYOUT), 'test.txt', config, () => 0, (state) => {
       if (state.status === 'SOLVED' || state.status === 'FAILED') {
         clearTimeout(timer);
-        setTimeout(() => resolve({ state, solver }), 0);
+        resolve(state);
       }
     });
     solver.start();
   });
 }
 
-describe('GUI solver, Words prompt style', () => {
-  it('Ollama: sends ollama-best requests with think off and temperature 0.2, even after a wall collision', async () => {
+describe('GUI solver', () => {
+  it('sends the shared full prompt, counts an unoffered answer as invalid without moving, and logs each step', async () => {
     const bodies: any[] = [];
-    let first = true;
-    vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => {
-      const body = JSON.parse(String(init.body));
-      bodies.push(body);
-      const line = (body.messages[0].content as string).split('\n').find((l) => / warmer, /.test(l))!;
-      // The first answer is an unoffered direction: a wall collision (EiL drop > 100) that must not switch thinking on.
-      const move = first ? 'up' : line.split(':')[0].toLowerCase();
-      first = false;
-      return new Response(JSON.stringify({ message: { content: JSON.stringify({ move }) } }), { status: 200 });
-    }));
-    const { state } = await solve(sanitizeLLMConfig({ baseUrl: 'http://ollama.test', model: 'qwen3:1.7b', temperature: 0.9, promptStyle: 'words' }));
+    stubOllama(bodies);
+    const state = await solve();
     expect(state.status).toBe('SOLVED');
     expect(state.invalidMoves).toBe(1);
-    expect(bodies).toHaveLength(optimal + 1);
+    expect(state.step).toBe(bodies.length);
+    expect(state.path[0]).toEqual({ x: 1, y: 1 });
+    expect(state.path.at(-1)).toEqual({ x: 5, y: 3 });
     for (const body of bodies) {
-      expect(body).toMatchObject({ model: 'qwen3:1.7b', think: false, stream: false, format: 'json', options: { temperature: 0.2 } });
-      expect(body.messages[0].content).toContain('Never choose a direction where it grows weaker.');
+      expect(body).toMatchObject({ model: 'qwen3:1.7b', think: false, stream: false, options: { temperature: 0.2 }, format: { type: 'object' } });
+      expect(body.messages[0].content).toContain('Warmer moves lift your mood, colder moves lower it.');
+      expect(body.messages[0].content).not.toMatch(/\d/);
     }
-    expect(state.thinking).toBe(false);
-    expect(state.llmLog.join('\n')).toContain('style=words think=false');
+    expect(state.moveLog.at(-1)).toMatch(/offered: DOWN warmer/);
+    expect(state.moveLog.at(-1)).toMatch(/INVALID, the mouse stays put · mood 470 normal \(-30\)/);
+    expect(state.prompt).toMatch(/^POST http:\/\/ollama\.test\/api\/chat\n\{/);
+    expect(state.mood).toBe(470 + 10 * (bodies.length - 1));
   });
 
-  it('leaves the Numbers style unchanged: the existing prompt with adaptive thinking off at the start', async () => {
-    const bodies: any[] = [];
-    let solverRef: ObservableMazeSolver | null = null;
-    vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => {
-      bodies.push(JSON.parse(String(init.body)));
-      solverRef?.stop();
-      return new Response(JSON.stringify({ message: { content: '{"move":"down"}' } }), { status: 200 });
-    }));
-    const solver = new ObservableMazeSolver(maze(), 'test.txt', sanitizeLLMConfig({ baseUrl: 'http://ollama.test' }), () => 0, () => {});
-    solverRef = solver;
+  it('stops the run with a clear message when Ollama fails, without any fallback', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('model not found', { status: 404 })));
+    const state = await solve();
+    expect(state.status).toBe('FAILED');
+    expect(state.error).toMatch(/Ollama request failed \(HTTP 404\)/);
+    expect(state.step).toBe(0);
+  });
+
+  it('drops an answer that arrives after Stop', async () => {
+    let release: (r: Response) => void = () => {};
+    vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>((resolve) => (release = resolve))));
+    const solver = new ObservableMazeSolver(new Maze(LAYOUT), 'test.txt', config, () => 0, () => {});
     solver.start();
-    await vi.waitFor(() => expect(bodies.length).toBeGreaterThan(0));
-    expect(solver.state.promptStyle).toBe('numbers');
-    expect(bodies[0]).toMatchObject({ model: 'qwen3:1.7b', think: false, options: { temperature: 0.2 } });
-    expect(bodies[0].messages[0].content).toContain('You are a mouse inside a maze and need to reach the cheese to win.');
+    await vi.waitFor(() => expect(solver.state.status).toBe('ASKING'));
+    solver.stop();
+    release(new Response(JSON.stringify({ message: { content: '{"move":"down"}' } }), { status: 200 }));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(solver.state.step).toBe(0);
+    expect(solver.state.current).toEqual({ x: 1, y: 1 });
   });
-
 });

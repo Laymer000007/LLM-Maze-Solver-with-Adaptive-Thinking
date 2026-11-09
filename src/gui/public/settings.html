@@ -1,1 +1,24 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Settings</title><link rel="stylesheet" href="/style.css"></head><body><main class="settings-page"><header><div><p class="eyebrow">LLM MAZE SOLVER WITH ADAPTIVE THINKING v3.0.0</p><h1>AI Settings</h1><p class="subtitle">Configure the Ollama model used by the maze mouse.</p></div></header><section class="card settings-card"><div class="section-title">OLLAMA CONFIGURATION</div><label>Ollama Server URL<input id="baseUrl" type="url" placeholder="http://192.168.88.100:11434"></label><label>Model<select id="model"></select></label><label>Temperature<input id="temperature" type="number" min="0" max="2" step="0.1" value="0.2"></label><label>Prompt style<select id="promptStyle"><option value="numbers">Numbers (current)</option><option value="words">Words: warmer/colder</option></select></label><p class="hint" id="promptStyleHint">Numbers keeps the existing prompt and adaptive thinking. Words sends the best benchmark prompt (warmer/colder options), one model decision per step, with think off, temperature fixed at 0.2, and no cheese shortcut or adaptive thinking. The style cannot change mid-run: reset the maze first.</p><div class="actions"><button id="test">Test Connection</button><button id="save">Save Settings</button><a class="button secondary" href="/">Back to Maze</a></div><p id="status" role="status"></p></section></main><script src="/settings.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Settings</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main class="settings-page">
+  <header><div><p class="eyebrow">LLM MAZE SOLVER</p><h1>AI Settings</h1><p class="subtitle">The Ollama model that drives the mouse.</p></div></header>
+  <section class="card settings-card">
+    <div class="section-title">OLLAMA</div>
+    <label>Ollama Server URL<input id="baseUrl" type="url" placeholder="http://192.168.88.100:11434"></label>
+    <label>Model<select id="model"></select></label>
+    <label>Temperature<input id="temperature" type="number" min="0" max="2" step="0.1" value="0.2"></label>
+    <p class="hint">Every request uses think off and a JSON schema that only accepts the offered directions. Settings cannot change while a request is in flight: stop or reset first.</p>
+    <div class="actions"><button id="test">Test Connection</button><button id="save">Save Settings</button><a class="button secondary" href="/">Back to Maze</a></div>
+    <p id="status" role="status"></p>
+  </section>
+</main>
+<script src="/settings.js"></script>
+</body>
+</html>

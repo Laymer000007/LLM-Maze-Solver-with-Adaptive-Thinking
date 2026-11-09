@@ -1,6 +1,6 @@
 {
-  "name": "llm-maze-solver-adaptive-thinking",
-  "version": "3.0.0",
+  "name": "llm-maze-solver",
+  "version": "4.0.0",
   "private": true,
   "engines": {
     "node": ">=24.0.0"
@@ -9,21 +9,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "agent-execute": "vite-node src/cli/agent-execute.ts",
     "gui": "vite-node src/gui/server.ts",
-    "benchmark:ai": "vite-node src/benchmark/benchmark.ts",
-    "benchmark:full-maze": "vite-node src/benchmark/full-maze-eval.ts",
-    "benchmark:word-prompts": "vite-node src/benchmark/word-prompts.ts",
-    "benchmark:word-prompts-tuning": "vite-node src/benchmark/word-prompts-tuning.ts",
-    "benchmark:ollama-compass": "vite-node src/benchmark/ollama-compass.ts"
-  },
-  "dependencies": {
-    "@langchain/ollama": "^1.1.0",
-    "commander": "^14.0.2",
-    "loglevel": "^1.9.2",
-    "picocolors": "^1.1.1",
-    "pretty-ms": "^9.3.0",
-    "yaml": "^2.8.2"
+    "eval:final": "vite-node src/eval/final-eval.ts"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",

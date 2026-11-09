@@ -2,76 +2,150 @@ import fs from 'fs/promises';
 import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Maze } from '@/maze/maze';
-import { Mazes } from '@/maze/mazes';
-import { settingsChangeError } from '@/gui/settings-guard';
-import { ObservableMazeSolver, type SolverState } from '@/gui/solver';
-import { createLLMClient } from '@/llm/client';
-import { DEFAULT_LLM_CONFIG, publicLLMConfig, sanitizeLLMConfig, type LLMConfig } from '@/llm/config';
 
-const root = path.dirname(fileURLToPath(import.meta.url));
-const publicDir = path.join(root, 'public');
+import { settingsChangeError } from '@/gui/settings-guard';
+import { GUI_VARIANT, ObservableMazeSolver, type SolverState } from '@/gui/solver';
+import { DEFAULT_LLM_CONFIG, sanitizeLLMConfig, type LLMConfig } from '@/llm/config';
+import { OllamaClient } from '@/llm/ollama';
+import { Maze } from '@/maze/maze';
+
+const MAZE_DIR = './mazes';
+const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const args = process.argv.slice(2);
-const option = (name: string, fallback: string): string => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] ?? fallback : fallback; };
-const cliModel = option('--model', DEFAULT_LLM_CONFIG.model);
-const cliOllamaUrl = option('--ollama-url', DEFAULT_LLM_CONFIG.baseUrl);
-let mazeFile = option('--maze', './mazes/7x7_open_empty.txt');
+const option = (name: string, fallback: string): string => (args.includes(name) ? (args[args.indexOf(name) + 1] ?? fallback) : fallback);
 const port = Number(option('--port', '4173'));
+let mazeFile = option('--maze', './mazes/7x7_open_detour.txt');
 let delayMs = 500;
-let llmConfig: LLMConfig = sanitizeLLMConfig({ ...DEFAULT_LLM_CONFIG, model: cliModel, baseUrl: cliOllamaUrl });
-let configured = args.includes('--model') || args.includes('--ollama-url') || process.env.LLM_CONFIGURED === '1';
+let llmConfig: LLMConfig = sanitizeLLMConfig({
+  ...DEFAULT_LLM_CONFIG,
+  model: option('--model', DEFAULT_LLM_CONFIG.model),
+  baseUrl: option('--ollama-url', DEFAULT_LLM_CONFIG.baseUrl),
+});
 let maze = await Maze.fromFile(mazeFile);
 let state: SolverState;
-const clients = new Set<http.ServerResponse>();
 let solver: ObservableMazeSolver;
+const clients = new Set<http.ServerResponse>();
+
 function createSolver(): void {
-  solver = new ObservableMazeSolver(maze, mazeFile, llmConfig, () => delayMs, (next) => { state = next; broadcast(); });
+  solver = new ObservableMazeSolver(
+    maze,
+    mazeFile,
+    llmConfig,
+    () => delayMs,
+    (next) => {
+      state = next;
+      broadcast();
+    },
+  );
   state = solver.state;
 }
 createSolver();
-function broadcast(): void { const data = `data: ${JSON.stringify(state)}\n\n`; for (const client of clients) client.write(data); }
-async function body(req: http.IncomingMessage): Promise<any> { let text = ''; for await (const chunk of req) text += chunk; return text ? JSON.parse(text) : {}; }
+
+function broadcast(): void {
+  const data = `data: ${JSON.stringify(state)}\n\n`;
+  for (const client of clients) client.write(data);
+}
+async function readBody(req: http.IncomingMessage): Promise<any> {
+  let text = '';
+  for await (const chunk of req) text += chunk;
+  return text ? JSON.parse(text) : {};
+}
+function json(res: http.ServerResponse, status: number, value: unknown): void {
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(value));
+}
+async function mazeFiles(): Promise<string[]> {
+  return (await fs.readdir(MAZE_DIR))
+    .filter((file) => file.endsWith('.txt'))
+    .sort()
+    .map((file) => path.join(MAZE_DIR, file));
+}
+
 async function serve(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
   const url = new URL(req.url ?? '/', `http://${req.headers.host}`);
-  if (url.pathname === '/api/mazes') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(await Mazes.all())); return; }
-  if (url.pathname === '/api/status') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ name: 'LLM Maze Solver with Adaptive Thinking', version: '3.0.0', configured, config: publicLLMConfig(llmConfig) })); return; }
-  if (url.pathname === '/api/state') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(state)); return; }
-  if (url.pathname === '/api/settings' && req.method === 'GET') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ configured, config: publicLLMConfig(llmConfig) })); return; }
+  if (url.pathname === '/api/mazes') return json(res, 200, await mazeFiles());
+  if (url.pathname === '/api/state') return json(res, 200, state);
+  if (url.pathname === '/api/settings' && req.method === 'GET') return json(res, 200, { config: llmConfig, variant: GUI_VARIANT });
   if (url.pathname === '/api/settings' && req.method === 'POST') {
-    const data = await body(req);
-    const refusal = settingsChangeError(state, llmConfig, data);
-    if (refusal) { res.writeHead(409, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ ok: false, error: refusal })); return; }
-    if (typeof data.baseUrl !== 'string' || !data.baseUrl.trim() || typeof data.model !== 'string' || !data.model.trim()) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: false, error: 'Enter an Ollama server URL and model before saving.' }));
-      return;
-    }
+    const refusal = settingsChangeError(state);
+    if (refusal) return json(res, 409, { ok: false, error: refusal });
+    const data = await readBody(req);
+    if (typeof data.baseUrl !== 'string' || !data.baseUrl.trim() || typeof data.model !== 'string' || !data.model.trim())
+      return json(res, 400, { ok: false, error: 'Enter an Ollama server URL and model before saving.' });
     llmConfig = sanitizeLLMConfig(data);
-    configured = true;
     solver.stop();
     createSolver();
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ ok: true, config: publicLLMConfig(llmConfig) }));
-    return;
+    broadcast();
+    return json(res, 200, { ok: true, config: llmConfig });
   }
-  if (url.pathname === '/api/ollama/models' && req.method === 'GET') {
-    try { const response = await fetch(`${llmConfig.baseUrl}/api/tags`); if (!response.ok) throw new Error(`Ollama returned HTTP ${response.status}.`); const data = await response.json() as { models?: Array<{ name?: string }> }; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ models: (data.models ?? []).map((model) => model.name).filter(Boolean) })); } catch (error) { res.writeHead(502, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ models: [], error: error instanceof Error ? error.message : 'Could not load Ollama models.' })); }
-    return;
+  if (url.pathname === '/api/ollama/models') {
+    try {
+      return json(res, 200, { models: await new OllamaClient(llmConfig).listModels() });
+    } catch (error) {
+      return json(res, 502, { models: [], error: error instanceof Error ? error.message : 'Could not load Ollama models.' });
+    }
   }
   if (url.pathname === '/api/llm/test' && req.method === 'POST') {
     try {
-      const data = await body(req);
-      const result = await createLLMClient(sanitizeLLMConfig(data)).testConnection();
-      res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ success: true, ...result }));
+      return json(res, 200, { success: true, message: await new OllamaClient(sanitizeLLMConfig(await readBody(req))).testConnection() });
     } catch (error) {
-      res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ success: false, message: error instanceof Error ? error.message : 'Connection test failed.' }));
+      return json(res, 400, { success: false, message: error instanceof Error ? error.message : 'Connection test failed.' });
     }
+  }
+  if (url.pathname === '/api/events') {
+    res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
+    clients.add(res);
+    res.write(`data: ${JSON.stringify(state)}\n\n`);
+    req.on('close', () => clients.delete(res));
     return;
   }
-  if (url.pathname === '/api/events') { res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' }); clients.add(res); res.write(`data: ${JSON.stringify(state)}\n\n`); req.on('close', () => clients.delete(res)); return; }
-  if (url.pathname === '/api/control' && req.method === 'POST') { const data = await body(req); if (typeof data.delayMs === 'number') delayMs = Math.max(0, Math.min(3000, data.delayMs)); if ((data.action === 'start' || data.action === 'step') && !configured) { res.writeHead(409, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ ok: false, error: 'Configure an LLM before starting the maze.' })); return; } if (data.action === 'start') solver.start(); if (data.action === 'pause') solver.pause(); if (data.action === 'resume') solver.resume(); if (data.action === 'step') solver.step(); if (data.action === 'stop') solver.stop(); if (data.action === 'reset') solver.reset(); res.end(JSON.stringify({ ok: true })); return; }
-  if (url.pathname === '/api/new-maze' && req.method === 'POST') { const data = await body(req); const files = await Mazes.find(data.pattern); const nextFile = data.file ?? files[0]; solver.stop(); mazeFile = nextFile; maze = await Maze.fromFile(mazeFile); createSolver(); broadcast(); res.end(JSON.stringify({ ok: true })); return; }
-  const requested = url.pathname === '/' ? 'index.html' : url.pathname.slice(1); const file = path.resolve(publicDir, requested); if (!file.startsWith(publicDir)) { res.writeHead(403); res.end(); return; }
-  try { const content = await fs.readFile(file); res.setHeader('Content-Type', requested.endsWith('.css') ? 'text/css' : requested.endsWith('.js') ? 'text/javascript' : 'text/html'); res.end(content); } catch { res.writeHead(404); res.end('Not found'); }
+  if (url.pathname === '/api/control' && req.method === 'POST') {
+    const data = await readBody(req);
+    if (typeof data.delayMs === 'number') delayMs = Math.max(0, Math.min(3000, data.delayMs));
+    const actions: Record<string, () => void> = {
+      start: () => solver.start(),
+      pause: () => solver.pause(),
+      resume: () => solver.resume(),
+      step: () => solver.step(),
+      stop: () => solver.stop(),
+      reset: () => solver.reset(),
+    };
+    actions[data.action]?.();
+    return json(res, 200, { ok: true });
+  }
+  if (url.pathname === '/api/new-maze' && req.method === 'POST') {
+    const data = await readBody(req);
+    if (!(await mazeFiles()).includes(data.file)) return json(res, 400, { ok: false, error: 'Unknown maze.' });
+    solver.stop();
+    mazeFile = data.file;
+    maze = await Maze.fromFile(mazeFile);
+    createSolver();
+    broadcast();
+    return json(res, 200, { ok: true });
+  }
+  const requested = url.pathname === '/' ? 'index.html' : url.pathname.slice(1);
+  const file = path.resolve(publicDir, requested);
+  if (!file.startsWith(publicDir)) {
+    res.writeHead(403);
+    res.end();
+    return;
+  }
+  try {
+    const content = await fs.readFile(file);
+    const type = { '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png' }[path.extname(file)] ?? 'text/html';
+    res.setHeader('Content-Type', type);
+    res.end(content);
+  } catch {
+    res.writeHead(404);
+    res.end('Not found');
+  }
 }
-http.createServer((req, res) => { void serve(req, res).catch((error) => { res.writeHead(500); res.end(String(error)); }); }).listen(port, () => console.log(`LLM Maze Solver with Adaptive Thinking v3.0.0: http://localhost:${port}`));
+
+http
+  .createServer((req, res) => {
+    void serve(req, res).catch((error) => {
+      res.writeHead(500);
+      res.end(String(error));
+    });
+  })
+  .listen(port, () => console.log(`LLM Maze Solver: http://localhost:${port} (Ollama ${llmConfig.model} at ${llmConfig.baseUrl})`));
