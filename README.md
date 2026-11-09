@@ -2,7 +2,7 @@
 
 A mouse looks for cheese in a maze. A small local language model (Ollama, `qwen3:1.7b`) chooses every move. It never sees the map, coordinates or numbers: only what its nose says about each direction, and how it feels, in plain words.
 
-This is the final version of the project. Earlier versions (numeric EiL and health scores, adaptive thinking, the Laya provider, and all the experiments that led here) are kept at the git tag `archive/experiments-final`. [`docs/FINDINGS.md`](docs/FINDINGS.md) summarises what those experiments showed.
+This is the final version of the project. Earlier versions, and all the experiments that led here, are kept at the git tag `archive/experiments-final`. [`docs/FINDINGS.md`](docs/FINDINGS.md) summarises what those experiments showed.
 
 ## Rules
 
@@ -30,7 +30,7 @@ The current cell gets one closeness sentence, chosen by distance: overwhelming (
 | 200–399 | anxious |
 | 0–199 | extremely depressed |
 
-Mood only describes the run; there is no health and no death. A run ends at the cheese, at the step cap of max(3 × optimal, 60) steps, or when the mouse is stuck: no new cell reached in max(50, 2 × optimal) steps.
+Mood only describes the run: it has no other effect and the mouse cannot die. A run ends at the cheese, at the step cap of max(3 × optimal, 60) steps, or when the mouse is stuck: no new cell reached in max(50, 2 × optimal) steps.
 
 ## The prompt
 
