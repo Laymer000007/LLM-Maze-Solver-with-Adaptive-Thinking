@@ -16,7 +16,7 @@
 - **Budget:** the run hit 15 minutes during seed 20261110. Levels 05 and 06 on that seed were not run for any variant, so each variant has 10 runs (cat-history's level-05 run was stopped mid-run and is not counted).
 - **Danger labels are followed only partly.** Counted over sensed steps where at least one option said "danger" and at least one did not: cat-danger chose a danger option 14 times out of 65 (22%), cat-danger-range5 12 out of 45 (27%). In 3 steps every option, STAY included, was marked danger.
 - **Of the 7 catches with danger labels,** 5 chose a danger option although another was offered: cat-danger on 01/s1, 03/s1, 06/s1 and 03/s2, and cat-danger-range5 on 03/s2. The other 2 were steps where every option said danger. Three of the catches were STAY marked "danger, next to the cat".
-- **"Danger" is measured from the cat's current cell, not where it moves next.** Several catches happened one turn after an option that looked safe.
+- **"Danger" is measured from the cat's current cell, not where it moves next**, so an option without a danger label can still end next to the cat.
 - **cat-rule and cat-history catches** are all the same pattern as before: a "warmer" option straight toward a sensed cat.
 - **"Safe when sensed" isn't comparable across sensing ranges.** cat-danger-range5 senses from five blocks, so many of its sensed steps are far from the cat.
 - **The danger variants take longer paths:** for example 45/12 and 48/16 steps, against 13/12 and 19/16 for cat-history.
