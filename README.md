@@ -55,6 +55,47 @@ Return only JSON: {"move":"up-right|left|down"}.
 
 Every request sets `think: false`, `stream: false` and temperature 0.2 (the GUI lets you change the temperature). Its `format` is a JSON schema whose `move` enum is exactly the offered directions.
 
+## Level 2: the patrolling cat
+
+Level 2 uses the same rules and smell as level 1, plus a cat. Its levels are in `mazes/level2/*.json`: each file holds a layout and the cat's start cell, patrol axis (`horizontal` or `vertical`) and starting direction.
+
+**The cat.** Each turn it moves one block along its axis. At a wall or the edge it turns around and moves one block the other way in the same turn; if both sides are blocked it stays put. It ignores the mouse and is fully deterministic. The cheese doesn't stop it.
+
+**The mouse** has the 8 directions plus `stay`. Each turn runs in this order:
+1. The mouse moves (or stays). If it is now on the cat's cell, it is caught. If it is on the cheese, it wins and the cat doesn't move.
+2. The cat moves. If it lands on the mouse, or the two swapped cells, the mouse is caught.
+3. Mood is updated: the smell change as in level 1 (`stay` counts as no change), then −200 if the cat is one block away or −100 if it is two (the penalties don't add up).
+
+A catch ends the run as failed. Otherwise the run ends at the cheese, the step cap (max(3 × shortest safe path, 60)) or the stuck rule.
+
+**Distance to the cat** is always the walking distance through open cells, under the same 8-direction rules, never through walls. The mouse senses the cat within three blocks. It is then told the cat's direction, its distance in words and its last three moves (oldest first, "stayed" for a turn without moving). It is never told the cat's next move or its axis.
+
+**Solvability.** A breadth-first search over (mouse cell, cat cell, cat direction) proves each level winnable and gives the shortest safe number of steps (`shortestSafePath` in `src/game/level2.ts`).
+
+The GUI sends the **cat-history** prompt:
+
+```text
+You are a mouse in a maze, looking for the cheese. A cat patrols the maze: it walks in a straight line, one block per move, and turns around when it hits a wall. If the cat catches you, you fail.
+Stay away from the cat first: never move next to it. Then follow the smell: always move where the smell grows stronger, and prefer much warmer over warmer.
+Being near the cat ruins your mood.
+
+Right now:
+The cheese smell is strong.
+Your mood is anxious.
+You sense the cat two blocks up-right of you. Its last three moves were left, left, right.
+
+You can go:
+DOWN: warmer, the smell grows stronger.
+STAY: no change, the smell stays the same.
+UP-RIGHT: much colder, the smell grows much weaker.
+RIGHT: warmer, the smell grows stronger.
+LEFT: colder, the smell grows weaker.
+Choose one direction.
+Return only JSON: {"move":"down|stay|up-right|right|left"}.
+```
+
+When the cat isn't sensed, the cat line reads "You can't sense the cat." The options have no mood phrase, because each option's effect on mood depends on the cat's next move, which the mouse isn't told. Two other variants exist for evaluation: **cat-facts** adds each option's distance to the cat's current cell, and **cat-position** leaves out the sentence about the cat's last moves.
+
 ## Running it
 
 Requires Node.js 24+ and an Ollama server with the model pulled (`ollama pull qwen3:1.7b`). In a clone of this repository:
@@ -64,12 +105,13 @@ npm install
 npm run gui
 ```
 
-Open <http://localhost:4173>. Under **AI Settings** you set the Ollama URL, model and temperature. The default server is `http://192.168.88.100:11434`; `npm run gui -- --ollama-url http://localhost:11434` overrides it. Choose a maze, then **Start**, or **Step** for one decision at a time.
+Open <http://localhost:4173>. Pick **Level 1** or **Level 2** and a maze for that level. Under **AI Settings** you set the Ollama URL, model and temperature. The default server is `http://192.168.88.100:11434`; `npm run gui -- --ollama-url http://localhost:11434` overrides it. Choose a maze, then **Start**, or **Step** for one decision at a time.
 
 The GUI shows:
 - the maze, with the path drawn through cell centres so diagonal moves are visible
 - the mood score and word
 - a move log: for each step, the options offered with their levels, the model's answer, whether it was valid, the mood change and the latency
+- on level 2, the cat (drawn after the mouse moves), the cat line the mouse was told, and mood penalties; STAY moves are marked with a dashed ring
 - a diagnostics panel with the exact request sent
 
 An Ollama error stops the run with a clear message; there is no fallback. Settings can't be changed while a request is in flight.
@@ -86,6 +128,13 @@ The evaluation runs in two parts, all within a 15-minute budget:
 
 It writes `benchmark-results/final/<timestamp>/report.md`.
 
+```sh
+npm run eval:level2
+npm run eval:level2 -- --compare-history
+```
+
+The first command runs the six cat levels: the free policies (greedy, which ignores the cat; the planner, which follows the safe-path search; random-legal), then cat-facts, cat-history, and cat-facts with thinking when the cat is sensed. The second compares cat-history with cat-position on two seeds. Both write to `benchmark-results/level2/`.
+
 ### Checks
 
 ```sh
@@ -98,13 +147,14 @@ npm run typecheck && npm run lint && npx vitest run
 |---|---|
 | `src/maze/maze.ts` | Maze file loading, BFS distance and smell, rotation |
 | `src/game/game.ts` | The rules: 8-direction moves, smell levels, mood, step cap and stuck rule |
-| `src/game/prompt.ts` | The prompt and Ollama request builder, and answer parsing |
+| `src/game/level2.ts` | Level 2: the cat, stay, turn order and catches, walking distance, sensing, the safe-path search |
+| `src/game/prompt.ts` | The level-1 and level-2 prompt and Ollama request builders, and answer parsing |
 | `src/game/random.ts` | Seeded RNG and shuffle |
 | `src/llm/` | Ollama client and settings |
 | `src/gui/` | The web GUI (server, solver loop, page) |
-| `src/eval/` | The final evaluation |
-| `mazes/` | Maze files: `#` wall, `S` start, `G` cheese |
+| `src/eval/` | The level-1 and level-2 evaluations |
+| `mazes/` | Maze files: `#` wall, `S` start, `G` cheese; `mazes/level2/` adds the cat |
 
 ## Results
 
-See the latest report in `benchmark-results/final/` and the summary of earlier experiments in [`docs/FINDINGS.md`](docs/FINDINGS.md).
+See the latest reports in `benchmark-results/final/` and `benchmark-results/level2/` and the summary of earlier experiments in [`docs/FINDINGS.md`](docs/FINDINGS.md).

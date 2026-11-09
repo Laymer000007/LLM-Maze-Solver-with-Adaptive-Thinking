@@ -86,6 +86,35 @@ A read-only look at the server (6 of 12 threads, context 4096, one parallel slot
 
 Most of the time is reading the prompt, so short prompts are faster. A fixed opening lets Ollama reuse the cached start of the prompt (`prompt_eval_cached_count` in the response).
 
+## Level 2: the patrolling cat
+
+Six cat levels (7×7 to 15×15). A cat walks one block per turn along a fixed axis and bounces off walls. The mouse senses it within three blocks of walking distance and is caught if they meet. Full reports are in `benchmark-results/level2/`.
+
+### First evaluation (one seed per level)
+
+| Policy | Completed | Caught | Steps / shortest safe (completed) | Safe choices when the cat was sensed | −100 / −200 penalties | Latency mean / p95 |
+|---|---:|---:|---|---:|---:|---:|
+| greedy (ignores the cat) | 0/6 | 6 | — | 18% | 5 / 3 | — |
+| planner (safe-path search) | 6/6 | 0 | all optimal | 90% | 23 / 1 | — |
+| random-legal | 0/6 | 3 | — | 63% | 5 / 4 | — |
+| cat-facts (B) | 2/6 | 4 | 9/8, 17/12 | 57% | 5 / 5 | 965 / 1774 ms |
+| **cat-history (A)** | **5/6** | 1 | 7/7, 8/8, 16/12, 13/12, 19/16 | 84% | 22 / 3 | 970 / 1408 ms |
+| cat-facts + thinking when sensed | 0/1 (dropped) | 0 | — | 4/7 | 1 / 3 | 59.7 s when sensed |
+
+- **Per-option cat facts made it worse.** Variant B adds "…, one block from where the cat is now" to each option. It completed 2/6 against A's 5/6. All four of its catches were moves its own prompt had labelled "where the cat is now" or "one block from where the cat is now". The extra phrases seem to be read as more text next to "warmer", not as a warning.
+- **Thinking timed out.** With `think: true` on sensed steps, every request hit the 60 s timeout. After three in a row the run was aborted, and the variant was dropped to stay within the 15-minute budget.
+
+### Cat history (A) vs cat position only (A0), two seeds
+
+A0 is A without the sentence about the cat's last three moves.
+
+| Variant | Completed | Caught | Safe when sensed | Latency mean |
+|---|---:|---:|---:|---:|
+| cat-history (A) | 7/12 | 5 | 79% | 936 ms |
+| cat-position (A0) | 6/12 | 6 | 77% | 862 ms |
+
+The history sentence helps little, if at all. The bigger pattern is the same in both variants: **every catch came from choosing a "warmer" option toward the cat** (straight at it, or within 45°), with the cat one or two blocks away. Smell still beats the "stay away from the cat first" rule for this model. Results also vary from run to run even at temperature 0.2: A completed 5/6 in the first evaluation and 4/6 on the same seed here. The GUI uses cat-history.
+
 ## What went into the final version
 
 - Words only, no digits; legal directions only, shuffled every step with a seeded RNG.
