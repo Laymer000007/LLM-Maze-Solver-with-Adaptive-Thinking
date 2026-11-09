@@ -81,3 +81,50 @@ describe('GUI solver', () => {
     expect(solver.state.current).toEqual({ x: 1, y: 1 });
   });
 });
+
+describe('GUI solver, level 2', () => {
+  const WAIT = ['#####', '#S G#', '## ##', '## ##', '#####'];
+  const cat = { position: { x: 2, y: 2 }, direction: 'up' } as const;
+
+  function play(answers: string[]): Promise<{ state: SolverState; bodies: any[] }> {
+    const bodies: any[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_url: string, init: RequestInit) => {
+        bodies.push(JSON.parse(String(init.body)));
+        return new Response(JSON.stringify({ message: { content: JSON.stringify({ move: answers[bodies.length - 1] }) } }), { status: 200 });
+      }),
+    );
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('solver did not finish')), 5000);
+      const solver = new ObservableMazeSolver(new Maze(WAIT), 'level2.json', config, () => 0, (state) => {
+        if (state.status === 'SOLVED' || state.status === 'FAILED') {
+          clearTimeout(timer);
+          resolve({ state, bodies });
+        }
+      }, cat);
+      solver.start();
+    });
+  }
+
+  it('waits with STAY, moves the cat after the mouse, and wins', async () => {
+    const { state, bodies } = await play(['stay', 'stay', 'right', 'right']);
+    expect(state).toMatchObject({ level: 2, status: 'SOLVED', step: 4, current: { x: 3, y: 1 } });
+    expect(bodies[0].messages[0].content).toContain('A cat patrols the maze');
+    expect(bodies[0].messages[0].content).toContain("You sense the cat two blocks down-right of you. It hasn't moved yet.");
+    expect(bodies[0].format.properties.move.enum).toContain('stay');
+    const log = [...state.moveLog].reverse();
+    expect(log[0]).toMatch(/cat \(2,2\) → \(2,1\) \(up\)/);
+    expect(log[0]).toMatch(/answer: STAY \(stays put\)/);
+    expect(log[0]).toMatch(/cat: sensed, 2 blocks down-right · told: "You sense the cat two blocks down-right of you\. It hasn't moved yet\."/);
+    expect(log[0]).toMatch(/smell 0, cat -200/);
+  });
+
+  it('fails with a clear message when the cat catches the mouse', async () => {
+    const { state } = await play(['right']);
+    expect(state.status).toBe('FAILED');
+    expect(state.error).toBe('The cat caught the mouse.');
+    expect(state.moveLog[0]).toMatch(/CAUGHT: the cat landed on the mouse/);
+    expect(state.cat).toEqual({ x: 2, y: 1 });
+  });
+});

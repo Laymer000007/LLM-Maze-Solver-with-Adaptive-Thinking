@@ -3,13 +3,15 @@ import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { loadLevel2, type CatState } from '@/game/level2';
 import { settingsChangeError } from '@/gui/settings-guard';
-import { GUI_VARIANT, ObservableMazeSolver, type SolverState } from '@/gui/solver';
+import { GUI_VARIANT, LEVEL2_VARIANT, ObservableMazeSolver, type SolverState } from '@/gui/solver';
 import { DEFAULT_LLM_CONFIG, sanitizeLLMConfig, type LLMConfig } from '@/llm/config';
 import { OllamaClient } from '@/llm/ollama';
 import { Maze } from '@/maze/maze';
 
-const MAZE_DIR = './mazes';
+const MAZE_DIRS = { 1: { dir: './mazes', ext: '.txt' }, 2: { dir: './mazes/level2', ext: '.json' } } as const;
+type LevelNumber = keyof typeof MAZE_DIRS;
 const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const args = process.argv.slice(2);
 const option = (name: string, fallback: string): string => (args.includes(name) ? (args[args.indexOf(name) + 1] ?? fallback) : fallback);
@@ -21,7 +23,10 @@ let llmConfig: LLMConfig = sanitizeLLMConfig({
   model: option('--model', DEFAULT_LLM_CONFIG.model),
   baseUrl: option('--ollama-url', DEFAULT_LLM_CONFIG.baseUrl),
 });
-let maze = await Maze.fromFile(mazeFile);
+let level: LevelNumber = 1;
+let maze: Maze;
+let cat: CatState | null = null;
+await loadMaze(mazeFile);
 let state: SolverState;
 let solver: ObservableMazeSolver;
 const clients = new Set<http.ServerResponse>();
@@ -36,6 +41,7 @@ function createSolver(): void {
       state = next;
       broadcast();
     },
+    cat,
   );
   state = solver.state;
 }
@@ -54,18 +60,26 @@ function json(res: http.ServerResponse, status: number, value: unknown): void {
   res.writeHead(status, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(value));
 }
-async function mazeFiles(): Promise<string[]> {
-  return (await fs.readdir(MAZE_DIR))
-    .filter((file) => file.endsWith('.txt'))
-    .sort()
-    .map((file) => path.join(MAZE_DIR, file));
+async function loadMaze(file: string): Promise<void> {
+  if (file.endsWith('.json')) {
+    const loaded = await loadLevel2(file);
+    [level, maze, cat] = [2, loaded.maze, loaded.cat];
+  } else [level, maze, cat] = [1, await Maze.fromFile(file), null];
 }
+async function mazeFiles(forLevel: LevelNumber): Promise<string[]> {
+  const { dir, ext } = MAZE_DIRS[forLevel];
+  return (await fs.readdir(dir))
+    .filter((file) => file.endsWith(ext))
+    .sort()
+    .map((file) => path.join(dir, file));
+}
+const levelParam = (value: unknown): LevelNumber => (String(value) === '2' ? 2 : 1);
 
 async function serve(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
   const url = new URL(req.url ?? '/', `http://${req.headers.host}`);
-  if (url.pathname === '/api/mazes') return json(res, 200, await mazeFiles());
+  if (url.pathname === '/api/mazes') return json(res, 200, await mazeFiles(levelParam(url.searchParams.get('level') ?? level)));
   if (url.pathname === '/api/state') return json(res, 200, state);
-  if (url.pathname === '/api/settings' && req.method === 'GET') return json(res, 200, { config: llmConfig, variant: GUI_VARIANT });
+  if (url.pathname === '/api/settings' && req.method === 'GET') return json(res, 200, { config: llmConfig, variants: { 1: GUI_VARIANT, 2: LEVEL2_VARIANT } });
   if (url.pathname === '/api/settings' && req.method === 'POST') {
     const refusal = settingsChangeError(state);
     if (refusal) return json(res, 409, { ok: false, error: refusal });
@@ -115,10 +129,10 @@ async function serve(req: http.IncomingMessage, res: http.ServerResponse): Promi
   }
   if (url.pathname === '/api/new-maze' && req.method === 'POST') {
     const data = await readBody(req);
-    if (!(await mazeFiles()).includes(data.file)) return json(res, 400, { ok: false, error: 'Unknown maze.' });
+    if (!(await mazeFiles(levelParam(data.level))).includes(data.file)) return json(res, 400, { ok: false, error: 'Unknown maze.' });
     solver.stop();
     mazeFile = data.file;
-    maze = await Maze.fromFile(mazeFile);
+    await loadMaze(mazeFile);
     createSolver();
     broadcast();
     return json(res, 200, { ok: true });

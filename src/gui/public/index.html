@@ -20,17 +20,17 @@
     <a class="button secondary" href="/settings.html">AI Settings</a>
     <button id="start">Start</button><button id="pause">Pause</button><button id="resume">Resume</button><button id="step">Step</button>
     <button id="stop" class="danger">Stop</button><button id="reset" class="secondary">Reset</button>
-    <label class="maze-picker">Maze <select id="mazeSelect"></select><button id="loadMaze" class="secondary">Load Maze</button></label>
+    <label class="maze-picker">Level <select id="levelSelect"><option value="1">Level 1</option><option value="2">Level 2: the cat</option></select> Maze <select id="mazeSelect"></select><button id="loadMaze" class="secondary">Load Maze</button></label>
     <label>Delay <input id="delay" type="range" min="0" max="3000" step="50" value="500"><output id="delayValue">500 ms</output></label>
   </section>
   <div class="workspace">
     <section class="card maze-card">
       <div class="section-title"><span>MAZE VIEW</span><span id="mazeName"></span></div>
       <canvas id="maze" aria-label="Maze visualization"></canvas>
-      <div class="legend"><span><i class="swatch start"></i>Start</span><span><i class="swatch goal"></i>Cheese</span><span><i class="swatch agent"></i>Mouse</span><span><i class="swatch path"></i>Path</span><span><i class="swatch blocked"></i>Invalid answer</span></div>
+      <div class="legend"><span><i class="swatch start"></i>Start</span><span><i class="swatch goal"></i>Cheese</span><span><i class="swatch agent"></i>Mouse</span><span><i class="swatch path"></i>Path</span><span><i class="swatch cat"></i>Cat (level 2)</span><span><i class="swatch blocked"></i>Invalid answer</span><span><i class="swatch stay"></i>Stayed</span></div>
     </section>
     <aside>
-      <section class="card"><div class="section-title">MOOD</div><div class="statgrid"><div class="stat"><small>SCORE</small><b id="moodScore">500 / 1000</b></div><div class="stat"><small>MOOD</small><b id="moodWord">normal</b></div><div class="stat"><small>LAST CHANGE</small><b id="moodChange">—</b></div><div class="stat"><small>SMELL</small><b id="closeness">—</b></div></div></section>
+      <section class="card"><div class="section-title">MOOD</div><div class="statgrid"><div class="stat"><small>SCORE</small><b id="moodScore">500 / 1000</b></div><div class="stat"><small>MOOD</small><b id="moodWord">normal</b></div><div class="stat"><small>LAST CHANGE</small><b id="moodChange">—</b></div><div class="stat"><small>SMELL</small><b id="closeness">—</b></div></div><div id="catBox" class="cat-box" hidden><small>THE CAT (AS TOLD TO THE MOUSE)</small><p id="catLine">—</p><small>CAT PENALTY LAST STEP</small><b id="catPenalty">—</b></div></section>
       <section class="card stats"><div class="section-title">RUN</div><div class="statgrid" id="stats"></div></section>
       <section class="card"><div class="section-title">LATEST STEP</div><div class="activity">
         <div><small>OPTIONS OFFERED</small><pre id="offered">—</pre></div>

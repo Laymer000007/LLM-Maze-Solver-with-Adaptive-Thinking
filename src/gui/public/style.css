@@ -4,3 +4,4 @@ select{background:#0c1522;color:#e7edf5;border:1px solid var(--line);border-radi
 .ai-indicator{color:var(--cyan);font-size:12px;font-weight:800;text-align:right;margin-bottom:8px}.settings-card select{width:100%;background:#0c1522;color:#e7edf5;border:1px solid var(--line);border-radius:7px;padding:11px 12px;font:inherit}
 
 .lower .log{height:300px}.lower .log.short{height:70px}
+.cat{background:#ff9f43}.stay{background:transparent;border:2px dashed #ffda79}.cat-box{margin-top:13px;padding:11px;background:#0c1522;border-radius:7px}.cat-box p{margin:5px 0 9px;color:#e7edf5}

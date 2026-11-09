@@ -17,18 +17,31 @@ $('delay').oninput = () => {
 };
 
 async function loadMazes() {
-  const files = await (await fetch('/api/mazes')).json();
+  const files = await (await fetch(`/api/mazes?level=${$('levelSelect').value}`)).json();
   $('mazeSelect').innerHTML = files.map((file) => `<option value="${file}">${file}</option>`).join('');
-  if (latest) $('mazeSelect').value = latest.mazeFile;
+  if (latest && files.includes(latest.mazeFile)) $('mazeSelect').value = latest.mazeFile;
 }
-$('loadMaze').onclick = () => fetch('/api/new-maze', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ file: $('mazeSelect').value }) });
-loadMazes();
+$('levelSelect').onchange = () => loadMazes();
+$('loadMaze').onclick = () =>
+  fetch('/api/new-maze', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ level: $('levelSelect').value, file: $('mazeSelect').value }) });
+let variants = {};
+let firstState = true;
 
 const seconds = (ms) => `${(ms / 1000).toFixed(1)} s`;
 const label = (direction) => direction.toUpperCase();
 
 function render(s) {
+  if (firstState) {
+    firstState = false;
+    $('levelSelect').value = String(s.level);
+    loadMazes();
+  }
+  if (latest && latest.mazeFile !== s.mazeFile) catFrom = catTo = null;
   latest = s;
+  $('aiIndicator').textContent = variants[s.level] ? `AI: Ollama / ${variants.model} · level ${s.level} · prompt: ${variants[s.level]}` : 'AI: —';
+  $('catBox').hidden = s.level !== 2;
+  $('catLine').textContent = s.catLine || '—';
+  $('catPenalty').textContent = s.lastCatPenalty === null ? '—' : String(s.lastCatPenalty);
   $('status').textContent = s.status;
   $('status').className = `badge ${s.status.toLowerCase()}`;
   $('mazeName').textContent = s.mazeFile;
@@ -37,7 +50,7 @@ function render(s) {
   $('moodChange').textContent = s.lastMoodChange === null ? '—' : `${s.lastMoodChange > 0 ? '+' : ''}${s.lastMoodChange}`;
   $('closeness').textContent = s.closeness.replace('The cheese smell is ', '').replace(/\.$/, '');
   $('offered').textContent = s.offered.length ? s.offered.map((o) => `${label(o.direction)}: ${o.level}`).join('\n') : '—';
-  $('answer').textContent = s.lastAnswer ? label(s.lastAnswer) : '—';
+  $('answer').textContent = s.lastAnswer ? (s.stayed ? 'STAY (stays put)' : label(s.lastAnswer)) : '—';
   $('error').textContent = s.error || '—';
   $('prompt').textContent = s.prompt || '—';
   $('response').textContent = s.response || '—';
@@ -45,7 +58,7 @@ function render(s) {
   const stats = [
     ['POSITION', `(${s.current.x}, ${s.current.y})`],
     ['STEP', `${s.step} / ${s.stepCap}`],
-    ['OPTIMAL', s.optimal],
+    [s.level === 2 ? 'SHORTEST SAFE' : 'OPTIMAL', s.optimal],
     ['CELLS VISITED', s.visited.length],
     ['INVALID ANSWERS', s.invalidMoves],
     ['ELAPSED', seconds(s.elapsedMs)],
@@ -92,7 +105,75 @@ function draw(s) {
     ctx.lineWidth = 3;
     ctx.strokeRect(ox + s.current.x * cell + 2, oy + s.current.y * cell + 2, cell - 4, cell - 4);
   }
+  if (s.stayed) {
+    ctx.strokeStyle = '#ffda79';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.arc(...center(s.current), cell * 0.45, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
   if (!drawSprite(mouseSprite, center(s.current), cell)) marker(center(s.current), cell, '#5de4d1', 'M');
+  if (s.cat) drawCat(catPosition(s.cat), cell, ox, oy);
+}
+
+// The cat glides from its last drawn cell to the new one after the mouse has moved.
+let catFrom = null;
+let catTo = null;
+let catStart = 0;
+const CAT_GLIDE_MS = 250;
+function catPosition(cat) {
+  if (!catTo || catTo.x !== cat.x || catTo.y !== cat.y) {
+    catFrom = catTo ?? cat;
+    catTo = { ...cat };
+    catStart = performance.now();
+    requestAnimationFrame(function tick() {
+      if (latest) draw(latest);
+      if (performance.now() - catStart < CAT_GLIDE_MS) requestAnimationFrame(tick);
+    });
+  }
+  const t = Math.min(1, (performance.now() - catStart) / CAT_GLIDE_MS);
+  return { x: catFrom.x + (catTo.x - catFrom.x) * t, y: catFrom.y + (catTo.y - catFrom.y) * t };
+}
+
+/** A simple, generic cat face drawn with canvas shapes: round head, pointed ears, eyes, nose and whiskers. */
+function drawCat(p, cell, ox, oy) {
+  const x = ox + (p.x + 0.5) * cell;
+  const y = oy + (p.y + 0.5) * cell;
+  const r = cell * 0.3;
+  ctx.fillStyle = '#ff9f43';
+  ctx.beginPath();
+  ctx.moveTo(x - r * 0.95, y - r * 0.2);
+  ctx.lineTo(x - r * 0.75, y - r * 1.25);
+  ctx.lineTo(x - r * 0.2, y - r * 0.8);
+  ctx.moveTo(x + r * 0.95, y - r * 0.2);
+  ctx.lineTo(x + r * 0.75, y - r * 1.25);
+  ctx.lineTo(x + r * 0.2, y - r * 0.8);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#07121a';
+  for (const dx of [-0.38, 0.38]) {
+    ctx.beginPath();
+    ctx.ellipse(x + dx * r, y - r * 0.15, r * 0.11, r * 0.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.moveTo(x - r * 0.12, y + r * 0.2);
+  ctx.lineTo(x + r * 0.12, y + r * 0.2);
+  ctx.lineTo(x, y + r * 0.35);
+  ctx.fill();
+  ctx.strokeStyle = '#07121a';
+  ctx.lineWidth = Math.max(1, cell * 0.02);
+  for (const side of [-1, 1])
+    for (const dy of [0.25, 0.45]) {
+      ctx.beginPath();
+      ctx.moveTo(x + side * r * 0.3, y + r * dy);
+      ctx.lineTo(x + side * r * 1.2, y + r * (dy - 0.1 + (dy - 0.35)));
+      ctx.stroke();
+    }
 }
 
 function marker([x, y], cell, color, text) {
@@ -119,5 +200,8 @@ window.onresize = () => latest && draw(latest);
 mouseSprite.onload = cheeseSprite.onload = () => latest && draw(latest);
 fetch('/api/settings')
   .then((r) => r.json())
-  .then(({ config, variant }) => ($('aiIndicator').textContent = `AI: Ollama / ${config.model} · prompt: ${variant}`))
+  .then(({ config, variants: v }) => {
+    variants = { ...v, model: config.model };
+    if (latest) render(latest);
+  })
   .catch(() => {});
