@@ -146,7 +146,7 @@ async function serve(req: http.IncomingMessage, res: http.ServerResponse): Promi
   }
   try {
     const content = await fs.readFile(file);
-    const type = { '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png' }[path.extname(file)] ?? 'text/html';
+    const type = { '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.svg': 'image/svg+xml' }[path.extname(file)] ?? 'text/html';
     res.setHeader('Content-Type', type);
     res.end(content);
   } catch {
