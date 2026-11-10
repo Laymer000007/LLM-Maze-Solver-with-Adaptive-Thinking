@@ -92,7 +92,7 @@ export function optimalSteps(maze: Maze): number {
   throw new Error('The cheese cannot be reached from the start.');
 }
 
-export const stepCapFor = (optimal: number) => Math.max(3 * optimal, 60);
+export const stepCapFor = (optimal: number) => Math.max(3 * optimal, 100);
 /** Stuck: no new cell reached for this many steps. */
 export const stuckWindowFor = (optimal: number) => Math.max(50, 2 * optimal);
 

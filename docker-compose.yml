@@ -1,0 +1,35 @@
+# Optional: the maze solver plus Ollama, no local installs needed. Start with `docker compose up`, then open
+# http://localhost:4173. The first start pulls qwen3:1.7b (about 1.4 GB) into the ollama volume.
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama:/root/.ollama
+    healthcheck:
+      test: ['CMD', 'ollama', 'list']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Pulls the model once; later starts find it in the volume and finish at once.
+  ollama-pull:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ['ollama', 'pull', 'qwen3:1.7b']
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  app:
+    build: .
+    environment:
+      OLLAMA_URL: http://ollama:11434
+    ports:
+      - '4173:4173'
+    depends_on:
+      ollama-pull:
+        condition: service_completed_successfully
+
+volumes:
+  ollama:

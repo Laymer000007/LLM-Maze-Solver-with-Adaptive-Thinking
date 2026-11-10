@@ -4,8 +4,14 @@ export type LLMConfig = {
   temperature: number;
 };
 
+/** Ollama on this machine; override with the OLLAMA_URL environment variable or in AI Settings. */
+export const DEFAULT_OLLAMA_URL = 'http://localhost:11434';
+
+/** The Ollama URL from OLLAMA_URL, or the local default. */
+export const configuredOllamaUrl = (env: Record<string, string | undefined> = process.env) => env.OLLAMA_URL?.trim() || DEFAULT_OLLAMA_URL;
+
 export const DEFAULT_LLM_CONFIG: LLMConfig = {
-  baseUrl: 'http://192.168.88.100:11434',
+  baseUrl: DEFAULT_OLLAMA_URL,
   model: 'qwen3:1.7b',
   temperature: 0.2,
 };

@@ -2,7 +2,7 @@
 
 This summarises what the experiments before the final version showed. Every harness, raw result and report behind it lives at the git tag **`archive/experiments-final`** (folder `benchmark-results/` and `src/benchmark/` there). The final evaluation is in `benchmark-results/final/`.
 
-All runs used Ollama `qwen3:1.7b` (temperature 0.2) on a small home server, and, until it was removed, the Laya API. Smell was always 101 − BFS distance to the cheese, so "toward stronger smell" means "along a shortest path". Mazes: `7x7_corridor_branch`, `7x7_open_detour`, `11x11_corridor_dead-end` and `15x15_corridor_spiral`, each in its original and rotate-180 orientation. Step cap max(3 × optimal, 60), stuck after max(50, 2 × optimal) steps without a new cell. All experiments then used 4 directions; the final game uses 8.
+All runs used Ollama `qwen3:1.7b` (temperature 0.2) on a small home server, and, until it was removed, the Laya API. Smell was always 101 − BFS distance to the cheese, so "toward stronger smell" means "along a shortest path". Mazes: `7x7_corridor_branch`, `7x7_open_detour`, `11x11_corridor_dead-end` and `15x15_corridor_spiral`, each in its original and rotate-180 orientation. Step cap max(3 × optimal, 60), stuck after max(50, 2 × optimal) steps without a new cell (the game now uses a floor of 100 instead of 60). All experiments then used 4 directions; the final game uses 8.
 
 ## 1. Numbers vs words
 
@@ -88,7 +88,7 @@ Most of the time is reading the prompt, so short prompts are faster. A fixed ope
 
 ## Level 2: the patrolling cat
 
-Six cat levels (7×7 to 15×15). A cat walks one block per turn along a fixed axis and bounces off walls. The mouse senses it within three blocks of walking distance and is caught if they meet. Full reports are in `benchmark-results/level2/`.
+Six cat levels (7×7 to 15×15). A cat walks one block per turn along a fixed axis and bounces off walls. The mouse senses it within three blocks of walking distance and is caught if they meet. Full reports are in `benchmark-results/level2/`. The runs up to the E5/F5 comparison used a step-cap floor of 60; the game now uses max(3 × shortest safe, 100).
 
 ### First evaluation (one seed per level)
 
@@ -167,6 +167,26 @@ Two seeds; seed 20261110's levels 05 and 06 did not fit, so each variant has 10 
 - C5 completed 5/6 on seed 1, the same levels as in the previous comparison. Results still vary between runs, so differences of one or two runs are weak.
 
 **The GUI uses C5** (cat-danger-range5, sensing within five blocks). Neither E5 nor F5 completed at least as many levels as C5 with fewer catches.
+
+### Big maps (30x30 to 50x50)
+
+Six generated maps (`src/tools/generate-big-level2.ts`): corridors with loops, junctions and some open areas, two each of 30x30, 40x40 and 50x50. Each is proven winnable by the safe-path search. Each has a cat patrol line of at least three cells that crosses a shortest route, with a way round it (start and cheese stay connected with the patrol line walled off). On all six, the cat-ignoring greedy policy is caught. Step cap max(3 × shortest safe, 100). One seed (20261109), 13.5 minutes.
+
+| Map | Shortest safe (ignoring the cat) | Greedy | Planner | C5 |
+|---|---:|---|---|---|
+| 07_30x30_loops_a | 40 (40) | caught @35 | solved 40 | step cap 120 |
+| 08_30x30_loops_b | 56 (40) | caught @24 | solved 56 | step cap 168 |
+| 09_40x40_loops_a | 93 (85) | caught @60 | solved 93 | caught @190 |
+| 10_40x40_loops_b | 95 (69) | caught @8 | solved 95 | step cap 285 |
+| 11_50x50_loops_a | 59 (58) | caught @20 | solved 59 | caught @66 |
+| 12_50x50_loops_b | 67 (60) | caught @53 | solved 67 | step cap 201 |
+
+**C5 solved none of the big maps.** It was caught twice and ran out of steps four times; mean latency was 773 ms.
+- **Navigation is the limit.** On steps with no cat sensed, C5 chose colder 12% of the time and something other than the warmest option, when a warmer one was offered, 49%. On the small maps that drift was survivable; on long routes with dead ends it was not. Only on 07 did it get within two steps of the cheese. On four maps it never got past "faint" (more than ten steps away).
+- **Map 10 has its cat close to the start.** C5 had the cat sensed on 216 of its 285 steps there and never got away from it.
+- **Both catches were danger options chosen while a non-danger one was offered:** STAY marked danger on 09, and RIGHT marked danger on 11.
+
+Smell following, not cat avoidance, is what fails first on big maps.
 
 ## What went into the final version
 

@@ -6,6 +6,8 @@
     "node": ">=24.0.0"
   },
   "scripts": {
+    "start": "vite-node src/gui/server.ts -- --open",
+    "doctor": "node scripts/doctor.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",

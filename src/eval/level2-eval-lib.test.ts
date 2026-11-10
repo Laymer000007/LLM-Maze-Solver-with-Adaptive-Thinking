@@ -17,29 +17,53 @@ import {
   type Level2Run,
   type Level2StepRecord,
 } from '@/eval/level2-eval-lib';
-import { optimalSteps } from '@/game/game';
+import { optimalSteps, step } from '@/game/game';
 import { shortestSafePath, target, walkingDistance, type Level2Game, type Move, type Option2 } from '@/game/level2';
+import { Maze, type Position } from '@/maze/maze';
 
 const ROOT = path.resolve(__dirname, '../..');
 const entries = async () => Promise.all((await level2Files(ROOT)).map((file) => level2Entry(ROOT, file)));
 
 describe('level-2 mazes', () => {
-  it('are six winnable levels from about 7x7 up to 15x15', async () => {
+  it('are twelve winnable levels: six from 7x7 to 15x15, then two each of 30x30, 40x40 and 50x50', async () => {
     const all = await entries();
-    expect(all).toHaveLength(6);
-    const sizes = all.map((e) => e.newGame().maze.width);
-    expect(Math.min(...sizes)).toBe(7);
-    expect(Math.max(...sizes)).toBeGreaterThanOrEqual(15);
+    expect(all.map((e) => e.newGame().maze.width)).toEqual([7, 7, 11, 11, 11, 15, 30, 30, 40, 40, 50, 50]);
     for (const entry of all) {
       const game = entry.newGame();
+      expect(game.maze.height).toBe(game.maze.width);
       expect(shortestSafePath(game.maze, game.position, game.cat)).toHaveLength(game.shortestSafe);
       expect(game.shortestSafe).toBeGreaterThanOrEqual(optimalSteps(game.maze));
     }
   });
 
-  it('put the cat in the way: the cat-ignoring greedy policy is caught on at least half of them', async () => {
+  it('give every cat a patrol line of at least three cells that crosses a shortest route', async () => {
+    for (const entry of await entries()) {
+      const { maze, cat } = entry.newGame();
+      const axis = cat.direction === 'left' || cat.direction === 'right' ? (['left', 'right'] as const) : (['up', 'down'] as const);
+      const line = [cat.position];
+      for (const direction of axis) for (let c = step(cat.position, direction); maze.isWalkable(c); c = step(c, direction)) line.push(c);
+      expect(line.length, entry.id).toBeGreaterThanOrEqual(3);
+      const optimal = optimalSteps(maze);
+      const onRoute = (p: Position) => walkingDistance(maze, maze.startPosition, p) + walkingDistance(maze, p, maze.goalPosition) === optimal;
+      expect(line.some(onRoute), entry.id).toBe(true);
+    }
+  });
+
+  it('leave a way round the cat on the big maps: start and cheese stay connected with the patrol line walled off', async () => {
+    for (const entry of (await entries()).slice(6)) {
+      const { maze, cat } = entry.newGame();
+      const axis = cat.direction === 'left' || cat.direction === 'right' ? (['left', 'right'] as const) : (['up', 'down'] as const);
+      const line = new Set([`${cat.position.x},${cat.position.y}`]);
+      for (const direction of axis) for (let c = step(cat.position, direction); maze.isWalkable(c); c = step(c, direction)) line.add(`${c.x},${c.y}`);
+      const blocked = new Maze(maze.layout.map((row, y) => [...row].map((c, x) => (line.has(`${x},${y}`) ? '#' : c)).join('')));
+      expect(() => optimalSteps(blocked), entry.id).not.toThrow();
+    }
+  });
+
+  it('put the cat in the way: the cat-ignoring greedy policy is caught on at least half of them, and of the big maps', async () => {
     const runs = await Promise.all((await entries()).map((entry) => runLevel2(entry, greedyPolicy, LEVEL2_SEED)));
-    expect(runs.filter((run) => run.status === 'caught').length).toBeGreaterThanOrEqual(3);
+    expect(runs.filter((run) => run.status === 'caught').length).toBeGreaterThanOrEqual(6);
+    expect(runs.slice(6).filter((run) => run.status === 'caught').length).toBeGreaterThanOrEqual(3);
   });
 
   it('are won by the planner in exactly the shortest safe number of steps', async () => {
@@ -48,7 +72,7 @@ describe('level-2 mazes', () => {
       expect(run).toMatchObject({ status: 'solved', invalid: 0 });
       expect(run.steps).toBe(run.shortestSafe);
     }
-  });
+  }, 30_000); // the planner searches the whole state space on every step of the big maps
 
   it('play random-legal deterministically and never invalidly', async () => {
     for (const entry of await entries()) {
@@ -114,7 +138,7 @@ describe('level-2 scoring', () => {
       status,
       steps: records.length,
       shortestSafe: 2,
-      stepCap: 60,
+      stepCap: 100,
       invalid: 0,
       finalMood: 500,
       catchCase: null,

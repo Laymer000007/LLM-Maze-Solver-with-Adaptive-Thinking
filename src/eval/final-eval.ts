@@ -23,7 +23,7 @@ import {
 } from '@/eval/final-eval-lib';
 import { Game } from '@/game/game';
 import { buildRequest, type Variant } from '@/game/prompt';
-import { DEFAULT_LLM_CONFIG } from '@/llm/config';
+import { DEFAULT_LLM_CONFIG, configuredOllamaUrl } from '@/llm/config';
 import { OllamaClient } from '@/llm/ollama';
 import { Maze } from '@/maze/maze';
 
@@ -35,7 +35,7 @@ const option = (name: string, fallback: string) => (args.includes(name) ? args[a
 const SEED = Number(option('--seed', '20261109'));
 const SITUATIONS = Number(option('--situations', '200'));
 const BUDGET_MS = Number(option('--time-budget-min', '15')) * 60_000;
-const BASE_URL = process.env.OLLAMA_URL ?? DEFAULT_LLM_CONFIG.baseUrl;
+const BASE_URL = configuredOllamaUrl();
 const MODEL = process.env.OLLAMA_MODEL ?? DEFAULT_LLM_CONFIG.model;
 
 const started = performance.now();
@@ -178,7 +178,7 @@ function report(
     '',
     '## Mazes',
     '',
-    `Entries: ${entries.map((e) => e.id).join(', ')}. One seed per entry. Step cap max(3 × optimal, 60) with optimal by BFS under the 8-direction rules; stuck when no new cell for max(50, 2 × optimal) steps.`,
+    `Entries: ${entries.map((e) => e.id).join(', ')}. One seed per entry. Step cap max(3 × optimal, 100) with optimal by BFS under the 8-direction rules; stuck when no new cell for max(50, 2 × optimal) steps.`,
     '',
   );
   lines.push('| Policy | Completed | Steps / optimal (completed runs) | Invalid answers | Final mood (mean) | Mean latency |', '|---|---:|---|---:|---:|---:|');
