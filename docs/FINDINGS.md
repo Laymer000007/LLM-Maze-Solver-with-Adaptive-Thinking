@@ -113,7 +113,60 @@ A0 is A without the sentence about the cat's last three moves.
 | cat-history (A) | 7/12 | 5 | 79% | 936 ms |
 | cat-position (A0) | 6/12 | 6 | 77% | 862 ms |
 
-The history sentence helps little, if at all. The bigger pattern is the same in both variants: **every catch came from choosing a "warmer" option toward the cat** (straight at it, or within 45°), with the cat one or two blocks away. Smell still beats the "stay away from the cat first" rule for this model. Results also vary from run to run even at temperature 0.2: A completed 5/6 in the first evaluation and 4/6 on the same seed here. The GUI uses cat-history.
+The history sentence helps little, if at all. The bigger pattern is the same in both variants: **every catch came from choosing a "warmer" option toward the cat** (straight at it, or within 45°), with the cat one or two blocks away. Smell still beats the "stay away from the cat first" rule for this model. Results also vary from run to run even at temperature 0.2: A completed 5/6 in the first evaluation and 4/6 on the same seed here.
+
+### Safety rule and danger labels (A, A-rule, C, C5)
+
+Each variant changes one thing from the one before it:
+- **A-rule** replaces A's rule line with "If you sense the cat, safety comes first. If an option says danger, never choose it, even if it is warmer. Follow the smell only among the other options."
+- **C** adds a part at the start of each option while the cat is sensed: "danger, next to the cat" (one block or less from the cat's current cell), "closer to the cat", "further from the cat", or nothing.
+- **C5** is C with the cat sensed within five blocks instead of three.
+
+Two seeds; seed 20261110's levels 05 and 06 did not fit in the budget, so each variant has 10 runs.
+
+| Variant | Completed | Caught | Steps / shortest safe (completed) | Safe when sensed | Latency mean / p95 |
+|---|---:|---:|---|---:|---:|
+| A (cat-history) | 6/10 | 4 | 7/7, 16/12, 13/12, 19/16, 7/7, 14/12 | 73% | 1028 / 1455 ms |
+| A-rule | 5/10 | 5 | 35/8, 20/12, 7/7, 18/12, 26/12 | 60% | 926 / 1404 ms |
+| C | 5/10 | 5 | 17/8, 39/12, 49/34, 28/7, 30/12 | 67% | 1024 / 1597 ms |
+| **C5** | **7/10** | **2** | 9/8, 23/12, 45/12, 48/16, 10/7, 17/8, 34/12 | 90%* | 1076 / 1688 ms |
+
+\*C5 counts steps up to five blocks from the cat as sensed, so its percentage is not comparable.
+
+- Every A and A-rule catch was a "warmer" option toward a sensed cat. The stronger rule alone changed nothing.
+- With danger labels the model still chose a danger option when a non-danger one was offered on 22% (C) and 27% (C5) of such steps. Of the 7 catches with labels, 5 were such choices and 2 were trapped (every option, STAY included, marked danger).
+- The danger variants walk longer routes.
+
+### A competing rule weakens the main goal (D5, D3)
+
+D5 was C5 with two changes at once: options within one block of the cat were not offered (all kept if none would remain), and a new rule line, "If you sense the cat, stay away from it. Follow the smell, but prefer moves that take you further from the cat." D3 was D5 with three-block sensing. On seed 1 (6 levels each):
+
+| Variant | Completed | Caught | Not sensed: chose colder |
+|---|---:|---:|---:|
+| C5 | 5/6 | 1 | 20% |
+| D5 | 1/6 | 0 | 32% |
+| D3 | 1/6 | 0 | 33% |
+
+D was never caught but wandered until the step cap on 10 of its 12 runs, mostly with no cat in sight. The filter cannot act on those steps, because an option next to the cat is always within sensing range. The rule line was the only difference there. **A rule that adds a second goal ("prefer moves further from the cat") weakens the main one (follow the smell) even when the second goal does not apply.** Because D changed two things, this run could not tell the filter's effect from the rule's, which led to the next comparison.
+
+### One change at a time (E5, F5)
+
+- **E5** is C5 with D's filter only. The rule line and option text are C5's.
+- **F5** is C5, but the three cat sentences in the rules appear only on steps where the cat is sensed. Otherwise the rules are level 1's, without its mood line.
+
+Two seeds; seed 20261110's levels 05 and 06 did not fit, so each variant has 10 runs. "Not sensed" columns count steps with no cat sensed.
+
+| Variant | Completed | Caught | Steps / shortest safe (completed) | Not sensed: colder | Not sensed: not the warmest when warmer offered | Latency mean |
+|---|---:|---:|---|---:|---:|---:|
+| **C5** | **9/10** | **1** | 9/8, 19/12, 42/12, 86/34, 48/16, 10/7, 17/8, 24/12, 20/12 | 17% | 57% | 1047 ms |
+| E5 (filter) | 7/10 | 2 | 21/8, 18/12, 15/12, 45/16, 9/8, 26/12, 36/12 | 17% | 55% | 988 ms |
+| F5 (cat rules only when sensed) | 5/10 | 5 | 15/12, 20/12, 39/34, 11/7, 20/12 | 0% | 26% | 1064 ms |
+
+- **E5:** the filter removed 225 options on 85 of 330 steps. Both catches were trapped, with every option next to the cat, so the filter had nothing to remove. It also took the step cap once, on the corridor level.
+- **F5:** with level 1's smell rule on steps with no cat sensed, smell-following improved sharply (0% colder). But it chose a danger option, when a non-danger one was offered, on 19% of such steps against C5's 11%. Four of its five catches were such choices. Switching the rules on only when the cat appears seems to make the model ignore them more often. That is a reading of 10 runs, not a measured cause.
+- C5 completed 5/6 on seed 1, the same levels as in the previous comparison. Results still vary between runs, so differences of one or two runs are weak.
+
+**The GUI uses C5** (cat-danger-range5, sensing within five blocks). Neither E5 nor F5 completed at least as many levels as C5 with fewer catches.
 
 ## What went into the final version
 

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ObservableMazeSolver, type SolverState } from '@/gui/solver';
+import { senseRangeFor } from '@/game/prompt';
+import { LEVEL2_VARIANT, ObservableMazeSolver, type SolverState } from '@/gui/solver';
 import { sanitizeLLMConfig } from '@/llm/config';
 import { Maze } from '@/maze/maze';
 
@@ -112,6 +113,10 @@ describe('GUI solver, level 2', () => {
     expect(state).toMatchObject({ level: 2, status: 'SOLVED', step: 4, current: { x: 3, y: 1 } });
     expect(bodies[0].messages[0].content).toContain('A cat patrols the maze');
     expect(bodies[0].messages[0].content).toContain("You sense the cat two blocks down-right of you. It hasn't moved yet.");
+    // The GUI sends C5 (cat-danger-range5): the safety rule and danger parts, sensing within five blocks.
+    expect(bodies[0].messages[0].content).toContain('If you sense the cat, safety comes first.');
+    expect(bodies[0].messages[0].content).toContain('RIGHT: danger, next to the cat; warmer, the smell grows stronger.');
+    expect([LEVEL2_VARIANT, senseRangeFor(LEVEL2_VARIANT)]).toEqual(['cat-danger-range5', 5]);
     expect(bodies[0].format.properties.move.enum).toContain('stay');
     const log = [...state.moveLog].reverse();
     expect(log[0]).toMatch(/cat \(2,2\) → \(2,1\) \(up\)/);

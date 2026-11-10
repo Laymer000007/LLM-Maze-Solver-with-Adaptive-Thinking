@@ -68,33 +68,34 @@ Level 2 uses the same rules and smell as level 1, plus a cat. Its levels are in 
 
 A catch ends the run as failed. Otherwise the run ends at the cheese, the step cap (max(3 × shortest safe path, 60)) or the stuck rule.
 
-**Distance to the cat** is always the walking distance through open cells, under the same 8-direction rules, never through walls. The mouse senses the cat within three blocks. It is then told the cat's direction, its distance in words and its last three moves (oldest first, "stayed" for a turn without moving). It is never told the cat's next move or its axis.
+**Distance to the cat** is always the walking distance through open cells, under the same 8-direction rules, never through walls. In the GUI the mouse senses the cat within five blocks (three for most evaluation variants); the mood penalties stay at one and two blocks. It is then told the cat's direction, its distance in words and its last three moves (oldest first, "stayed" for a turn without moving). It is never told the cat's next move or its axis.
 
 **Solvability.** A breadth-first search over (mouse cell, cat cell, cat direction) proves each level winnable and gives the shortest safe number of steps (`shortestSafePath` in `src/game/level2.ts`).
 
-The GUI sends the **cat-history** prompt:
+The GUI sends the **cat-danger-range5** prompt (C5 in the findings):
 
 ```text
 You are a mouse in a maze, looking for the cheese. A cat patrols the maze: it walks in a straight line, one block per move, and turns around when it hits a wall. If the cat catches you, you fail.
-Stay away from the cat first: never move next to it. Then follow the smell: always move where the smell grows stronger, and prefer much warmer over warmer.
+If you sense the cat, safety comes first. If an option says danger, never choose it, even if it is warmer. Follow the smell only among the other options.
 Being near the cat ruins your mood.
 
 Right now:
-The cheese smell is strong.
-Your mood is anxious.
-You sense the cat two blocks up-right of you. Its last three moves were left, left, right.
+The cheese smell is noticeable.
+Your mood is normal.
+You sense the cat two blocks down-right of you. Its last two moves were up, down.
 
 You can go:
-DOWN: warmer, the smell grows stronger.
+DOWN-RIGHT: danger, next to the cat; much warmer, the smell grows much stronger.
 STAY: no change, the smell stays the same.
-UP-RIGHT: much colder, the smell grows much weaker.
-RIGHT: warmer, the smell grows stronger.
-LEFT: colder, the smell grows weaker.
+RIGHT: danger, next to the cat; warmer, the smell grows stronger.
+DOWN-LEFT: further from the cat; no change, the smell stays the same.
+DOWN: warmer, the smell grows stronger.
+LEFT: further from the cat; colder, the smell grows weaker.
 Choose one direction.
-Return only JSON: {"move":"down|stay|up-right|right|left"}.
+Return only JSON: {"move":"down-right|stay|right|down-left|down|left"}.
 ```
 
-When the cat isn't sensed, the cat line reads "You can't sense the cat." The options have no mood phrase, because each option's effect on mood depends on the cat's next move, which the mouse isn't told. Two other variants exist for evaluation: **cat-facts** adds each option's distance to the cat's current cell, and **cat-position** leaves out the sentence about the cat's last moves.
+While the cat is sensed, each option starts with what it does relative to the cat's current cell: "danger, next to the cat" (one block or less), "closer to the cat", "further from the cat", or nothing if the distance doesn't change. When the cat isn't sensed, the cat line reads "You can't sense the cat." and the options carry no cat part. The options have no mood phrase, because each option's effect on mood depends on the cat's next move, which the mouse isn't told. The other variants (`Level2Variant` in `src/game/prompt.ts`) exist for evaluation; [docs/FINDINGS.md](docs/FINDINGS.md) compares them.
 
 ## Running it
 
@@ -130,10 +131,10 @@ It writes `benchmark-results/final/<timestamp>/report.md`.
 
 ```sh
 npm run eval:level2
-npm run eval:level2 -- --compare-history
+npm run eval:level2 -- --compare cat-danger-range5,cat-danger-range5-filter
 ```
 
-The first command runs the six cat levels: the free policies (greedy, which ignores the cat; the planner, which follows the safe-path search; random-legal), then cat-facts, cat-history, and cat-facts with thinking when the cat is sensed. The second compares cat-history with cat-position on two seeds. Both write to `benchmark-results/level2/`.
+The first command runs the six cat levels: the free policies (greedy, which ignores the cat; the planner, which follows the safe-path search; random-legal), then cat-facts, cat-history, and cat-facts with thinking when the cat is sensed. The second compares any prompt variants on every level with two seeds, seed by seed, and counts only the levels and seeds that every variant finished. Both write to `benchmark-results/level2/`.
 
 ### Checks
 

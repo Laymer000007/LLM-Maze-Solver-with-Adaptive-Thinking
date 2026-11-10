@@ -1,12 +1,14 @@
 import { Game, closenessSentence, moodWord } from '@/game/game';
-import { Level2Game, level2Situation, type CatState, type Option2 } from '@/game/level2';
+import { Level2Game, filterNearCat, level2Situation, type CatState, type Option2 } from '@/game/level2';
 import {
   buildLevel2Request,
   buildRequest,
   catLine,
+  filtersNearCat,
   label,
   parseAnswer,
   parseLevel2Answer,
+  senseRangeFor,
   shuffleOptions,
   type Level2Variant,
   type Variant,
@@ -18,8 +20,8 @@ import { Maze, type Position } from '@/maze/maze';
 
 /** The prompt variant the GUI sends on level 1 (see benchmark-results/final). */
 export const GUI_VARIANT: Variant = 'full';
-/** The prompt variant the GUI sends on level 2 (see benchmark-results/level2). */
-export const LEVEL2_VARIANT: Level2Variant = 'cat-history';
+/** The prompt variant the GUI sends on level 2 (C5; see benchmark-results/level2). Its sensing range and filter come with it. */
+export const LEVEL2_VARIANT: Level2Variant = 'cat-danger-range5';
 /** Fixed seed for the option shuffle, per maze, so a GUI run is repeatable. */
 const SHUFFLE_SEED = 20261109;
 
@@ -99,7 +101,7 @@ export class ObservableMazeSolver {
   }
 
   private newGame(): Game | Level2Game {
-    return this.cat ? new Level2Game(this.maze, this.cat) : new Game(this.maze);
+    return this.cat ? new Level2Game(this.maze, this.cat, senseRangeFor(LEVEL2_VARIANT)) : new Game(this.maze);
   }
 
   private freshState(mazeFile: string): SolverState {
@@ -200,7 +202,8 @@ export class ObservableMazeSolver {
   private prepare(): { offered: Option2[]; body: Record<string, unknown> } {
     const game = this.game;
     if (game instanceof Level2Game) {
-      const offered = shuffleOptions(game.options(), this.random);
+      const shuffled = shuffleOptions(game.options(), this.random);
+      const offered = filtersNearCat(LEVEL2_VARIANT) ? filterNearCat(game, shuffled).options : shuffled;
       const situation = level2Situation(game, offered);
       this.state.catLine = catLine(situation.sensed, LEVEL2_VARIANT !== 'cat-position');
       return { offered, body: buildLevel2Request(this.config.model, situation, LEVEL2_VARIANT, this.config.temperature) };
