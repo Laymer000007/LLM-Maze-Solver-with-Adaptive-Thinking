@@ -4,6 +4,28 @@ A mouse looks for cheese in a maze. A small local language model (Ollama, `qwen3
 
 This is the final version of the project. Earlier versions, and all the experiments that led here, are kept at the git tag `archive/experiments-final`. [`docs/FINDINGS.md`](docs/FINDINGS.md) summarises what those experiments showed.
 
+## Quick start
+
+You need [Node.js 24+](https://nodejs.org/en/download) and [Ollama](https://ollama.com/download), running on this machine or another one.
+
+```sh
+git clone https://github.com/Laymer000007/LLM-Maze-Solver-with-Adaptive-Thinking
+cd LLM-Maze-Solver-with-Adaptive-Thinking
+npm ci
+ollama pull qwen3:1.7b
+npm start
+```
+
+`npm start` opens the GUI at <http://localhost:4173>. If something doesn't work, `npm run doctor` checks Node, Ollama and the model, and says how to fix each problem.
+
+**Ollama on another machine:** `OLLAMA_URL=http://<server>:11434 npm start` (the same works for `npm run doctor` and the evaluations), or set the URL under **AI Settings** in the GUI. The default is `http://localhost:11434`.
+
+**With Docker instead:** `docker compose up`, then open <http://localhost:4173>. This runs the app and Ollama in containers; the first start downloads `qwen3:1.7b` (about 1.4 GB). The compose file has not been tested yet.
+
+**Speed:** on a CPU, expect about one second per move; the first move after Ollama has been idle takes a few seconds longer while the model loads.
+
+The repository name ("with Adaptive Thinking") dates from version 3, when the model switched thinking on after a large drop in its score. The current version doesn't use thinking (see [`docs/FINDINGS.md`](docs/FINDINGS.md), section 5).
+
 ## Rules
 
 **Movement.** Eight directions: `up, down, left, right, up-left, up-right, down-left, down-right`. A diagonal move is allowed only when the target cell **and both straight cells beside it** are open, so the mouse never squeezes between wall corners. Only legal directions are offered. An answer that is not one of them (or that can't be read) leaves the mouse where it is: the step still counts, it is logged as invalid, and it is never silently corrected.
@@ -57,7 +79,7 @@ Every request sets `think: false`, `stream: false` and temperature 0.2 (the GUI 
 
 ## Level 2: the patrolling cat
 
-Level 2 uses the same rules and smell as level 1, plus a cat. Its levels are in `mazes/level2/*.json`: each file holds a layout and the cat's start cell, patrol axis (`horizontal` or `vertical`) and starting direction.
+Level 2 uses the same rules and smell as level 1, plus a cat. Its twelve levels are in `mazes/level2/*.json`, from 7x7 up to 50x50: each file holds a layout and the cat's start cell, patrol axis (`horizontal` or `vertical`) and starting direction.
 
 **The cat.** Each turn it moves one block along its axis. At a wall or the edge it turns around and moves one block the other way in the same turn; if both sides are blocked it stays put. It ignores the mouse and is fully deterministic. The cheese doesn't stop it.
 
@@ -99,14 +121,7 @@ While the cat is sensed, each option starts with what it does relative to the ca
 
 ## Running it
 
-Requires Node.js 24+ and an Ollama server with the model pulled (`ollama pull qwen3:1.7b`). In a clone of this repository:
-
-```sh
-npm install
-npm run gui
-```
-
-Open <http://localhost:4173>. Pick **Level 1** or **Level 2** and a maze for that level. Under **AI Settings** you set the Ollama URL, model and temperature. The default server is `http://192.168.88.100:11434`; `npm run gui -- --ollama-url http://localhost:11434` overrides it. Choose a maze, then **Start**, or **Step** for one decision at a time.
+See the quick start above. `npm start` opens the browser; `npm run gui` starts the same server without opening it. Pick **Level 1** or **Level 2** and a maze for that level. Under **AI Settings** you set the Ollama URL, model and temperature. The URL comes from `OLLAMA_URL`, or `--ollama-url`, and defaults to `http://localhost:11434`. Choose a maze, then **Start**, or **Step** for one decision at a time. The board scales to fit, up to the 50x50 maps.
 
 The GUI shows:
 - the maze, with the path drawn through cell centres so diagonal moves are visible
@@ -132,9 +147,10 @@ It writes `benchmark-results/final/<timestamp>/report.md`.
 ```sh
 npm run eval:level2
 npm run eval:level2 -- --compare cat-danger-range5,cat-danger-range5-filter
+npm run eval:level2 -- --compare cat-danger-range5 --levels 07,08 --seeds 1 --baselines
 ```
 
-The first command runs the six cat levels: the free policies (greedy, which ignores the cat; the planner, which follows the safe-path search; random-legal), then cat-facts, cat-history, and cat-facts with thinking when the cat is sensed. The second compares any prompt variants on every level with two seeds, seed by seed, and counts only the levels and seeds that every variant finished. Both write to `benchmark-results/level2/`.
+The first command runs all cat levels: the free policies (greedy, which ignores the cat; the planner, which follows the safe-path search; random-legal), then cat-facts, cat-history, and cat-facts with thinking when the cat is sensed. The second compares any prompt variants on every level with two seeds, seed by seed, and counts only the levels and seeds that every variant finished. `--levels` picks levels by file-name prefix, `--seeds` sets the number of seeds, and `--baselines` adds greedy and the planner. All of them write to `benchmark-results/level2/`.
 
 ### Checks
 
@@ -154,7 +170,10 @@ npm run typecheck && npm run lint && npx vitest run
 | `src/llm/` | Ollama client and settings |
 | `src/gui/` | The web GUI (server, solver loop, page) |
 | `src/eval/` | The level-1 and level-2 evaluations |
+| `src/tools/generate-big-level2.ts` | Generates the six big level-2 maps |
+| `scripts/doctor.mjs` | `npm run doctor` |
 | `mazes/` | Maze files: `#` wall, `S` start, `G` cheese; `mazes/level2/` adds the cat |
+| `Dockerfile`, `docker-compose.yml` | The optional Docker setup |
 
 ## Results
 
