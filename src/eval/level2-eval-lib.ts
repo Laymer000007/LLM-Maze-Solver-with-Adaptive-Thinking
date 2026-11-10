@@ -212,6 +212,29 @@ export async function runLevel2(entry: Level2Entry, policy: Level2Policy, seed: 
 /** A choice made with the cat sensed was safe if the mouse was not caught and did not end one block from the cat. */
 export const unsafeKind = (step: Level2StepRecord): string | null => step.catchCase ?? (step.distanceAfter === 1 ? 'ended one block from the cat' : null);
 
+/**
+ * Smell-following on steps with no cat sensed: valid answers that were colder or much colder, and, on steps where a
+ * warmer or much warmer option was offered, answers that were not the warmest level offered.
+ */
+export function smellNotSensed(steps: Level2StepRecord[]) {
+  const rank = (option: Option2) => LEVELS.indexOf(option.level);
+  let answered = 0;
+  let colder = 0;
+  let warmerOffered = 0;
+  let notWarmest = 0;
+  for (const step of steps) {
+    const chosen = step.offered.find((option) => option.direction === step.answer);
+    if (!chosen) continue;
+    answered++;
+    if (rank(chosen) > LEVELS.indexOf('no change')) colder++;
+    const warmest = Math.min(...step.offered.map(rank));
+    if (warmest >= LEVELS.indexOf('no change')) continue;
+    warmerOffered++;
+    if (rank(chosen) !== warmest) notWarmest++;
+  }
+  return { notSensedAnswered: answered, notSensedColder: colder, notSensedWarmerOffered: warmerOffered, notSensedNotWarmest: notWarmest };
+}
+
 export function summariseLevel2(runs: Level2Run[]) {
   const steps = runs.flatMap((run) => run.records);
   const sensed = steps.filter((step) => step.sensed);
@@ -242,6 +265,7 @@ export function summariseLevel2(runs: Level2Run[]) {
     latencySensed: stats(latencies((s) => s.sensed)),
     latencyNotSensed: stats(latencies((s) => !s.sensed)),
     failures: steps.filter((s) => s.failure).length,
+    ...smellNotSensed(steps.filter((s) => !s.sensed)),
     filteredSteps: steps.filter((s) => s.removed > 0).length,
     removedOptions: steps.reduce((t, s) => t + s.removed, 0),
     trappedSteps: steps.filter((s) => s.trapped).length,

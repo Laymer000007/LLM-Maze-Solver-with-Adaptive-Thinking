@@ -21,7 +21,7 @@ import {
 import { rng } from '@/game/random';
 import { Maze } from '@/maze/maze';
 
-const VARIANTS: Level2Variant[] = ['cat-history', 'cat-facts', 'cat-position', 'cat-rule', 'cat-danger', 'cat-danger-range5', 'cat-filter', 'cat-filter-range5'];
+const VARIANTS: Level2Variant[] = ['cat-history', 'cat-facts', 'cat-position', 'cat-rule', 'cat-danger', 'cat-danger-range5', 'cat-filter', 'cat-filter-range5', 'cat-danger-range5-filter', 'cat-danger-range5-quiet'];
 const OPEN = new Maze(['#########', '#S      #', '#       #', '#       #', '#      G#', '#########']);
 
 /** Plays random legal moves and collects every situation, sensed or not; filtered: with the near-cat filter applied. */
@@ -36,6 +36,23 @@ function situations(senseRange?: number, filtered = false): Level2Situation[] {
         const offered = filtered ? filterNearCat(game, shuffled).options : shuffled;
         out.push(level2Situation(game, offered));
         game.apply(offered[Math.floor(random() * offered.length)].direction, offered);
+      }
+    }
+  return out;
+}
+
+/** Like situations(), with each step's situation before and after the near-cat filter. */
+function pairedSituations(senseRange: number): [Level2Situation, Level2Situation][] {
+  const out: [Level2Situation, Level2Situation][] = [];
+  const random = rng(11);
+  for (const cat of [{ position: { x: 3, y: 2 }, direction: 'left' }, { position: { x: 2, y: 3 }, direction: 'up' }, { position: { x: 5, y: 1 }, direction: 'down' }] as CatState[])
+    for (let run = 0; run < 20; run++) {
+      const game = new Level2Game(OPEN, cat, senseRange);
+      while (game.status === 'running' && game.steps < 30) {
+        const shuffled = shuffleOptions(game.options(), random);
+        const { options } = filterNearCat(game, shuffled);
+        out.push([level2Situation(game, shuffled), level2Situation(game, options)]);
+        game.apply(options[Math.floor(random() * options.length)].direction, options);
       }
     }
   return out;
@@ -272,6 +289,48 @@ Return only JSON: {"move":"down|stay|up-right|right|left"}.`);
     expect([senseRangeFor('cat-filter'), filtersNearCat('cat-filter')]).toEqual([3, true]);
     for (const situation of [...situations(3, true), ...situations(5, true)])
       expect(buildLevel2Prompt(situation, 'cat-filter')).toBe(buildLevel2Prompt(situation, 'cat-filter-range5'));
+  });
+
+  it('cat-danger-range5-filter (E5) differs from cat-danger-range5 (C5) only by the options it leaves out', () => {
+    expect([senseRangeFor('cat-danger-range5-filter'), filtersNearCat('cat-danger-range5-filter')]).toEqual([5, true]);
+    let filtered = 0;
+    for (const [unfiltered, kept] of pairedSituations(5)) {
+      // The same filter as D5, and with the same options the prompt and request are C5's, byte for byte.
+      expect(buildLevel2Prompt(kept, 'cat-danger-range5-filter')).toBe(buildLevel2Prompt(kept, 'cat-danger-range5'));
+      expect(buildLevel2Request('m', kept, 'cat-danger-range5-filter')).toEqual(buildLevel2Request('m', kept, 'cat-danger-range5'));
+      if (kept.options.length < unfiltered.options.length) filtered++;
+    }
+    expect(filtered).toBeGreaterThan(20);
+  });
+
+  const LEVEL1_RULES = [
+    'You are a mouse in a maze, looking for the cheese.',
+    'The cheese is where the smell is strongest. Always move where the smell grows stronger, and prefer much warmer over warmer. Never choose a direction where the smell grows weaker.',
+  ];
+
+  it('cat-danger-range5-quiet (F5) is C5 when the cat is sensed, and has the level-1 rules without the mood line when it is not', () => {
+    expect([senseRangeFor('cat-danger-range5-quiet'), filtersNearCat('cat-danger-range5-quiet')]).toEqual([5, false]);
+    let sensed = 0;
+    let notSensed = 0;
+    // The three-block situations add steps with the cat out of range; the builder only looks at whether it is sensed.
+    for (const situation of [...situations(5), ...situations(3)]) {
+      const quiet = buildLevel2Prompt(situation, 'cat-danger-range5-quiet');
+      const c5 = buildLevel2Prompt(situation, 'cat-danger-range5');
+      expect(buildLevel2Request('m', situation, 'cat-danger-range5-quiet').format).toEqual(buildLevel2Request('m', situation, 'cat-danger-range5').format);
+      if (situation.sensed) {
+        sensed++;
+        expect(quiet).toBe(c5);
+        continue;
+      }
+      notSensed++;
+      const [rules, rest] = quiet.split('\n\nRight now:');
+      expect(rules.split('\n')).toEqual(LEVEL1_RULES);
+      expect(rules).not.toMatch(/cat|mood/i);
+      const [c5Rules, c5Rest] = c5.split('\n\nRight now:');
+      expect(c5Rules.split('\n')).toEqual([expect.stringContaining('A cat patrols the maze'), SAFETY_RULE, 'Being near the cat ruins your mood.']);
+      expect(rest).toBe(c5Rest);
+    }
+    expect([sensed > 50, notSensed > 50]).toEqual([true, true]);
   });
 
   it('contain no digits for any variant, including with the wider sensing range', () => {

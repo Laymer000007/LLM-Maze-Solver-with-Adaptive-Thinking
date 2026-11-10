@@ -271,8 +271,8 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
     ...(unbalanced.length ? [`- Finished, but left out because not every variant ran that level and seed: ${unbalanced.join(', ')} (kept in runs.json).`] : []),
     '- A sensed choice is safe when the mouse is not caught and does not end one block from the cat. "Sensed" uses each variant\'s own sensing range.',
     '',
-    '| Variant | Completed | Caught | Steps / shortest safe (completed) | Safe when sensed | Invalid | Steps filtered (options removed) | Trapped | Latency mean / p95 |',
-    '|---|---:|---:|---|---:|---:|---:|---:|---:|',
+    '| Variant | Completed | Caught | Steps / shortest safe (completed) | Safe when sensed | Invalid | Steps filtered (options removed) | Trapped | Not sensed: colder | Not sensed: not the warmest when warmer offered | Latency mean / p95 |',
+    '|---|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|',
   ];
   for (const variant of variants) {
     const group = runs.filter((r) => r.policy === variant);
@@ -283,7 +283,7 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
           .filter((r) => r.status === 'solved')
           .map((r) => `${r.steps}/${r.shortestSafe}`)
           .join(', ') || '—'
-      } | ${s.safeSensed}/${s.sensedSteps} (${pct(s.safeSensed, s.sensedSteps)}) | ${s.invalid} | ${filtersNearCat(variant) ? `${s.filteredSteps}/${group.reduce((t, r) => t + r.steps, 0)} steps (${s.removedOptions})` : '—'} | ${filtersNearCat(variant) ? `${s.trappedSteps} steps` : '—'} | ${ms(s.latency.mean)} / ${ms(s.latency.p95)} |`,
+      } | ${s.safeSensed}/${s.sensedSteps} (${pct(s.safeSensed, s.sensedSteps)}) | ${s.invalid} | ${filtersNearCat(variant) ? `${s.filteredSteps}/${group.reduce((t, r) => t + r.steps, 0)} steps (${s.removedOptions})` : '—'} | ${filtersNearCat(variant) ? `${s.trappedSteps} steps` : '—'} | ${s.notSensedColder}/${s.notSensedAnswered} (${pct(s.notSensedColder, s.notSensedAnswered)}) | ${s.notSensedNotWarmest}/${s.notSensedWarmerOffered} (${pct(s.notSensedNotWarmest, s.notSensedWarmerOffered)}) | ${ms(s.latency.mean)} / ${ms(s.latency.p95)} |`,
     );
   }
   lines.push(

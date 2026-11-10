@@ -10,6 +10,7 @@ import {
   plannerPolicy,
   randomLegalPolicy,
   runLevel2,
+  smellNotSensed,
   summariseLevel2,
   unsafeKind,
   type Level2Policy,
@@ -17,7 +18,7 @@ import {
   type Level2StepRecord,
 } from '@/eval/level2-eval-lib';
 import { optimalSteps } from '@/game/game';
-import { shortestSafePath, target, walkingDistance, type Level2Game, type Move } from '@/game/level2';
+import { shortestSafePath, target, walkingDistance, type Level2Game, type Move, type Option2 } from '@/game/level2';
 
 const ROOT = path.resolve(__dirname, '../..');
 const entries = async () => Promise.all((await level2Files(ROOT)).map((file) => level2Entry(ROOT, file)));
@@ -131,5 +132,15 @@ describe('level-2 scoring', () => {
     ]);
     expect(s.latencyNotSensed.mean).toBe(300);
     expect(s).toMatchObject({ filteredSteps: 2, removedOptions: 3, trappedSteps: 1 });
+    const offered = (...levels: Option2['level'][]): Option2[] => levels.map((level, i) => ({ direction: (['up', 'down', 'left'] as const)[i], level }));
+    expect(
+      smellNotSensed([
+        step({ sensed: false, offered: offered('much warmer', 'warmer', 'colder'), answer: 'down' }), // not the warmest
+        step({ sensed: false, offered: offered('much warmer', 'warmer', 'colder'), answer: 'left' }), // colder, not the warmest
+        step({ sensed: false, offered: offered('warmer', 'no change', 'colder'), answer: 'up' }), // the warmest
+        step({ sensed: false, offered: offered('no change', 'colder', 'much colder'), answer: 'down' }), // colder, no warmer offered
+        step({ sensed: false, offered: offered('warmer', 'colder', 'colder'), answer: null }), // invalid: not counted
+      ]),
+    ).toEqual({ notSensedAnswered: 4, notSensedColder: 2, notSensedWarmerOffered: 3, notSensedNotWarmest: 2 });
   });
 });

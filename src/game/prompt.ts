@@ -87,17 +87,33 @@ export function parseAnswer(text: string): Direction | null {
  * cat-danger-range5: cat-danger with the cat sensed within five blocks instead of three.
  * cat-filter-range5: cat-danger-range5 with a stay-away rule, and options next to the cat not offered (see filterNearCat).
  * cat-filter: cat-filter-range5 with the cat sensed within three blocks.
+ * cat-danger-range5-filter: cat-danger-range5 with options next to the cat not offered; the text is unchanged.
+ * cat-danger-range5-quiet: cat-danger-range5, but the cat rules only on steps where the cat is sensed; otherwise the
+ * level-1 rules without the mood line.
  */
-export type Level2Variant = 'cat-history' | 'cat-facts' | 'cat-position' | 'cat-rule' | 'cat-danger' | 'cat-danger-range5' | 'cat-filter' | 'cat-filter-range5';
+export type Level2Variant =
+  | 'cat-history'
+  | 'cat-facts'
+  | 'cat-position'
+  | 'cat-rule'
+  | 'cat-danger'
+  | 'cat-danger-range5'
+  | 'cat-filter'
+  | 'cat-filter-range5'
+  | 'cat-danger-range5-filter'
+  | 'cat-danger-range5-quiet';
+
+const DANGER_RANGE5: Level2Variant[] = ['cat-danger-range5', 'cat-danger-range5-filter', 'cat-danger-range5-quiet'];
 
 /** How far the mouse senses the cat with this variant. */
-export const senseRangeFor = (variant: Level2Variant) => (variant === 'cat-danger-range5' || variant === 'cat-filter-range5' ? WIDE_SENSE_RANGE : SENSE_RANGE);
+export const senseRangeFor = (variant: Level2Variant) => (DANGER_RANGE5.includes(variant) || variant === 'cat-filter-range5' ? WIDE_SENSE_RANGE : SENSE_RANGE);
 /** The variant leaves options next to the cat out of the list and the enum. */
-export const filtersNearCat = (variant: Level2Variant) => variant === 'cat-filter' || variant === 'cat-filter-range5';
-const hasDangerParts = (variant: Level2Variant) => variant === 'cat-danger' || variant === 'cat-danger-range5' || filtersNearCat(variant);
+export const filtersNearCat = (variant: Level2Variant) => variant === 'cat-filter' || variant === 'cat-filter-range5' || variant === 'cat-danger-range5-filter';
+const hasDangerParts = (variant: Level2Variant) =>
+  variant === 'cat-danger' || DANGER_RANGE5.includes(variant) || variant === 'cat-filter' || variant === 'cat-filter-range5';
 function ruleFor(variant: Level2Variant): string {
-  if (filtersNearCat(variant)) return STAY_AWAY_RULE;
-  return variant === 'cat-rule' || variant === 'cat-danger' || variant === 'cat-danger-range5' ? SAFETY_RULE : CAT_RULE;
+  if (variant === 'cat-filter' || variant === 'cat-filter-range5') return STAY_AWAY_RULE;
+  return variant === 'cat-rule' || variant === 'cat-danger' || DANGER_RANGE5.includes(variant) ? SAFETY_RULE : CAT_RULE;
 }
 
 const LEVEL2_INTRO =
@@ -141,10 +157,9 @@ function catPart(catDistance: number, sensed: boolean, variant: Level2Variant): 
 
 export function buildLevel2Prompt(situation: Level2Situation, variant: Level2Variant): string {
   const offered = situation.options.map((option) => option.direction);
+  const rules = variant === 'cat-danger-range5-quiet' && !situation.sensed ? RULES : [LEVEL2_INTRO, ruleFor(variant), MOOD_NOTE];
   return [
-    LEVEL2_INTRO,
-    ruleFor(variant),
-    MOOD_NOTE,
+    ...rules,
     '',
     'Right now:',
     closenessSentence(situation.distance),
