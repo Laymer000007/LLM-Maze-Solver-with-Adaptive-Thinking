@@ -25,6 +25,8 @@ export default [
       '**/*.spec.ts',
       '**/*.spec.tsx',
       'src/test/**',
+      // Plain browser scripts served as-is; not part of the TypeScript project.
+      'src/gui/public/**',
     ],
   },
 

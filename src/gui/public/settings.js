@@ -1,8 +1,41 @@
 const $ = (id) => document.getElementById(id);
-const defaults = { baseUrl: 'http://localhost:11434', model: 'qwen3:1.7b', temperature: 0.2 };
-let serverConfig = {};
-function values() { return { baseUrl: $('baseUrl').value.trim(), model: $('model').value.trim(), temperature: Number($('temperature').value) }; }
-async function load() { const saved = JSON.parse(localStorage.getItem('llm-maze-config') || '{}'); const response = await fetch('/api/settings'); serverConfig = await response.json(); const config = { ...defaults, ...(serverConfig.config || {}), ...saved }; for (const key of ['baseUrl', 'model', 'temperature']) $(key).value = config[key]; }
-$('test').onclick = async () => { $('status').textContent = 'Testing connection…'; try { const response = await fetch('/api/llm/test', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(values()) }); const result = await response.json(); $('status').textContent = result.success ? result.message : result.message || 'Connection failed.'; } catch { $('status').textContent = 'Connection test failed.'; } };
-$('save').onclick = async () => { const config = values(); if (!config.baseUrl || !config.model) { $('status').textContent = 'Enter an Ollama server URL and model before saving.'; return; } try { const response = await fetch('/api/settings', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(config) }); const result = await response.json(); if (result.ok) { localStorage.setItem('llm-maze-config', JSON.stringify(config)); $('status').textContent = 'Settings saved. You can start the maze.'; } else $('status').textContent = result.error || 'Could not save settings.'; } catch { $('status').textContent = 'Could not save settings.'; } };
-load().catch(() => { $('status').textContent = 'Could not load current settings.'; });
+const values = () => ({ baseUrl: $('baseUrl').value.trim(), model: $('model').value.trim(), temperature: Number($('temperature').value) });
+
+async function loadModels(selected) {
+  const data = await (await fetch('/api/ollama/models')).json();
+  const choices = [...new Set([selected, ...(data.models || [])].filter(Boolean))];
+  $('model').innerHTML = choices.map((model) => `<option value="${model}">${model}</option>`).join('');
+  $('model').value = selected;
+}
+
+async function load() {
+  const { config } = await (await fetch('/api/settings')).json();
+  $('baseUrl').value = config.baseUrl;
+  $('temperature').value = config.temperature;
+  await loadModels(config.model);
+}
+
+$('baseUrl').onchange = () => loadModels($('model').value).catch(() => {});
+$('test').onclick = async () => {
+  $('status').textContent = 'Testing connection…';
+  try {
+    const result = await (await fetch('/api/llm/test', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(values()) })).json();
+    $('status').textContent = result.message || 'Connection failed.';
+  } catch {
+    $('status').textContent = 'Connection test failed.';
+  }
+};
+$('save').onclick = async () => {
+  const config = values();
+  if (!config.baseUrl || !config.model) {
+    $('status').textContent = 'Enter the Ollama server URL and model before saving.';
+    return;
+  }
+  try {
+    const result = await (await fetch('/api/settings', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(config) })).json();
+    $('status').textContent = result.ok ? 'AI settings saved. You can return to the maze.' : result.error || 'Could not save settings.';
+  } catch {
+    $('status').textContent = 'Could not save settings.';
+  }
+};
+load().catch(() => ($('status').textContent = 'Could not load current settings.'));
