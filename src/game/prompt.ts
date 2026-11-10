@@ -85,13 +85,20 @@ export function parseAnswer(text: string): Direction | null {
  * cat-rule: like cat-history, with a safety-first rule about options marked "danger".
  * cat-danger: cat-rule, plus a danger part first in each option while the cat is sensed.
  * cat-danger-range5: cat-danger with the cat sensed within five blocks instead of three.
+ * cat-filter-range5: cat-danger-range5 with a stay-away rule, and options next to the cat not offered (see filterNearCat).
+ * cat-filter: cat-filter-range5 with the cat sensed within three blocks.
  */
-export type Level2Variant = 'cat-history' | 'cat-facts' | 'cat-position' | 'cat-rule' | 'cat-danger' | 'cat-danger-range5';
+export type Level2Variant = 'cat-history' | 'cat-facts' | 'cat-position' | 'cat-rule' | 'cat-danger' | 'cat-danger-range5' | 'cat-filter' | 'cat-filter-range5';
 
 /** How far the mouse senses the cat with this variant. */
-export const senseRangeFor = (variant: Level2Variant) => (variant === 'cat-danger-range5' ? WIDE_SENSE_RANGE : SENSE_RANGE);
-const hasSafetyRule = (variant: Level2Variant) => variant === 'cat-rule' || variant === 'cat-danger' || variant === 'cat-danger-range5';
-const hasDangerParts = (variant: Level2Variant) => variant === 'cat-danger' || variant === 'cat-danger-range5';
+export const senseRangeFor = (variant: Level2Variant) => (variant === 'cat-danger-range5' || variant === 'cat-filter-range5' ? WIDE_SENSE_RANGE : SENSE_RANGE);
+/** The variant leaves options next to the cat out of the list and the enum. */
+export const filtersNearCat = (variant: Level2Variant) => variant === 'cat-filter' || variant === 'cat-filter-range5';
+const hasDangerParts = (variant: Level2Variant) => variant === 'cat-danger' || variant === 'cat-danger-range5' || filtersNearCat(variant);
+function ruleFor(variant: Level2Variant): string {
+  if (filtersNearCat(variant)) return STAY_AWAY_RULE;
+  return variant === 'cat-rule' || variant === 'cat-danger' || variant === 'cat-danger-range5' ? SAFETY_RULE : CAT_RULE;
+}
 
 const LEVEL2_INTRO =
   'You are a mouse in a maze, looking for the cheese. A cat patrols the maze: it walks in a straight line, one block per move, and turns around when it hits a wall. If the cat catches you, you fail.';
@@ -99,6 +106,7 @@ const CAT_RULE =
   'Stay away from the cat first: never move next to it. Then follow the smell: always move where the smell grows stronger, and prefer much warmer over warmer.';
 const SAFETY_RULE =
   'If you sense the cat, safety comes first. If an option says danger, never choose it, even if it is warmer. Follow the smell only among the other options.';
+const STAY_AWAY_RULE = 'If you sense the cat, stay away from it. Follow the smell, but prefer moves that take you further from the cat.';
 const MOOD_NOTE = 'Being near the cat ruins your mood.';
 const BLOCKS = ['', 'one block', 'two blocks', 'three blocks', 'four blocks', 'five blocks'];
 
@@ -135,7 +143,7 @@ export function buildLevel2Prompt(situation: Level2Situation, variant: Level2Var
   const offered = situation.options.map((option) => option.direction);
   return [
     LEVEL2_INTRO,
-    hasSafetyRule(variant) ? SAFETY_RULE : CAT_RULE,
+    ruleFor(variant),
     MOOD_NOTE,
     '',
     'Right now:',

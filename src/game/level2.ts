@@ -299,3 +299,13 @@ export function level2Situation(game: Level2Game, offered: Option2[]): Level2Sit
     options: offered.map((option) => ({ ...option, catDistance: walkingDistance(game.maze, target(game.position, option.direction), game.cat.position) })),
   };
 }
+
+/**
+ * The cat-filter variants: options whose target cell is within one block (walking distance) of the cat's current cell
+ * are not offered. When that would leave nothing, every option is offered unchanged and the mouse is trapped.
+ */
+export function filterNearCat(game: Level2Game, offered: Option2[]): { options: Option2[]; removed: number; trapped: boolean } {
+  const kept = offered.filter((option) => walkingDistance(game.maze, target(game.position, option.direction), game.cat.position) > 1);
+  if (!kept.length) return { options: offered, removed: 0, trapped: true };
+  return { options: kept, removed: offered.length - kept.length, trapped: false };
+}

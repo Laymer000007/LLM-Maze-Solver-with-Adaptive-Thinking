@@ -12,11 +12,12 @@ import {
   runLevel2,
   summariseLevel2,
   unsafeKind,
+  type Level2Policy,
   type Level2Run,
   type Level2StepRecord,
 } from '@/eval/level2-eval-lib';
 import { optimalSteps } from '@/game/game';
-import { shortestSafePath } from '@/game/level2';
+import { shortestSafePath, target, walkingDistance, type Level2Game, type Move } from '@/game/level2';
 
 const ROOT = path.resolve(__dirname, '../..');
 const entries = async () => Promise.all((await level2Files(ROOT)).map((file) => level2Entry(ROOT, file)));
@@ -57,6 +58,32 @@ describe('level-2 mazes', () => {
   });
 });
 
+describe('the near-cat filter in a run', () => {
+  it('never offers an option next to the cat unless every option is, and is off for other policies', async () => {
+    const near = (game: Level2Game, move: Move) => walkingDistance(game.maze, target(game.position, move), game.cat.position) <= 1;
+    let checked = 0;
+    const filtering: Level2Policy = {
+      ...randomLegalPolicy,
+      id: 'random-filtered',
+      filterNearCat: true,
+      decide: async (game, offered, random) => {
+        const all = game.options();
+        if (all.every((o) => near(game, o.direction))) expect(offered).toHaveLength(all.length);
+        else expect(offered.filter((o) => near(game, o.direction))).toEqual([]);
+        checked++;
+        return randomLegalPolicy.decide(game, offered, random);
+      },
+    };
+    let removed = 0;
+    for (const entry of await entries()) {
+      for (const record of (await runLevel2(entry, filtering, LEVEL2_SEED)).records) removed += record.removed;
+      expect((await runLevel2(entry, randomLegalPolicy, LEVEL2_SEED)).records.every((r) => r.removed === 0 && !r.trapped)).toBe(true);
+    }
+    expect(checked).toBeGreaterThan(0);
+    expect(removed).toBeGreaterThan(0);
+  });
+});
+
 describe('level-2 scoring', () => {
   const step = (over: Partial<Level2StepRecord>): Level2StepRecord => ({
     step: 1,
@@ -64,6 +91,8 @@ describe('level-2 scoring', () => {
     sense: { distance: 2, direction: 'up', history: [] },
     catHistory: [],
     offered: [],
+    removed: 0,
+    trapped: false,
     answer: 'up',
     valid: true,
     catPenalty: 0,
@@ -92,7 +121,7 @@ describe('level-2 scoring', () => {
       records,
     });
     const s = summariseLevel2([
-      run([step({}), step({ distanceAfter: 2, catPenalty: -100 }), step({ sensed: false, latencyMs: 300 })], 'solved'),
+      run([step({ removed: 2 }), step({ distanceAfter: 2, catPenalty: -100, removed: 1 }), step({ sensed: false, latencyMs: 300, trapped: true })], 'solved'),
       run([step({ distanceAfter: 1, catPenalty: -200 }), step({ catchCase: 'the cat landed on the mouse', distanceAfter: 0 })], 'caught'),
     ]);
     expect(s).toMatchObject({ runs: 2, completed: 1, caught: 1, penalties100: 1, penalties200: 1, sensedSteps: 4, safeSensed: 2 });
@@ -101,5 +130,6 @@ describe('level-2 scoring', () => {
       ['the cat landed on the mouse', 1],
     ]);
     expect(s.latencyNotSensed.mean).toBe(300);
+    expect(s).toMatchObject({ filteredSteps: 2, removedOptions: 3, trappedSteps: 1 });
   });
 });

@@ -5,6 +5,7 @@ import { timedChat } from '@/eval/final-eval-lib';
 import { LEVELS } from '@/game/game';
 import {
   Level2Game,
+  filterNearCat,
   level2Situation,
   loadLevel2,
   shortestSafePath,
@@ -15,7 +16,7 @@ import {
   type Move,
   type Option2,
 } from '@/game/level2';
-import { buildLevel2Request, parseLevel2Answer, senseRangeFor, shuffleOptions, type Level2Variant } from '@/game/prompt';
+import { buildLevel2Request, filtersNearCat, parseLevel2Answer, senseRangeFor, shuffleOptions, type Level2Variant } from '@/game/prompt';
 import { rng, runSeed } from '@/game/random';
 import { OllamaClient } from '@/llm/ollama';
 
@@ -57,6 +58,8 @@ export type Level2Policy = {
   free: boolean;
   /** The mouse's sensing range for this policy (default SENSE_RANGE). */
   senseRange?: number;
+  /** Options next to the cat are left out before the policy decides (filterNearCat). */
+  filterNearCat?: boolean;
   decide: (game: Level2Game, offered: Option2[], random: () => number) => Promise<Decision>;
 };
 
@@ -99,6 +102,7 @@ export function ollamaPolicy(
     id: thinkWhenSensed ? `${variant}+think` : variant,
     free: false,
     senseRange: senseRangeFor(variant),
+    filterNearCat: filtersNearCat(variant),
     decide: async (game, offered) => {
       const situation = level2Situation(game, offered);
       const thinking = thinkWhenSensed && situation.sensed !== null;
@@ -124,6 +128,9 @@ export type Level2StepRecord = {
   /** The cat's last three moves before this step, whether or not the mouse was told. */
   catHistory: CatMove[];
   offered: Option2[];
+  /** Options left out by the near-cat filter, and whether every option was next to the cat. */
+  removed: number;
+  trapped: boolean;
   answer: Move | null;
   valid: boolean;
   catPenalty: number;
@@ -157,7 +164,9 @@ export async function runLevel2(entry: Level2Entry, policy: Level2Policy, seed: 
   let failuresInARow = 0;
   let aborted = false;
   while (game.status === 'running') {
-    const offered = shuffleOptions(game.options(), random);
+    const shuffled = shuffleOptions(game.options(), random);
+    const filter = policy.filterNearCat ? filterNearCat(game, shuffled) : null;
+    const offered = filter?.options ?? shuffled;
     const historyBefore = game.catHistory.slice(-3);
     const decision = await policy.decide(game, offered, random);
     const result = game.apply(decision.answer, offered);
@@ -167,6 +176,8 @@ export async function runLevel2(entry: Level2Entry, policy: Level2Policy, seed: 
       sense: result.sensed,
       catHistory: historyBefore,
       offered,
+      removed: filter?.removed ?? 0,
+      trapped: filter?.trapped ?? false,
       answer: decision.answer,
       valid: result.valid,
       catPenalty: result.catPenalty,
@@ -231,5 +242,8 @@ export function summariseLevel2(runs: Level2Run[]) {
     latencySensed: stats(latencies((s) => s.sensed)),
     latencyNotSensed: stats(latencies((s) => !s.sensed)),
     failures: steps.filter((s) => s.failure).length,
+    filteredSteps: steps.filter((s) => s.removed > 0).length,
+    removedOptions: steps.reduce((t, s) => t + s.removed, 0),
+    trappedSteps: steps.filter((s) => s.trapped).length,
   };
 }

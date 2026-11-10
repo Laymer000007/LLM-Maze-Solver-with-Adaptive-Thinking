@@ -19,7 +19,7 @@ import {
   type Level2Policy,
   type Level2Run,
 } from '@/eval/level2-eval-lib';
-import { catLine, label, type Level2Variant } from '@/game/prompt';
+import { catLine, filtersNearCat, label, type Level2Variant } from '@/game/prompt';
 import { DEFAULT_LLM_CONFIG } from '@/llm/config';
 import { OllamaClient } from '@/llm/ollama';
 
@@ -228,7 +228,7 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
   const runDir = path.join(ROOT, 'benchmark-results', 'level2', `${timestamp.replace(/[:.]/g, '-')}-compare`);
   await fs.mkdir(runDir, { recursive: true });
   await client.chat({ model: MODEL, messages: [{ role: 'user', content: 'Return only JSON: {"move":"up"}.' }], stream: false, think: false, format: 'json' });
-  const runs: (Level2Run & { seed: number })[] = [];
+  const allRuns: (Level2Run & { seed: number })[] = [];
   const skipped: string[] = [];
   // Seed by seed, every variant per level, so a budget stop leaves the comparison balanced.
   for (const seed of seeds)
@@ -249,7 +249,7 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
         };
         try {
           const run = { ...(await runLevel2(entry, guarded, seed)), seed };
-          runs.push(run);
+          allRuns.push(run);
           console.log(
             `${name} → ${run.status}${run.catchCase ? ` (${run.catchCase}, step ${run.caughtOnStep})` : ''} in ${run.steps} (shortest safe ${run.shortestSafe}) · ${(elapsed() / 1000).toFixed(0)} s`,
           );
@@ -258,16 +258,21 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
           skipped.push(`${name} (stopped mid-run)`);
         }
       }
-  await fs.writeFile(path.join(runDir, 'runs.json'), JSON.stringify(runs, null, 2));
+  // Only levels and seeds that every variant finished count, so all variants are compared on the same runs.
+  const complete = (r: Level2Run & { seed: number }) => variants.every((v) => allRuns.some((x) => x.entry === r.entry && x.seed === r.seed && x.policy === v));
+  const runs = allRuns.filter(complete);
+  const unbalanced = allRuns.filter((r) => !complete(r)).map((r) => `${r.entry}/${r.policy}/seed ${r.seed}`);
+  await fs.writeFile(path.join(runDir, 'runs.json'), JSON.stringify(allRuns, null, 2));
   const lines = [
     `# Level 2: ${variants.join(' vs ')}`,
     '',
     `- ${timestamp} · commit ${git('git rev-parse --short HEAD')}${git('git status --porcelain') ? ' (uncommitted changes)' : ''} · seeds ${seeds.join(', ')} (the same for every variant) · Ollama ${MODEL} · think off, temperature 0.2`,
     `- Time used: ${(elapsed() / 60_000).toFixed(1)} min of ${BUDGET_MS / 60_000}. ${skipped.length ? `Not run (budget): ${skipped.join(', ')}.` : 'Everything planned ran.'}`,
+    ...(unbalanced.length ? [`- Finished, but left out because not every variant ran that level and seed: ${unbalanced.join(', ')} (kept in runs.json).`] : []),
     '- A sensed choice is safe when the mouse is not caught and does not end one block from the cat. "Sensed" uses each variant\'s own sensing range.',
     '',
-    '| Variant | Completed | Caught | Steps / shortest safe (completed) | Safe when sensed | Invalid | Latency mean / p95 |',
-    '|---|---:|---:|---|---:|---:|---:|',
+    '| Variant | Completed | Caught | Steps / shortest safe (completed) | Safe when sensed | Invalid | Steps filtered (options removed) | Trapped | Latency mean / p95 |',
+    '|---|---:|---:|---|---:|---:|---:|---:|---:|',
   ];
   for (const variant of variants) {
     const group = runs.filter((r) => r.policy === variant);
@@ -278,7 +283,7 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
           .filter((r) => r.status === 'solved')
           .map((r) => `${r.steps}/${r.shortestSafe}`)
           .join(', ') || '—'
-      } | ${s.safeSensed}/${s.sensedSteps} (${pct(s.safeSensed, s.sensedSteps)}) | ${s.invalid} | ${ms(s.latency.mean)} / ${ms(s.latency.p95)} |`,
+      } | ${s.safeSensed}/${s.sensedSteps} (${pct(s.safeSensed, s.sensedSteps)}) | ${s.invalid} | ${filtersNearCat(variant) ? `${s.filteredSteps}/${group.reduce((t, r) => t + r.steps, 0)} steps (${s.removedOptions})` : '—'} | ${filtersNearCat(variant) ? `${s.trappedSteps} steps` : '—'} | ${ms(s.latency.mean)} / ${ms(s.latency.p95)} |`,
     );
   }
   lines.push(
@@ -306,7 +311,7 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
     const last = r.records.at(-1)!;
     const optionLines = (last.prompt ?? '').split('\n').filter((line) => /^[A-Z-]+: /.test(line));
     lines.push(
-      `- **${r.policy}**, ${r.entry}, seed ${r.seed}, turn ${r.caughtOnStep} (${r.catchCase}). ${last.sense ? `Sensed: ${last.sense.distance} block(s) ${last.sense.direction}` : 'Not sensed'}; the cat's last moves: ${last.catHistory.length ? last.catHistory.join(', ') : 'none'}; told: "${catLine(last.sense, r.policy !== 'cat-position')}" Chose **${last.answer ? label(last.answer) : 'nothing valid'}** from:`,
+      `- **${r.policy}**, ${r.entry}, seed ${r.seed}, turn ${r.caughtOnStep} (${r.catchCase}). ${last.sense ? `Sensed: ${last.sense.distance} block(s) ${last.sense.direction}` : 'Not sensed'}; the cat's last moves: ${last.catHistory.length ? last.catHistory.join(', ') : 'none'}; told: "${catLine(last.sense, r.policy !== 'cat-position')}"${filtersNearCat(r.policy as Level2Variant) ? (last.trapped ? ' Trapped: every option was next to the cat.' : ` Options removed by the filter: ${last.removed}.`) : ''} Chose **${last.answer ? label(last.answer) : 'nothing valid'}** from:`,
       '',
       ...optionLines.map((line) => `    ${line}`),
       '',

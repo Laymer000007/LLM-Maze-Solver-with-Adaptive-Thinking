@@ -5,13 +5,14 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 
 import { optionsAt } from '@/game/game';
-import { Level2Game, level2Situation, type CatState, type Level2Situation } from '@/game/level2';
+import { Level2Game, filterNearCat, level2Situation, type CatState, type Level2Situation } from '@/game/level2';
 import {
   buildLevel2Prompt,
   buildLevel2Request,
   buildRequest,
   catHistorySentence,
   catLine,
+  filtersNearCat,
   parseLevel2Answer,
   senseRangeFor,
   shuffleOptions,
@@ -20,18 +21,19 @@ import {
 import { rng } from '@/game/random';
 import { Maze } from '@/maze/maze';
 
-const VARIANTS: Level2Variant[] = ['cat-history', 'cat-facts', 'cat-position', 'cat-rule', 'cat-danger', 'cat-danger-range5'];
+const VARIANTS: Level2Variant[] = ['cat-history', 'cat-facts', 'cat-position', 'cat-rule', 'cat-danger', 'cat-danger-range5', 'cat-filter', 'cat-filter-range5'];
 const OPEN = new Maze(['#########', '#S      #', '#       #', '#       #', '#      G#', '#########']);
 
-/** Plays random legal moves and collects every situation, sensed or not. */
-function situations(senseRange?: number): Level2Situation[] {
+/** Plays random legal moves and collects every situation, sensed or not; filtered: with the near-cat filter applied. */
+function situations(senseRange?: number, filtered = false): Level2Situation[] {
   const out: Level2Situation[] = [];
   const random = rng(3);
   for (const cat of [{ position: { x: 3, y: 2 }, direction: 'left' }, { position: { x: 2, y: 3 }, direction: 'up' }, { position: { x: 5, y: 1 }, direction: 'down' }] as CatState[])
     for (let run = 0; run < 20; run++) {
       const game = new Level2Game(OPEN, cat, senseRange);
       while (game.status === 'running' && game.steps < 30) {
-        const offered = shuffleOptions(game.options(), random);
+        const shuffled = shuffleOptions(game.options(), random);
+        const offered = filtered ? filterNearCat(game, shuffled).options : shuffled;
         out.push(level2Situation(game, offered));
         game.apply(offered[Math.floor(random() * offered.length)].direction, offered);
       }
@@ -224,8 +226,56 @@ Return only JSON: {"move":"down|stay|up-right|right|left"}.`);
     expect(new Level2Game(OPEN, { position: { x: 5, y: 1 }, direction: 'down' }).sense()).toBeNull();
   });
 
+  const STAY_AWAY_RULE = 'If you sense the cat, stay away from it. Follow the smell, but prefer moves that take you further from the cat.';
+
+  it('cat-filter-range5 differs from cat-danger-range5 only by the rule line and the options it leaves out', () => {
+    expect([senseRangeFor('cat-filter-range5'), filtersNearCat('cat-filter-range5'), filtersNearCat('cat-danger-range5')]).toEqual([5, true, false]);
+    let filteredSteps = 0;
+    const random = rng(7);
+    for (const cat of [{ position: { x: 3, y: 2 }, direction: 'left' }, { position: { x: 2, y: 3 }, direction: 'up' }, { position: { x: 5, y: 1 }, direction: 'down' }] as CatState[])
+      for (let run = 0; run < 20; run++) {
+        const game = new Level2Game(OPEN, cat, 5);
+        while (game.status === 'running' && game.steps < 30) {
+          const shuffled = shuffleOptions(game.options(), random);
+          const { options, removed, trapped: allNear } = filterNearCat(game, shuffled);
+          const full = level2Situation(game, shuffled);
+          const near = full.options.filter((o) => o.catDistance <= 1);
+          // Exactly the options within one block of the cat's current cell go, in the shown order, unless all of them would.
+          if (near.length === full.options.length) {
+            expect([options, removed, allNear]).toEqual([shuffled, 0, true]);
+          } else {
+            expect(options).toEqual(shuffled.filter((_, i) => full.options[i].catDistance > 1));
+            expect(removed).toBe(near.length);
+          }
+          if (removed) filteredSteps++;
+          const situation = level2Situation(game, options);
+          const filter = buildLevel2Prompt(situation, 'cat-filter-range5');
+          expect(filter.split('\n')[1]).toBe(STAY_AWAY_RULE);
+          expect(filter.replace(STAY_AWAY_RULE, SAFETY_RULE)).toBe(buildLevel2Prompt(situation, 'cat-danger-range5'));
+          const request = buildLevel2Request('m', situation, 'cat-filter-range5') as any;
+          expect(request.format.properties.move.enum).toEqual(options.map((o) => o.direction));
+          expect({ ...request, messages: [] }).toEqual({ ...(buildLevel2Request('m', situation, 'cat-danger-range5') as any), messages: [] });
+          if (!allNear) expect(filter).not.toMatch(/danger, next to the cat/);
+          game.apply(options[Math.floor(random() * options.length)].direction, options);
+        }
+      }
+    expect(filteredSteps).toBeGreaterThan(20);
+    // Cornered: every option is within one block of the cat, so all of them stay, danger labels included.
+    const cornered = new Level2Game(OPEN, { position: { x: 2, y: 2 }, direction: 'left' }, 5);
+    const all = cornered.options();
+    expect(filterNearCat(cornered, all)).toEqual({ options: all, removed: 0, trapped: true });
+    const lines = buildLevel2Prompt(level2Situation(cornered, all), 'cat-filter-range5').split('\n');
+    expect(lines.filter((l) => /^[A-Z-]+: danger, next to the cat; /.test(l))).toHaveLength(all.length);
+  });
+
+  it('cat-filter is cat-filter-range5 with the cat sensed within three blocks; the prompt text is otherwise the same', () => {
+    expect([senseRangeFor('cat-filter'), filtersNearCat('cat-filter')]).toEqual([3, true]);
+    for (const situation of [...situations(3, true), ...situations(5, true)])
+      expect(buildLevel2Prompt(situation, 'cat-filter')).toBe(buildLevel2Prompt(situation, 'cat-filter-range5'));
+  });
+
   it('contain no digits for any variant, including with the wider sensing range', () => {
-    for (const situation of situations(5)) for (const variant of VARIANTS) expect(buildLevel2Prompt(situation, variant)).not.toMatch(/\d/);
+    for (const situation of [...situations(5), ...situations(5, true)]) for (const variant of VARIANTS) expect(buildLevel2Prompt(situation, variant)).not.toMatch(/\d/);
   });
 
   it('can switch thinking on for a single request', () => {
