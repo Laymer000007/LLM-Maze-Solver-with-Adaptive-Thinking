@@ -168,6 +168,26 @@ Two seeds; seed 20261110's levels 05 and 06 did not fit, so each variant has 10 
 
 **The GUI uses C5** (cat-danger-range5, sensing within five blocks). Neither E5 nor F5 completed at least as many levels as C5 with fewer catches.
 
+### Big maps (30x30 to 50x50)
+
+Six generated maps (`src/tools/generate-big-level2.ts`): corridors with loops, junctions and some open areas, two each of 30x30, 40x40 and 50x50. Each is proven winnable by the safe-path search. Each has a cat patrol line of at least three cells that crosses a shortest route, with a way round it (start and cheese stay connected with the patrol line walled off). On all six, the cat-ignoring greedy policy is caught. Step cap max(3 × shortest safe, 100). One seed (20261109), 13.5 minutes.
+
+| Map | Shortest safe (ignoring the cat) | Greedy | Planner | C5 |
+|---|---:|---|---|---|
+| 07_30x30_loops_a | 40 (40) | caught @35 | solved 40 | step cap 120 |
+| 08_30x30_loops_b | 56 (40) | caught @24 | solved 56 | step cap 168 |
+| 09_40x40_loops_a | 93 (85) | caught @60 | solved 93 | caught @190 |
+| 10_40x40_loops_b | 95 (69) | caught @8 | solved 95 | step cap 285 |
+| 11_50x50_loops_a | 59 (58) | caught @20 | solved 59 | caught @66 |
+| 12_50x50_loops_b | 67 (60) | caught @53 | solved 67 | step cap 201 |
+
+**C5 solved none of the big maps.** It was caught twice and ran out of steps four times; mean latency was 773 ms.
+- **Navigation is the limit.** On steps with no cat sensed, C5 chose colder 12% of the time and something other than the warmest option, when a warmer one was offered, 49%. On the small maps that drift was survivable; on long routes with dead ends it was not. Only on 07 did it get within two steps of the cheese. On four maps it never got past "faint" (more than ten steps away).
+- **Map 10 has its cat close to the start.** C5 had the cat sensed on 216 of its 285 steps there and never got away from it.
+- **Both catches were danger options chosen while a non-danger one was offered:** STAY marked danger on 09, and RIGHT marked danger on 11.
+
+Smell following, not cat avoidance, is what fails first on big maps.
+
 ## What went into the final version
 
 - Words only, no digits; legal directions only, shuffled every step with a seeded RNG.
