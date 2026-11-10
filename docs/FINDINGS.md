@@ -4,6 +4,21 @@ This summarises what the experiments before the final version showed. Every harn
 
 All runs used Ollama `qwen3:1.7b` (temperature 0.2) on a small home server, and, until it was removed, the Laya API. Smell was always 101 − BFS distance to the cheese, so "toward stronger smell" means "along a shortest path". Mazes: `7x7_corridor_branch`, `7x7_open_detour`, `11x11_corridor_dead-end` and `15x15_corridor_spiral`, each in its original and rotate-180 orientation. Step cap max(3 × optimal, 60), stuck after max(50, 2 × optimal) steps without a new cell (the game now uses a floor of 100 instead of 60). All experiments then used 4 directions; the final game uses 8.
 
+## Lessons
+
+- **Words, not numbers.** Rewriting numeric scores as words was the biggest single gain (§1).
+- **Offer only legal options.** Listing walls drew wall choices; offering only legal moves, enforced by the JSON enum, removed them (§1).
+- **Use clear good/bad words.** One level word per option ("warmer", "colder") beat richer descriptions (§2).
+- **Drop irrelevant facts.** Extra facts dilute the cue that matters: visit words, per-option cat distances (B), the cat's history (A0 vs A) (§2, Level 2).
+- **State an explicit rule.** "Always … Never …" lifted smell-following from 60% to 81%, and to 96% with warmer/colder labels (§2).
+- **Labels have habits.** Laya chose RIGHT even when it was colder and did better with compass words; Qwen did worse with them. Test the label set per model (§3, §4).
+- **Thinking off for decisions.** Thinking made a 1.7B model about 80× slower and no better (§5).
+- **A competing rule weakens the main goal everywhere.** "Prefer moves further from the cat" made the mouse follow the smell worse even with no cat in sight (D5, D3).
+- **Keep safety rules always present.** Showing the cat rules only when the cat was sensed improved smell-following but nearly doubled danger choices, and caught the mouse 5 times in 10 runs (F5).
+- **Danger words are ignored some of the time:** about 1 in 10 steps for C5 in its last comparison (11%), and 22–27% in the first comparison of C and C5.
+- **Look-ahead belongs in code.** Telling the mouse what each option *will* do (smell, danger) worked; asking it to infer from feedback or the cat's history did not (§1, Level 2).
+- **Repeat runs before trusting differences.** At temperature 0.2 the same variant on the same seed scored 5/6, then 4/6; C5 scored 7/10, then 9/10.
+
 ## 1. Numbers vs words
 
 The original prompt gave each direction numeric scores (EiL change, health, visits, smell). Rewriting it in words, with no digits, was the biggest single gain. Four 7×7 entries (2026-10-23):
