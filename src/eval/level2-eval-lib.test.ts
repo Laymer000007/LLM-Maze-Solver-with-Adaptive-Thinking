@@ -114,7 +114,7 @@ describe('level-2 scoring', () => {
       status,
       steps: records.length,
       shortestSafe: 2,
-      stepCap: 60,
+      stepCap: 100,
       invalid: 0,
       finalMood: 500,
       catchCase: null,

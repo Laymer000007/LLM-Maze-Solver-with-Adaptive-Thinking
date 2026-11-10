@@ -59,8 +59,8 @@ describe('movement', () => {
     expect(optimalSteps(new Maze(['#####', '#S  #', '#   #', '#  G#', '#####']))).toBe(2);
     // No corner cutting: the down-right shortcut past the wall at (2,3) is closed.
     expect(optimalSteps(new Maze(['#####', '#S# #', '#   #', '# #G#', '#####']))).toBe(4);
-    expect(stepCapFor(10)).toBe(60);
-    expect(stepCapFor(30)).toBe(90);
+    expect(stepCapFor(10)).toBe(100);
+    expect(stepCapFor(40)).toBe(120);
     expect(stuckWindowFor(10)).toBe(50);
     expect(stuckWindowFor(40)).toBe(80);
   });
@@ -135,12 +135,12 @@ describe('end of a run', () => {
     capped.apply(null);
     expect(capped.status).toBe('stuck');
     expect(capped.steps).toBe(1 + stuckWindowFor(capped.optimal));
-    // Cheese right below the start (cap 60, stuck window 50): eleven new cells, then back and forth.
-    const corridor = new Game(new Maze(['##############', '#S           #', '#G############']));
-    expect(corridor.stepCap).toBe(60);
-    for (let i = 0; i < 11; i++) corridor.apply('right');
+    // Cheese right below the start (cap 100, stuck window 50): fifty-one new cells, then back and forth.
+    const corridor = new Game(new Maze(['#'.repeat(54), `#S${' '.repeat(51)}#`, `#G${'#'.repeat(52)}`]));
+    expect(corridor.stepCap).toBe(100);
+    for (let i = 0; i < 51; i++) corridor.apply('right');
     for (let i = 0; i < 49; i++) corridor.apply(i % 2 ? 'right' : 'left');
     expect(corridor.status).toBe('step-cap');
-    expect(corridor.steps).toBe(60);
+    expect(corridor.steps).toBe(100);
   });
 });

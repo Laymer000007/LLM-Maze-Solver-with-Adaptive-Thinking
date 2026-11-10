@@ -30,7 +30,7 @@ The current cell gets one closeness sentence, chosen by distance: overwhelming (
 | 200–399 | anxious |
 | 0–199 | extremely depressed |
 
-Mood only describes the run: it has no other effect and the mouse cannot die. A run ends at the cheese, at the step cap of max(3 × optimal, 60) steps, or when the mouse is stuck: no new cell reached in max(50, 2 × optimal) steps.
+Mood only describes the run: it has no other effect and the mouse cannot die. A run ends at the cheese, at the step cap of max(3 × optimal, 100) steps, or when the mouse is stuck: no new cell reached in max(50, 2 × optimal) steps.
 
 ## The prompt
 
@@ -66,7 +66,7 @@ Level 2 uses the same rules and smell as level 1, plus a cat. Its levels are in 
 2. The cat moves. If it lands on the mouse, or the two swapped cells, the mouse is caught.
 3. Mood is updated: the smell change as in level 1 (`stay` counts as no change), then −200 if the cat is one block away or −100 if it is two (the penalties don't add up).
 
-A catch ends the run as failed. Otherwise the run ends at the cheese, the step cap (max(3 × shortest safe path, 60)) or the stuck rule.
+A catch ends the run as failed. Otherwise the run ends at the cheese, the step cap (max(3 × shortest safe path, 100)) or the stuck rule.
 
 **Distance to the cat** is always the walking distance through open cells, under the same 8-direction rules, never through walls. In the GUI the mouse senses the cat within five blocks (three for most evaluation variants); the mood penalties stay at one and two blocks. It is then told the cat's direction, its distance in words and its last three moves (oldest first, "stayed" for a turn without moving). It is never told the cat's next move or its axis.
 

@@ -178,7 +178,7 @@ function report(
     '',
     '## Mazes',
     '',
-    `Entries: ${entries.map((e) => e.id).join(', ')}. One seed per entry. Step cap max(3 × optimal, 60) with optimal by BFS under the 8-direction rules; stuck when no new cell for max(50, 2 × optimal) steps.`,
+    `Entries: ${entries.map((e) => e.id).join(', ')}. One seed per entry. Step cap max(3 × optimal, 100) with optimal by BFS under the 8-direction rules; stuck when no new cell for max(50, 2 × optimal) steps.`,
     '',
   );
   lines.push('| Policy | Completed | Steps / optimal (completed runs) | Invalid answers | Final mood (mean) | Mean latency |', '|---|---:|---|---:|---:|---:|');

@@ -2,7 +2,7 @@
 
 This summarises what the experiments before the final version showed. Every harness, raw result and report behind it lives at the git tag **`archive/experiments-final`** (folder `benchmark-results/` and `src/benchmark/` there). The final evaluation is in `benchmark-results/final/`.
 
-All runs used Ollama `qwen3:1.7b` (temperature 0.2) on a small home server, and, until it was removed, the Laya API. Smell was always 101 − BFS distance to the cheese, so "toward stronger smell" means "along a shortest path". Mazes: `7x7_corridor_branch`, `7x7_open_detour`, `11x11_corridor_dead-end` and `15x15_corridor_spiral`, each in its original and rotate-180 orientation. Step cap max(3 × optimal, 60), stuck after max(50, 2 × optimal) steps without a new cell. All experiments then used 4 directions; the final game uses 8.
+All runs used Ollama `qwen3:1.7b` (temperature 0.2) on a small home server, and, until it was removed, the Laya API. Smell was always 101 − BFS distance to the cheese, so "toward stronger smell" means "along a shortest path". Mazes: `7x7_corridor_branch`, `7x7_open_detour`, `11x11_corridor_dead-end` and `15x15_corridor_spiral`, each in its original and rotate-180 orientation. Step cap max(3 × optimal, 60), stuck after max(50, 2 × optimal) steps without a new cell (the game now uses a floor of 100 instead of 60). All experiments then used 4 directions; the final game uses 8.
 
 ## 1. Numbers vs words
 
@@ -88,7 +88,7 @@ Most of the time is reading the prompt, so short prompts are faster. A fixed ope
 
 ## Level 2: the patrolling cat
 
-Six cat levels (7×7 to 15×15). A cat walks one block per turn along a fixed axis and bounces off walls. The mouse senses it within three blocks of walking distance and is caught if they meet. Full reports are in `benchmark-results/level2/`.
+Six cat levels (7×7 to 15×15). A cat walks one block per turn along a fixed axis and bounces off walls. The mouse senses it within three blocks of walking distance and is caught if they meet. Full reports are in `benchmark-results/level2/`. The runs up to the E5/F5 comparison used a step-cap floor of 60; the game now uses max(3 × shortest safe, 100).
 
 ### First evaluation (one seed per level)
 

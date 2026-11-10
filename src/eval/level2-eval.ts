@@ -135,7 +135,7 @@ function report(meta: Record<string, any>, entries: Level2Entry[], order: Level2
     '',
     `- ${meta.timestamp} · commit ${meta.commit}${meta.dirty ? ' (uncommitted changes)' : ''} · seed ${meta.seed} · Ollama ${meta.model} · temperature 0.2, JSON-schema answer`,
     `- Time used: ${(meta.elapsedMs / 60_000).toFixed(1)} min of 15. ${meta.skipped.length ? `Not run (budget): ${meta.skipped.join(', ')}.` : 'Everything planned ran.'}`,
-    `- Levels: ${entries.map((e) => `${e.id} (shortest safe ${e.newGame().shortestSafe})`).join(', ')}. Step cap max(3 × shortest safe, 60); stuck when no new cell for max(50, 2 × shortest safe) steps.`,
+    `- Levels: ${entries.map((e) => `${e.id} (shortest safe ${e.newGame().shortestSafe})`).join(', ')}. Step cap max(3 × shortest safe, 100); stuck when no new cell for max(50, 2 × shortest safe) steps.`,
     "- **cat-history** (A): the cat line only. **cat-facts** (B): also each option's walking distance to the cat's current cell. **cat-facts+think**: B with think on (60 s timeout) only on steps where the cat is sensed. **planner** follows the safe-path search; **greedy** ignores the cat.",
     '- A sensed choice is *safe* when the mouse is not caught and does not end one block from the cat after its move.',
     '',
