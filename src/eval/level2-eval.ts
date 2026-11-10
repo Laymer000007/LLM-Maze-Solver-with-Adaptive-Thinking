@@ -213,12 +213,19 @@ function report(meta: Record<string, any>, entries: Level2Entry[], order: Level2
   return lines.join('\n') + '\n';
 }
 
-/** Level-2 prompt variants side by side, on every level with two seeds (the same seeds for every variant). */
+/**
+ * Level-2 prompt variants side by side, on every level (or those named by --levels, as file-name prefixes) with
+ * --seeds seeds (default two, the same for every variant). --baselines adds greedy and the planner.
+ */
 async function compareVariants(variants: Level2Variant[]): Promise<void> {
   const client = new OllamaClient({ baseUrl: BASE_URL, model: MODEL, temperature: 0.2 });
-  const entries: Level2Entry[] = await Promise.all((await level2Files(ROOT)).map((file) => level2Entry(ROOT, file)));
-  const seeds = [SEED, SEED + 1];
-  const runsPlanned = variants.length * seeds.length;
+  const prefixes = option('--levels', '').split(',').filter(Boolean);
+  const files = (await level2Files(ROOT)).filter((file) => !prefixes.length || prefixes.some((prefix) => path.basename(file).startsWith(prefix)));
+  const entries: Level2Entry[] = await Promise.all(files.map((file) => level2Entry(ROOT, file)));
+  const seeds = Array.from({ length: Number(option('--seeds', '2')) }, (_, i) => SEED + i);
+  const baselines = args.includes('--baselines') ? [greedyPolicy, plannerPolicy] : [];
+  const policyIds = [...baselines.map((policy) => policy.id), ...variants];
+  const runsPlanned = variants.length * seeds.length; // Ollama runs per level
   const safeSum = entries.reduce((t, e) => t + e.newGame().shortestSafe, 0);
   const capSum = entries.reduce((t, e) => t + e.newGame().stepCap, 0);
   console.log(
@@ -233,17 +240,17 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
   // Seed by seed, every variant per level, so a budget stop leaves the comparison balanced.
   for (const seed of seeds)
     for (const entry of entries)
-      for (const variant of variants) {
-        const name = `${entry.id}/${variant}/seed ${seed}`;
-        if (remaining() <= 0) {
+      for (const id of policyIds) {
+        const name = `${entry.id}/${id}/seed ${seed}`;
+        const policy = baselines.find((baseline) => baseline.id === id) ?? ollamaPolicy(client, MODEL, id as Level2Variant);
+        if (!policy.free && remaining() <= 0) {
           skipped.push(name);
           continue;
         }
-        const policy = ollamaPolicy(client, MODEL, variant);
         const guarded: Level2Policy = {
           ...policy,
           decide: async (game, offered, random) => {
-            if (remaining() <= 0) throw new BudgetReached();
+            if (!policy.free && remaining() <= 0) throw new BudgetReached();
             return policy.decide(game, offered, random);
           },
         };
@@ -259,12 +266,12 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
         }
       }
   // Only levels and seeds that every variant finished count, so all variants are compared on the same runs.
-  const complete = (r: Level2Run & { seed: number }) => variants.every((v) => allRuns.some((x) => x.entry === r.entry && x.seed === r.seed && x.policy === v));
+  const complete = (r: Level2Run & { seed: number }) => policyIds.every((v) => allRuns.some((x) => x.entry === r.entry && x.seed === r.seed && x.policy === v));
   const runs = allRuns.filter(complete);
   const unbalanced = allRuns.filter((r) => !complete(r)).map((r) => `${r.entry}/${r.policy}/seed ${r.seed}`);
   await fs.writeFile(path.join(runDir, 'runs.json'), JSON.stringify(allRuns, null, 2));
   const lines = [
-    `# Level 2: ${variants.join(' vs ')}`,
+    `# Level 2: ${policyIds.join(' vs ')}${prefixes.length ? ` on ${entries.map((e) => e.id).join(', ')}` : ''}`,
     '',
     `- ${timestamp} · commit ${git('git rev-parse --short HEAD')}${git('git status --porcelain') ? ' (uncommitted changes)' : ''} · seeds ${seeds.join(', ')} (the same for every variant) · Ollama ${MODEL} · think off, temperature 0.2`,
     `- Time used: ${(elapsed() / 60_000).toFixed(1)} min of ${BUDGET_MS / 60_000}. ${skipped.length ? `Not run (budget): ${skipped.join(', ')}.` : 'Everything planned ran.'}`,
@@ -274,7 +281,7 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
     '| Variant | Completed | Caught | Steps / shortest safe (completed) | Safe when sensed | Invalid | Steps filtered (options removed) | Trapped | Not sensed: colder | Not sensed: not the warmest when warmer offered | Latency mean / p95 |',
     '|---|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|',
   ];
-  for (const variant of variants) {
+  for (const variant of policyIds) {
     const group = runs.filter((r) => r.policy === variant);
     const s = summariseLevel2(group);
     lines.push(
@@ -283,21 +290,21 @@ async function compareVariants(variants: Level2Variant[]): Promise<void> {
           .filter((r) => r.status === 'solved')
           .map((r) => `${r.steps}/${r.shortestSafe}`)
           .join(', ') || '—'
-      } | ${s.safeSensed}/${s.sensedSteps} (${pct(s.safeSensed, s.sensedSteps)}) | ${s.invalid} | ${filtersNearCat(variant) ? `${s.filteredSteps}/${group.reduce((t, r) => t + r.steps, 0)} steps (${s.removedOptions})` : '—'} | ${filtersNearCat(variant) ? `${s.trappedSteps} steps` : '—'} | ${s.notSensedColder}/${s.notSensedAnswered} (${pct(s.notSensedColder, s.notSensedAnswered)}) | ${s.notSensedNotWarmest}/${s.notSensedWarmerOffered} (${pct(s.notSensedNotWarmest, s.notSensedWarmerOffered)}) | ${ms(s.latency.mean)} / ${ms(s.latency.p95)} |`,
+      } | ${s.safeSensed}/${s.sensedSteps} (${pct(s.safeSensed, s.sensedSteps)}) | ${s.invalid} | ${filtersNearCat(variant as Level2Variant) ? `${s.filteredSteps}/${group.reduce((t, r) => t + r.steps, 0)} steps (${s.removedOptions})` : '—'} | ${filtersNearCat(variant as Level2Variant) ? `${s.trappedSteps} steps` : '—'} | ${s.notSensedColder}/${s.notSensedAnswered} (${pct(s.notSensedColder, s.notSensedAnswered)}) | ${s.notSensedNotWarmest}/${s.notSensedWarmerOffered} (${pct(s.notSensedNotWarmest, s.notSensedWarmerOffered)}) | ${ms(s.latency.mean)} / ${ms(s.latency.p95)} |`,
     );
   }
   lines.push(
     '',
     '## Per level',
     '',
-    `| Level | ${seeds.flatMap((seed) => variants.map((v) => `${v} · seed ${seed}`)).join(' | ')} |`,
-    `|---|${seeds.flatMap(() => variants.map(() => '---')).join('|')}|`,
+    `| Level | ${seeds.flatMap((seed) => policyIds.map((v) => `${v} · seed ${seed}`)).join(' | ')} |`,
+    `|---|${seeds.flatMap(() => policyIds.map(() => '---')).join('|')}|`,
   );
   for (const entry of entries)
     lines.push(
       `| ${entry.id} | ${seeds
         .flatMap((seed) =>
-          variants.map((v) => {
+          policyIds.map((v) => {
             const r = runs.find((x) => x.entry === entry.id && x.policy === v && x.seed === seed);
             return r ? `${r.status}${r.caughtOnStep ? ` @${r.caughtOnStep}` : ''} ${r.steps}/${r.shortestSafe}` : 'not run';
           }),
