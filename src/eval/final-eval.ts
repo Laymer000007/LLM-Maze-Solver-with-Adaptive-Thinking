@@ -23,7 +23,7 @@ import {
 } from '@/eval/final-eval-lib';
 import { Game } from '@/game/game';
 import { buildRequest, type Variant } from '@/game/prompt';
-import { DEFAULT_LLM_CONFIG } from '@/llm/config';
+import { DEFAULT_LLM_CONFIG, configuredOllamaUrl } from '@/llm/config';
 import { OllamaClient } from '@/llm/ollama';
 import { Maze } from '@/maze/maze';
 
@@ -35,7 +35,7 @@ const option = (name: string, fallback: string) => (args.includes(name) ? args[a
 const SEED = Number(option('--seed', '20261109'));
 const SITUATIONS = Number(option('--situations', '200'));
 const BUDGET_MS = Number(option('--time-budget-min', '15')) * 60_000;
-const BASE_URL = process.env.OLLAMA_URL ?? DEFAULT_LLM_CONFIG.baseUrl;
+const BASE_URL = configuredOllamaUrl();
 const MODEL = process.env.OLLAMA_MODEL ?? DEFAULT_LLM_CONFIG.model;
 
 const started = performance.now();

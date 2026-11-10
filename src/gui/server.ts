@@ -1,3 +1,4 @@
+import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import http from 'http';
 import path from 'path';
@@ -6,7 +7,7 @@ import { fileURLToPath } from 'url';
 import { loadLevel2, type CatState } from '@/game/level2';
 import { settingsChangeError } from '@/gui/settings-guard';
 import { GUI_VARIANT, LEVEL2_VARIANT, ObservableMazeSolver, type SolverState } from '@/gui/solver';
-import { DEFAULT_LLM_CONFIG, sanitizeLLMConfig, type LLMConfig } from '@/llm/config';
+import { DEFAULT_LLM_CONFIG, configuredOllamaUrl, sanitizeLLMConfig, type LLMConfig } from '@/llm/config';
 import { OllamaClient } from '@/llm/ollama';
 import { Maze } from '@/maze/maze';
 
@@ -21,7 +22,7 @@ let delayMs = 500;
 let llmConfig: LLMConfig = sanitizeLLMConfig({
   ...DEFAULT_LLM_CONFIG,
   model: option('--model', DEFAULT_LLM_CONFIG.model),
-  baseUrl: option('--ollama-url', DEFAULT_LLM_CONFIG.baseUrl),
+  baseUrl: option('--ollama-url', configuredOllamaUrl()),
 });
 let level: LevelNumber = 1;
 let maze: Maze;
@@ -162,4 +163,20 @@ http
       res.end(String(error));
     });
   })
-  .listen(port, () => console.log(`LLM Maze Solver: http://localhost:${port} (Ollama ${llmConfig.model} at ${llmConfig.baseUrl})`));
+  .listen(port, () => {
+    const url = `http://localhost:${port}`;
+    console.log(`LLM Maze Solver: ${url} (Ollama ${llmConfig.model} at ${llmConfig.baseUrl})`);
+    if (args.includes('--open')) openBrowser(url);
+  });
+
+/** `npm start`: open the GUI in the default browser where there is one; otherwise the URL above is enough. */
+function openBrowser(url: string): void {
+  const [command, ...rest] = process.platform === 'darwin' ? ['open', url] : process.platform === 'win32' ? ['cmd', '/c', 'start', '', url] : ['xdg-open', url];
+  try {
+    const child = spawn(command, rest, { detached: true, stdio: 'ignore' });
+    child.on('error', () => console.log(`Open ${url} in your browser.`));
+    child.unref();
+  } catch {
+    console.log(`Open ${url} in your browser.`);
+  }
+}

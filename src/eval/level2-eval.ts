@@ -20,7 +20,7 @@ import {
   type Level2Run,
 } from '@/eval/level2-eval-lib';
 import { catLine, filtersNearCat, label, type Level2Variant } from '@/game/prompt';
-import { DEFAULT_LLM_CONFIG } from '@/llm/config';
+import { DEFAULT_LLM_CONFIG, configuredOllamaUrl } from '@/llm/config';
 import { OllamaClient } from '@/llm/ollama';
 
 // Entry point for `npm run eval:level2`. Never import this file; the shared code is in level2-eval-lib.ts.
@@ -30,7 +30,7 @@ const args = process.argv.slice(2);
 const option = (name: string, fallback: string) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback);
 const SEED = Number(option('--seed', String(LEVEL2_SEED)));
 const BUDGET_MS = Number(option('--time-budget-min', '15')) * 60_000;
-const BASE_URL = process.env.OLLAMA_URL ?? DEFAULT_LLM_CONFIG.baseUrl;
+const BASE_URL = configuredOllamaUrl();
 const MODEL = process.env.OLLAMA_MODEL ?? DEFAULT_LLM_CONFIG.model;
 
 const started = performance.now();

@@ -11,7 +11,7 @@
   <header><div><p class="eyebrow">LLM MAZE SOLVER</p><h1>AI Settings</h1><p class="subtitle">The Ollama model that drives the mouse.</p></div></header>
   <section class="card settings-card">
     <div class="section-title">OLLAMA</div>
-    <label>Ollama Server URL<input id="baseUrl" type="url" placeholder="http://192.168.88.100:11434"></label>
+    <label>Ollama Server URL<input id="baseUrl" type="url" placeholder="http://localhost:11434"></label>
     <label>Model<select id="model"></select></label>
     <label>Temperature<input id="temperature" type="number" min="0" max="2" step="0.1" value="0.2"></label>
     <p class="hint">Every request uses think off and a JSON schema that only accepts the offered directions. Settings cannot change while a request is in flight: stop or reset first.</p>
